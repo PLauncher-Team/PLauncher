@@ -10,13 +10,33 @@ Whether you're a casual player or a power user, Plauncher provides the tools you
 
 ---
 
-## How to Run
+## 📥 Installation
+
+To install Plauncher, follow these simple steps:
+
+1. Go to the [Releases page](https://github.com/PLauncher-Team/PLauncher/releases) on GitHub.  
+2. Download the latest version from the assets.  
+3. Extract the archive to a folder of your choice.  
+4. Double-click the `main.exe` file to launch PLauncher.
+
+No additional setup is required — just download and run!
+
+---
+
+## 💻 Requirements
+
+- Windows 10 (64-bit) or higher  
+- Broadband internet connection
+
+---
+
+## ▶️ How to Run
 
 Simply double-click the `main.exe` file to launch Plauncher. The launcher window will open and be ready for use.
 
 ---
 
-## Key Features
+## ⭐ Key Features
 
 - **Automatic Minecraft Version Management**
   - Download official releases, snapshots, and legacy alpha/beta builds.
@@ -46,10 +66,6 @@ Simply double-click the `main.exe` file to launch Plauncher. The launcher window
 
 - **Feedback Module**
   - Send feature requests, bug reports, and general feedback without leaving Plauncher.
-
-- **Advanced Settings**
-  - Enable or disable version categories (e.g., snapshots, betas).
-  - Customize player name (nickname) and resource paths.
 
 ---
 
