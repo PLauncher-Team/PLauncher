@@ -1,0 +1,147 @@
+{
+  "main": {
+    "width_buttons": 160,
+    "types_versions": {
+      "installed": " (Installed)",
+      "not_completed": " (Not completed)"
+    },
+    "buttons": {
+      "feedback": "Feedback",
+      "logs": "Logs",
+      "settings": "Settings",
+      "launch_game": "Launch Game",
+      "cansel_loading": "Cancel Loading",
+      "complete_game": "Complete Game"
+    },
+    "status": {
+      "waiting": "Waiting",
+      "loading_canceled": "Loading canceled",
+      "game_completed": "Game completed",
+      "loading_completed": "Loading completed",
+      "loding_error": "Loading error",
+      "launch_error": "Launch error",
+      "loading": "Loading...",
+      "finalizing": "Canceling..."
+    },
+    "mcl_status": {
+      "download_libraries": "Downloading libraries",
+      "download_assets": "Downloading assets",
+      "install_java_runtime": "Installing Java Runtime",
+      "installation_complete": "Installation complete"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "pages": ["Launcher", "Minecraft", "Skins", "Loaders", "More"],
+    "1_page": {
+      "version_types_1": "Version Types",
+      "version_types_2": "Types of versions displayed in the list on the main screen:",
+      "release": "Releases",
+      "snapshots": "Snapshots",
+      "old_beta": "Old betas",
+      "old_alpha": "Old alphas",
+      "installed_versions": "Installed Versions",
+      "manager_versions": "Manage installed versions",
+      "other_settings": "Other settings",
+      "hide_launcher": "Hide launcher when game launches",
+      "check_files": "Check files",
+      "debug_mode": "Debug mode"
+    },
+    "2_page": {
+      "java_settings": "Java Settings",
+      "java_used": "Java version used:",
+      "recommended_java": "Recommended Java",
+      "add": "Add…",
+      "java_exe": "Java executable",
+      "select_java": "Select the Java executable file",
+      "amt_memory": "Allocated memory (MB):",
+      "args_JVM": "JVM arguments (for advanced users):",
+      "game_directory": "Game Directory",
+      "default_path": "Default directory",
+      "current_path": "Current game directory:\n",
+      "open_folder": "Open folder",
+      "change_folder": "Change\nfolder",
+      "select_directory": "Select game directory"
+    },
+    "3_page": {
+      "update": "Update",
+      "select_file_skin": "Select skin file",
+      "use_ely_by": "Use the Ely.by skin system",
+      "use_default_skin": "Use default skin",
+      "choice_png_file": "Select a PNG skin file",
+      "png_skin": "PNG skin"
+    },
+    "4_page": {
+      "loaders_mods": "Mods loaders",
+      "install_loader": "Install loader",
+      "cansel_loading": "Cancel loading",
+      "finalizando": "Canceling...",
+      "mods_profiles": "Mods profiles",
+      "new_profile": "Enter the name of the new profile",
+      "new_name_profile": "Enter the new profile name",
+      "no": "(none)",
+      "add": "Create",
+      "delete": "Delete",
+      "change": "Change",
+      "save": "Save",
+      "cansel": "Cancel",
+      "open_folder": "Open profile folder"
+    }
+  },
+  "crash_log": {
+    "title": "View Error Log",
+    "error_log": "Error Log",
+    "ai_analysis": "AI Analysis",
+    "cancel_analysis": "Cancel analysis"
+  },
+  "feedback": {
+    "titie": "Sending Feedback",
+    "email": "Email (optional)",
+    "subject": "Subject",
+    "description": "Problem / suggestion description",
+    "send": "Send"
+  },
+  "messages": {
+    "titles": {
+      "warning": "Warning",
+      "error": "Error",
+      "info": "Info"
+    },
+    "texts": {
+      "error": {
+        "loading": "Error loading versions:\n",
+        "skin_load": "Incorrect skin file. Resolution must be 64x64 or 64x32.",
+        "ely_by_uuid": "Error obtaining UUID from Ely.by servers:\n",
+        "ely_by_skin": "Error obtaining skin from Ely.by servers:\n",
+        "launch": "Error launching game:\n",
+        "loading_loader": "Error loading loader:\n",
+        "loading_loader_list": "Error loading loaders list:\n",
+        "profile_add": "Failed to create profile:\n",
+        "profile_rename": "Failed to rename profile:\n",
+        "skin_select": "Failed to load skin:\n",
+        "exit_code": "Exit code: ",
+        "java": "Failed to retrieve Java version information.",
+        "failed_analyze": "Failed to analyze error log:\n"
+      },
+      "warning": {
+        "exit": "Are you sure you want to exit?",
+        "no_internet": "No internet connection. Only installed versions will be displayed.",
+        "version": "Select game version",
+        "logs": "Log files not found.",
+        "profile": "Are you sure you want to delete this profile?",
+        "java": "Are you sure you want to remove this Java from the list?",
+        "language": "Changes will take effect after a restart.\nRestart now?",
+        "delete_game_version": "Are you sure you want to delete this game version?"
+      },
+      "check": {
+        "feedback_send": "Feedback sent successfully!"
+      }
+    },
+    "answers": {
+      "yes": "Yes",
+      "no": "No",
+      "ok": "Ok",
+      "cansel": "Cancel"
+    }
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "main": {
+    "width_buttons": 193,
+    "types_versions": {
+      "installed": " (Instalado)",
+      "not_completed": " (No completado)"
+    },
+    "buttons": {
+      "feedback": "Opinión",
+      "logs": "Registros",
+      "settings": "Configuraciones",
+      "launch_game": "Iniciar juego",
+      "cansel_loading": "Cancelar carga",
+      "complete_game": "Finalizar juego"
+    },
+    "status": {
+      "waiting": "Esperando",
+      "loading_canceled": "Carga cancelada",
+      "game_completed": "Juego completado",
+      "loading_completed": "Carga completada",
+      "loding_error": "Error de carga",
+      "launch_error": "Error al iniciar",
+      "loading": "Cargando...",
+      "finalizing": "Cancelando..."
+    },
+    "mcl_status": {
+      "download_libraries": "Descargando bibliotecas",
+      "download_assets": "Descargando recursos",
+      "install_java_runtime": "Instalando Java Runtime",
+      "installation_complete": "Instalación completada"
+    }
+  },
+  "settings": {
+    "title": "Configuraciones",
+    "pages": ["Lanzador", "Minecraft", "Skins", "Cargadores", "Más"],
+    "1_page": {
+      "version_types_1": "Tipos de versiones",
+      "version_types_2": "Tipos de versiones mostradas en la lista en la pantalla principal:",
+      "release": "Lanzamientos",
+      "snapshots": "Snapshots",
+      "old_beta": "Antiguas betas",
+      "old_alpha": "Antiguas alfas",
+      "installed_versions": "Versiones Instaladas",
+      "manager_versions": "Gestión de versiones instaladas",
+      "other_settings": "Otros ajustes",
+      "hide_launcher": "Ocultar lanzador al iniciar el juego",
+      "check_files": "Verificar archivos",
+      "debug_mode": "Modo de depuración"
+    },
+    "2_page": {
+      "java_settings": "Configuración de Java",
+      "java_used": "Versión de Java utilizada:",
+      "recommended_java": "Java recomendada",
+      "add": "Añadir…",
+      "java_exe": "Ejecutable de Java",
+      "select_java": "Seleccione el archivo ejecutable de Java",
+      "amt_memory": "Cantidad de memoria asignada (MB):",
+      "args_JVM": "Argumentos JVM (para usuarios avanzados):",
+      "game_directory": "Directorio del juego",
+      "default_path": "Directorio por defecto",
+      "current_path": "Directorio actual del juego:\n",
+      "open_folder": "Abrir carpeta",
+      "change_folder": "Cambiar\ncarpeta",
+      "select_directory": "Seleccione el directorio del juego"
+    },
+    "3_page": {
+      "update": "Actualizar",
+      "select_file_skin": "Seleccionar archivo de skin",
+      "use_ely_by": "Usar el sistema de skins Ely.by",
+      "use_default_skin": "Usar la skin predeterminada",
+      "choice_png_file": "Seleccione un archivo PNG de skin",
+      "png_skin": "PNG skin"
+    },
+    "4_page": {
+      "loaders_mods": "Cargadores de mods",
+      "install_loader": "Instalar cargador",
+      "cansel_loading": "Cancelar carga",
+      "finalizando": "Cancelando...",
+      "mods_profiles": "Perfiles de mods",
+      "new_profile": "Ingrese el nombre del nuevo perfil",
+      "new_name_profile": "Ingrese el nuevo nombre del perfil",
+      "no": "(ninguno)",
+      "add": "Crear",
+      "delete": "Eliminar",
+      "change": "Modificar",
+      "save": "Guardar",
+      "cansel": "Cancelar",
+      "open_folder": "Abrir carpeta del perfil"
+    }
+  },
+  "feedback": {
+    "title": "Envío de comentarios",
+    "email": "Correo electrónico (opcional)",
+    "subject": "Asunto",
+    "description": "Descripción del problema / sugerencia",
+    "send": "Enviar"
+  },
+  "crash_log": {
+    "title": "Ver registro de errores",
+    "error_log": "Registro de errores",
+    "ai_analysis": "Análisis de IA",
+    "cancel_analysis": "Cancelar análisis"
+  },
+  "messages": {
+    "titles": {
+      "warning": "Advertencia",
+      "error": "Error",
+      "info": "Información"
+    },
+    "texts": {
+      "error": {
+        "loading": "Error al cargar versiones:\n",
+        "skin_load": "Archivo de skin incorrecto. La resolución debe ser 64x64 o 64x32.",
+        "ely_by_uuid": "Error al obtener UUID de los servidores de Ely.by:\n",
+        "ely_by_skin": "Error al obtener el skin de los servidores de Ely.by:\n",
+        "launch": "Error al iniciar el juego:\n",
+        "loading_loader": "Error al cargar el cargador:\n",
+        "loading_loader_list": "Error al cargar la lista de cargadores:\n",
+        "profile_add": "No se pudo crear el perfil:\n",
+        "profile_rename": "No se pudo renombrar el perfil:\n",
+        "skin_select": "No se pudo cargar el skin:\n",
+        "exit_code": "Código de salida",
+        "java": "No se pudo obtener información sobre la versión de Java.",
+        "failed_analyze": "No se pudo analizar el registro de errores:\n"
+      },
+      "warning": {
+        "exit": "¿Realmente deseas salir?",
+        "no_internet": "Sin conexión a internet. Solo se mostrarán las versiones instaladas.",
+        "version": "Selecciona la versión del juego",
+        "logs": "Archivos de registro no encontrados.",
+        "profile": "¿Estás seguro de que deseas eliminar este perfil?",
+        "java": "¿Está seguro de que desea eliminar esta Java de la lista?",
+        "language": "Los cambios se aplicarán después de reiniciar.\n¿Reiniciar ahora?",
+        "delete_game_version": "¿Está seguro de que desea eliminar esta versión del juego?"
+      },
+      "check": {
+        "feedback_send": "¡Comentarios enviados con éxito!"
+      }
+    },
+    "answers": {
+      "yes": "Sí",
+      "no": "No",
+      "ok": "Ok",
+      "cansel": "Cancelar"
+    }
+  }
+}
