@@ -871,7 +871,7 @@ version_combobox = CTkScrollableDropdown(
     fg_color=lighten_dominant_5,
     button_color=lighten_dominant_10,
     hover_color=lighten_dominant_15,
-    command=set_icon_loader,
+    command=set_version,
     font=get_dynamic_font("Segoe UI", 13),
 )
 version_combobox.search_entry.configure(font=get_dynamic_font("Segoe UI", 23),
@@ -880,14 +880,6 @@ version_combobox.search_entry.configure(font=get_dynamic_font("Segoe UI", 23),
                                         border_width=0,
                                         fg_color=lighten_dominant_10)
 
-version_combobox_ctk.update_idletasks()
-
-icons_loaders = {}
-for i in ("forge", "fabric", "quilt", "minecraft", "neoforge", "optifine"):
-    icons_loaders[i] = Image.open(f"png/GUI/loaders/{i}.png").resize(
-        (int(70 * width_factor), int(68 * height_factor))
-    )
-set_icon_loader()
 
 launch_button = ctk.CTkButton(
     root,

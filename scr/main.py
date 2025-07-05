@@ -58,10 +58,29 @@ def log(message, level='INFO'):
             f.write(output + "\n")
 
 
-def execute_module(module_name):
+EXPECTED_HASHES = {}
+
+def compute_sha256(path: str) -> str:
+    sha256 = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+
+def execute_module(module_name: str):
+    module_path = os.path.join("modules", f"{module_name}.py")
+    
+    if EXPECTED_HASHES:
+        expected = EXPECTED_HASHES.get(module_name)
+        actual = compute_sha256(module_path)
+        if actual != expected:
+            sys.exit(1)
+
     try:
-        with open(f"modules/{module_name}.py", encoding="utf-8") as file:
-            exec(file.read(), globals())
+        with open(module_path, encoding="utf-8") as file:
+            code = file.read()
+        exec(code, globals())
     except Exception:
         log(f"В модуле {module_name} найдена ошибка, завершаем работу...", "ERROR")
         excepthook(*sys.exc_info())
@@ -102,6 +121,7 @@ if __name__ == "__main__":
 
     for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui"]:
         execute_module(module)
+    
     log("Импортирование модулей завершено")
 
     launcher_path = os.path.join(os.getenv('APPDATA'), "pylauncher")
@@ -150,7 +170,7 @@ if __name__ == "__main__":
         "hide": False,
         "mine_path": "",
         "default": True,
-        "memory_args": str(min(get_available_memory() * 1024 // 2, 512)),
+        "memory_args": str(max(get_available_memory() * 1024 // 2, 512)),
         "custom_args": "",
         "ely_by": False,
         "custom_skin": "",

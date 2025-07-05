@@ -1,15 +1,8 @@
-def set_icon_loader(e=None):
+def set_version(e=None):
     if e:
         version_combobox_ctk.set(e)
         version["version"] = version_combobox_ctk.get().replace(language_manager.get("main.types_versions.not_completed"), "").replace(language_manager.get("main.types_versions.installed"), "")
         save_version(version)
-    loader_string = version_combobox_ctk.get().lower()
-    for i in "neoforge", "forge", "fabric", "quilt", "optifine":
-        if i in loader_string:
-            version_combobox_ctk.configure(dropdown_image=icons_loaders[i])
-            break
-    else:
-        version_combobox_ctk.configure(dropdown_image=icons_loaders["minecraft"])
 
 
 def new_message(**kwargs):

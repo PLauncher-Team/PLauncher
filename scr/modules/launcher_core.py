@@ -72,7 +72,6 @@ def load_versions():
             version_combobox_ctk.set(latest_version + language_manager.get("main.types_versions.not_completed"))
         else:
             version_combobox_ctk.set(latest_version)
-    set_icon_loader()
 
 
 def stop_action():
