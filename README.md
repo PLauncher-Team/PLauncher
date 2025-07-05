@@ -90,8 +90,8 @@ If you like PLauncher, please support us with a cryptocurrency donation:
 
 | Cryptocurrency | Address                                    | QR Code                 |
 |----------------|--------------------------------------------|-------------------------|
-| USDT (TRC20)   | `THqGaKcE2Lui483fqpaFxYMqXZ5wgcSHJA`      | ![QR USDT](qr/qr_usdt.png)|
-| Bitcoin        | `bc1qgsnfj0de6fm89thpqev0xcc3483kunrtf56e9z` | ![QR BTC](qr/qr_btc.png)  |
-| Ethereum       | `0x5132B071b4bFFd5a3ccAF70448166DAB590bA0F2` | ![QR ETH](qr/qr_eth.png)  |
+| USDT (TRC20)   | `THqGaKcE2Lui483fqpaFxYMqXZ5wgcSHJA`      | <img src="qr/qr_usdt.png" width="100" alt="QR USDT"/> |
+| Bitcoin        | `bc1qgsnfj0de6fm89thpqev0xcc3483kunrtf56e9z` | <img src="qr/qr_btc.png" width="100" alt="QR BTC"/>   |
+| Ethereum       | `0x5132B071b4bFFd5a3ccAF70448166DAB590bA0F2` | <img src="qr/qr_eth.png" width="100" alt="QR ETH"/>   |
 
 Thank you for your support! 🙏
