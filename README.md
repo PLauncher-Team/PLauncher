@@ -1,4 +1,5 @@
 # Plauncher
+![Open Issues](https://img.shields.io/github/issues-raw/PLauncher-Team/PLauncher) ![Closed Issues](https://img.shields.io/github/issues-closed-raw/PLauncher-Team/PLauncher)
 
 <div align="center">
   <img src="PLauncher.png" width="600">
@@ -67,8 +68,30 @@ Simply double-click the `main.exe` file to launch Plauncher. The launcher window
 - **Feedback Module**
   - Send feature requests, bug reports, and general feedback without leaving Plauncher.
 
+- **Offline launch**
+
 ---
 
 ## 📦 Resources
 
 See [USED_LIBS.md](USED_LIBS.md) for a full list of libraries and licenses.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 💰 Support the Project (Donations)
+
+If you like PLauncher, please support us with a cryptocurrency donation:
+
+| Cryptocurrency | Address                                    | QR Code                 |
+|----------------|--------------------------------------------|-------------------------|
+| USDT (TRC20)   | `THqGaKcE2Lui483fqpaFxYMqXZ5wgcSHJA`      | ![QR USDT](qr/qr_usdt.png)|
+| Bitcoin        | `bc1qgsnfj0de6fm89thpqev0xcc3483kunrtf56e9z` | ![QR BTC](qr/qr_btc.png)  |
+| Ethereum       | `0x5132B071b4bFFd5a3ccAF70448166DAB590bA0F2` | ![QR ETH](qr/qr_eth.png)  |
+
+Thank you for your support! 🙏
