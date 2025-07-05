@@ -1,5 +1,5 @@
 """
-VERSION 1.51
+VERSION 1.0.0
 Python 3.13
 By Code_po_vene team
 """
