@@ -1,4 +1,3 @@
-[← Back to README](README.md)
 - **Icons**: [Material Icons](https://fonts.google.com/icons) (Apache 2.0)  
   License text: [licenses/LICENSE-icons.txt](licenses/LICENSE-icons.txt)
 
