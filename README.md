@@ -1,5 +1,7 @@
 # PLauncher
-![Open Issues](https://img.shields.io/github/issues-raw/PLauncher-Team/PLauncher) ![Closed Issues](https://img.shields.io/github/issues-closed-raw/PLauncher-Team/PLauncher)
+![Open Issues](https://img.shields.io/github/issues-raw/PLauncher-Team/PLauncher) 
+![Closed Issues](https://img.shields.io/github/issues-closed-raw/PLauncher-Team/PLauncher) 
+[![Latest Release](https://img.shields.io/github/v/release/PLauncher-Team/PLauncher)](https://github.com/PLauncher-Team/PLauncher/releases)
 
 <div align="center">
   <img src="PLauncher.png" width="600">
