@@ -1,0 +1,11 @@
+customtkinter
+requests
+hPyT
+pywin32
+beautifulsoup4
+optipy
+packaging
+Pillow
+psutil
+pywinstyles
+ratelimit
