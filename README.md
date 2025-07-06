@@ -9,7 +9,7 @@
 
 **PLauncher** is a modern, feature-rich Minecraft launcher designed to be fast, intuitive, and highly customizable.  
 It supports official Mojang versions, mod loaders, skin management, localization, and much more — all in one lightweight application.  
-Whether you're a casual player or a power user, Plauncher provides the tools you need to launch and manage your Minecraft experience with ease.
+Whether you're a casual player or a power user, PLauncher provides the tools you need to launch and manage your Minecraft experience with ease.
 
 ---
 
