@@ -114,7 +114,7 @@ You now have a locally built copy of **PLauncher**, ready for testing or distrib
 
 ## 📦 Resources
 
-See [USED_LIBS.md](USED_LIBS.md) for a full list of libraries and licenses.
+See [USED_LIBS.md](USED_LIBS.md) for a full list of library licenses.
 
 ---
 
