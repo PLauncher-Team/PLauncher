@@ -23,6 +23,7 @@ Whether you're a casual player or a power user, PLauncher provides the tools you
 - [Resources](#-resources)
 - [License](#-license)
 - [Support the Project](#-support-the-project-donations)
+- [Disclaimer](#-disclaimer)
 
 ---
 
@@ -87,6 +88,7 @@ No additional setup is required — just download and run!
     * Send feature requests, bug reports, and general feedback without leaving PLauncher.
 
 * **Offline launch**
+    * Launch Minecraft without authentication or internet connection. 
 
 ---
 
@@ -156,6 +158,14 @@ See [USED\_LIBS.md](USED_LIBS.md) for a full list of library licenses.
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 📢 Disclaimer
+
+PLauncher is an independent project and is **not affiliated with Mojang, Microsoft, or Minecraft**.  
+All trademarks, including "Minecraft", are the property of their respective owners.  
+Please purchase the game from [minecraft.net](https://www.minecraft.net/) to support the official developers.
 
 ---
 
