@@ -133,6 +133,13 @@ You now have a locally built copy of **PLauncher**, ready for testing or distrib
 
 During development, you can quickly bootstrap and run the app using our `run.py` helper script:
 
+### Prerequisites
+
+* **Git**: [https://git-scm.com/downloads](https://git-scm.com/downloads)
+* **Python 3.10+**: [https://www.python.org/downloads/release/python-3100/](https://www.python.org/downloads/release/python-3100/)
+
+### Steps
+
 1. **Clone the repository**  
    ```bash
    git clone https://github.com/PLauncher-Team/PLauncher.git
