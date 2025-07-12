@@ -55,3 +55,5 @@ def download_and_run(version: str, path: str = "neoforge-installer.jar", path_mi
         file.write(response.content)
 
     subprocess.run([path_to_java, "-jar", path, f"--installClient={path_minecraft}"], creationflags=134217728)
+    
+    os.remove(path)
