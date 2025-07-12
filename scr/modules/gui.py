@@ -919,7 +919,7 @@ root.bind("<Configure>", lambda event: relative_center(), add="+")
 
 root.after(0, lambda: show_tab(tabs[0]))
 
-log(f"Готово! ({perf_counter() - start_time:.2f} с)")
+log(f"Done! ({perf_counter() - start_time:.2f} s)")
 
 if not IS_INTERNET:
     new_message(title=language_manager.get("messages.titles.warning"),

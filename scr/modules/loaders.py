@@ -92,7 +92,7 @@ def get_loaders_versions():
                     forge_versions_mine.append(mc_version)
             forge_versions_mine.sort(key=Version, reverse=True)
         except Exception as e:
-            log(f"Ошибка при получении версий Forge:", "ERROR")
+            log("Error fetching Forge versions:", "ERROR")
             excepthook(*sys.exc_info())
 
     def load_fabric():
@@ -101,7 +101,7 @@ def get_loaders_versions():
             for v in fabric:
                 fabric_versions_mine.append(v["version"])
         except Exception as e:
-            log(f"Ошибка при получении версий Fabric:", "ERROR")
+            log("Error fetching Fabric versions:", "ERROR")
             excepthook(*sys.exc_info())
     
     def load_quilt():
@@ -110,7 +110,7 @@ def get_loaders_versions():
             for v in quilt:
                 quilt_versions_mine.append(v["version"])
         except Exception as e:
-            log(f"Ошибка при получении версий Quilt:", "ERROR")
+            log("Error fetching Quilt versions:", "ERROR")
             excepthook(*sys.exc_info())
     
     def load_optifine():
@@ -118,7 +118,7 @@ def get_loaders_versions():
             versions = getVersionList()
             optifine_version_mine.extend(versions)
         except Exception as e:
-            log(f"Ошибка при получении версий OptiFine:", "ERROR")
+            log("Error fetching OptiFine versions:", "ERROR")
             excepthook(*sys.exc_info())
     
     def load_neoforge():
@@ -128,7 +128,7 @@ def get_loaders_versions():
             neoforge_versions_mine.extend(dictionary_neoforge)
             neoforge_versions_mine.reverse()
         except Exception as e:
-            log(f"Ошибка при получении версий NeoForge:", "ERROR")
+            log("Error fetching NeoForge versions:", "ERROR")
             excepthook(*sys.exc_info())
     
     threads = []

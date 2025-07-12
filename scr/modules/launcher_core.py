@@ -2,7 +2,7 @@ def thread_load_versions():
     global versions
     if IS_INTERNET:
         versions = mcl.utils.get_version_list()
-        log(f"Список версий получен: {len(versions)}шт.")
+        log(f"Version list retrieved: {len(versions)} items")
     root.after(0, load_versions)
 
 

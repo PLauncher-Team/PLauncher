@@ -82,7 +82,7 @@ def execute_module(module_name: str):
             code = file.read()
         exec(code, globals())
     except Exception:
-        log(f"В модуле {module_name} найдена ошибка, завершаем работу...", "ERROR")
+        log(f"Error found in module {module_name}, exiting...", "ERROR")
         excepthook(*sys.exc_info())
         os._exit(0)
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     minecraft_log_file = None
 
     sys.excepthook = excepthook
-    log("Добро пожаловать в debug...")
+    log("Welcome to debug...")
     
     try:
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui"]:
         execute_module(module)
     
-    log("Импортирование модулей завершено")
+    log("Module import completed")
 
     launcher_path = os.path.join(os.getenv('APPDATA'), "pylauncher")
 
@@ -151,9 +151,9 @@ if __name__ == "__main__":
     versions = []
     old_types_versions = []
 
-    log(f"Наивысшая частота монитора: {FPS}гц")
-    log(f"Статус интернета: {IS_INTERNET}")
-    log(f"Размер ОЗУ: {MAX_MEMORY_GB}ГБ")
+    log(f"Highest monitor refresh rate: {FPS} Hz")
+    log(f"Internet status: {IS_INTERNET}")
+    log(f"RAM size: {MAX_MEMORY_GB} GB")
 
     default_config = {
         "name": "Steve",
@@ -186,18 +186,18 @@ if __name__ == "__main__":
             config = json.load(f)
         for t in default_config:
             if t not in config:
-                log(f"Новый параметр настроек: {t}={default_config[t]}")
+                log(f"New settings parameter: {t}={default_config[t]}")
                 config[t] = default_config[t]
         if config["custom_skin"] and not os.path.isfile(config["custom_skin"]):
-            log("Файл скина не найден", "ERROR")
+            log("Skin file not found", "ERROR")
             config["custom_skin"] = default_config["custom_skin"]
         config = dict(sorted(config.items()))
         save_config(config)
-        log("Файл data.json найден, параметры загружены")
+        log("data.json file found, settings loaded")
     else:
         config = default_config
         save_config(config)
-        log("Файл data.json не найден, создан новый")
+        log("data.json file not found, a new one has been created")
 
     if not config["mine_path"] or config["default_path"] or not os.path.isdir(config["mine_path"]):
         minecraft_path = os.path.join(os.getenv('APPDATA'), ".minecraft")
@@ -214,7 +214,7 @@ if __name__ == "__main__":
                 if config["java"] == key:
                     config["java"] = default_config["java"]
                 config["java_paths"].pop(key)
-                log(f"{key} не найдена или не работает", "ERROR")
+                log(f"{key} not found or not working", "ERROR")
     
 
     default_version = {
@@ -230,18 +230,18 @@ if __name__ == "__main__":
             version = json.load(f)
         for t in default_version:
             if t not in version:
-                log(f"Новый параметр настроек: {t}={default_config[t]}")
+                log(f"New settings parameter: {t}={default_config[t]}")
                 version[t] = default_version[t]
         save_version(version)
-        log("Файл version.json найден, параметры загружены")
+        log("version.json file found, settings loaded")
     else:
         version = default_version
         save_version(version)
-        log("Файл version.json не найден, создан новый")
+        log("version.json file not found, a new one has been created")
 
     language_manager = Translator(config["language"])
     language = language_manager.language
-    log(f"Язык лаунчера: {language}")
+    log(f"Launcher language: {language}")
     
     ai_language = "ru" if language == "be" else language
     SYSTEM_PROMPT = (f"Ты — ассистент-эксперт по разбору лог-файлов Minecraft, который отвечает на этом языке: {ai_language}\n"
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     mods_path = os.path.join(minecraft_path, "mods")
     if version["profile"]:
         if not os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + version["profile"])):
-            log("Папка профиля не найдена", "ERROR")
+            log("Profile folder not found", "ERROR")
             version["profile"] = False
             save_version(version)
         if os.path.isdir(mods_path):
@@ -267,6 +267,6 @@ if __name__ == "__main__":
 
     create_minecraft_environment()
 
-    log(f"Приступаем к инициализации интерфейса...")
+    log(f"Starting interface initialization...")
     execute_module("gui")
     root.mainloop()

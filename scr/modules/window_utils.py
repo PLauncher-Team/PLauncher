@@ -65,7 +65,7 @@ def get_dynamic_font(font_name, base_size, weight="normal"):
 
 def get_max_refresh_rate():
     monitors = win32api.EnumDisplayMonitors()
-    log(f"Обнаружено мониторов: {len(monitors)}")
+    log(f"Monitors detected: {len(monitors)}")
     max_refresh = 0
     for monitor in monitors:
         monitor_info = win32api.GetMonitorInfo(monitor[0])
