@@ -122,6 +122,7 @@ def get_loaders_versions():
             excepthook(*sys.exc_info())
     
     def load_neoforge():
+        global dictionary_neoforge
         try:
             dictionary_neoforge = mcl.neoforge.get_versions()
             neoforge_versions_mine.extend(dictionary_neoforge)
