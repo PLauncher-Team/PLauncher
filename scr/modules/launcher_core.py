@@ -258,7 +258,6 @@ def launch_game():
                     root.after(0, load_versions)
 
                 if selected_version not in version["download"]:
-                    log("")
                     mcl.install.install_minecraft_version(selected_version, minecraft_path, callback={
                         "setMax": lambda val_max: set_max_value(val_max),
                         "setProgress": lambda val_prog: progress_bar_update(val_prog, progress_bar),
