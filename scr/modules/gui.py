@@ -874,12 +874,13 @@ version_combobox = CTkScrollableDropdown(
     command=set_version,
     font=get_dynamic_font("Segoe UI", 13),
     groups = [
-        {"name": "Forge", "pattern": r"(?i).*forge.*"},
+        {"name": "Forge", "pattern": r"(?i)(?<!neo)forge.*"},
         {"name": "Fabric", "pattern": r"(?i).*fabric-loader.*"},
         {"name": "OptiFine", "pattern": r"(?i).*optifine.*"},
         {"name": "NeoForge", "pattern": r"(?i).*neoforge.*"},
         {"name": "Quilt", "pattern": r"(?i).*quilt.*"},
-        {"name": "Minecraft", "pattern": r"(?i).*"},
+        {"name": "Minecraft",
+         "pattern": r"(?i)^(?!.*(?:forge|fabric-loader|optifine|neoforge|quilt)).*"}
     ]
 )
 version_combobox.search_entry.configure(font=get_dynamic_font("Segoe UI", 23),

@@ -103,7 +103,9 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
                 self.group_buttons.append(btn)
             
             self.group_frame.bind("<Configure>", self._on_group_frame_configure, add="+")
-
+            
+            self.group_button_colors = [btn.cget("fg_color") for btn in self.group_buttons]
+        
         self.frame = customtkinter.CTkScrollableFrame(
             self,
             bg_color=self.transparent_color,
@@ -195,14 +197,23 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
     
         for c in range(cols):
             self.group_frame.grid_columnconfigure(c, weight=1)
-    
+
     def switch_group(self, idx):
-        self.current_group = idx
-        self.values = self.grouped_values[idx]
+        if idx == self.current_group:
+            self.values = self.all_values.copy()
+            self.current_group = None
+        else:
+            self.current_group = idx
+            self.values = self.grouped_values[idx].copy()
+        for i, btn in enumerate(self.group_buttons):
+            if i == self.current_group:
+                btn.configure(fg_color=self.hover_color)
+            else:
+                btn.configure(fg_color=self.group_button_colors[i])
         self.filtered_values = None
         self.current_page = 0
         self._init_buttons()
-
+    
     def update_buttons(self, values_list):
         for i, value in enumerate(values_list):
             if i in self.widgets:
