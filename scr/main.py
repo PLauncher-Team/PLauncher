@@ -170,7 +170,7 @@ if __name__ == "__main__":
         "hide": False,
         "mine_path": "",
         "default": True,
-        "memory_args": str(max(get_available_memory() * 1024 // 2, 512)),
+        "memory_args": str(min(max(get_available_memory() * 1024 // 2, 512), 4096)),
         "custom_args": "",
         "ely_by": False,
         "custom_skin": "",
