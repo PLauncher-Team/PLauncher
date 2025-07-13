@@ -244,18 +244,18 @@ if __name__ == "__main__":
     log(f"Launcher language: {language}")
     
     ai_language = "ru" if language == "be" else language
-    SYSTEM_PROMPT = (f"Ты — ассистент-эксперт по разбору лог-файлов Minecraft, который отвечает на этом языке: {ai_language}\n"
-                     "Твоя задача —\n"
-                     "1) Кратко (в одном предложении) описать причину краша\n"
-                     "2) Предложить только те решения, которые напрямую связаны с обнаруженной причиной\n\n"
-                     "Формат ответа:\n"
-                     "Причина 1 предложением\n"
-                     "Решения пронумерованы, каждое с новой строки>\n"
-                     "Решения пишутся для рядового пользователя лаунчеров по майнкрафту\n"
-                     "Не добавляй общих или универсальных советов, если они не имеют прямого отношения к выявленной причине.\n\n"
-                     "Если входные данные не являются логами Minecraft, ответь ровно `None`(без дополнительного текста).\n"
-                     "Если в логах нет информации, позволяющей однозначно определить причину, ответь ровно `None` (без дополнительного текста).")
-    
+    SYSTEM_PROMPT = (f"You are an expert assistant in analyzing Minecraft log files who responds in this language: {ai_language}\n"
+                     "Your task is:\n"
+                     "1) Briefly (in one sentence) describe the cause of the crash\n"
+                     "2) Suggest only those solutions that are directly related to the identified cause\n\n"
+                     "Response format:\n"
+                     "Cause (in one sentence)\n"
+                     "Solutions numbered, each on a new line starting with >\n"
+                     "Solutions should be written for an average Minecraft launcher user\n"
+                     "Do not include general or universal advice unless it is directly related to the identified cause.\n\n"
+                     "If the input is not a Minecraft log, respond exactly with `None` (without any additional text).\n"
+                     "If the logs do not contain enough information to clearly determine the cause, respond exactly with `None` (without any additional text).")
+
     mods_path = os.path.join(minecraft_path, "mods")
     if version["profile"]:
         if not os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + version["profile"])):
