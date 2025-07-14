@@ -14,6 +14,9 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
 
         super().__init__(master=attach.winfo_toplevel(), takefocus=1)
 
+        self.y_pos = None
+        self.width_new = None
+        self.x_pos = None
         self.focus()
         self.lift()
         self.alpha = alpha
@@ -34,6 +37,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.filtered_values = None
         self.groups = groups
         self.current_group = 0
+        self.last_page_count = 0
 
         if self.groups:
             self.group_names = [g["name"] for g in groups]
@@ -189,7 +193,6 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         for child in self.group_frame.grid_slaves():
             child.grid_forget()
     
-        # выставляем кнопки по новой
         for idx, btn in enumerate(self.group_buttons):
             row = idx // cols
             col = idx % cols
@@ -213,6 +216,17 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.filtered_values = None
         self.current_page = 0
         self._init_buttons()
+
+    def _scroll_adjusted(self, current_count: int):
+        canvas = self.frame._parent_canvas
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        if self.last_page_count > 0:
+            fraction = current_count / self.last_page_count
+            fraction = max(0.0, min(1.0, fraction))
+        else:
+            fraction = 1.0
+        canvas.yview_moveto(fraction)
+        self.last_page_count = current_count
     
     def update_buttons(self, values_list):
         for i, value in enumerate(values_list):
@@ -275,7 +289,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         if self.pagination:
             values_to_show = self.values[self.current_page * self.items_per_page:
                                          (self.current_page + 1) * self.items_per_page]
-            self._update_pagination_buttons(filtered=False)
+            self._update_pagination_buttons()
         else:
             values_to_show = self.values
         self.update_buttons(values_to_show)
@@ -323,11 +337,11 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         else:
             values_to_show = self.values[self.current_page * self.items_per_page:
                                          (self.current_page + 1) * self.items_per_page]
-        self.update_buttons(values_to_show)
-        self._update_pagination_buttons(filtered=bool(self.filtered_values))
-        self.frame.update_idletasks()
-        self.frame._parent_canvas.yview_moveto(0)
-
+            self.update_buttons(values_to_show)
+            self._update_pagination_buttons(filtered=bool(self.filtered_values))
+            self.frame.update_idletasks()
+            self._scroll_adjusted(len(values_to_show))
+    
     def destroy_popup(self):
         self.destroy()
         self.disable = True
@@ -387,7 +401,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.event_generate("<<Selected>>")
         self.fade = True
         if self.command:
-            self.command(k)
+            self.command()
         if hasattr(self, "search_var") and self.search_var.get().strip() != "":
             self.filtered_values = None
             self.current_page = 0
@@ -460,7 +474,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         if self.groups:
             self.grouped_values[self.current_group].append(value)
         if self.pagination:
-            self._update_pagination_buttons(filtered=False)
+            self._update_pagination_buttons()
 
     def _deiconify(self):
         if self.values:
