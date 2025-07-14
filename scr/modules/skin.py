@@ -116,7 +116,7 @@ def get_skin_png(nickname):
         excepthook(*sys.exc_info())
         label_skin.configure(image=None)
         if response.status_code != 404:
-            new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.ely_by_skin") + str(e), icon="cancel", option_1=language_manager.get("messages.answers.ok"))
+            new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.ely_by_skin") + str(e), icon="cancel", option_1=language_manager.get("messages.answers.ok"))
 
 
 def set_skin():
