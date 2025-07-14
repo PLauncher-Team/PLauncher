@@ -42,18 +42,20 @@ def get_versions() -> Dict[str, str]:
         for mc_version, (full_version, _) in latest_versions.items()
     }
 
-def download_and_run(version: str, path: str = "neoforge-installer.jar", path_minecraft: str = "", path_to_java: str = ""):
+def download_and_run(version: str, path: str = "neoforge-installer.jar", path_minecraft: str = "", java: str = ""):
     """
     Download the JAR file of the specified version and run it.
     
     :param version: Full version to download.
     :param path: Output file path.
+    :param path_minecraft: Minecraft path
+    :param java: Java path
     """
     response = get_requests_response_cache(f"{base_url}{version}/neoforge-{version}-installer.jar")
 
     with open(path, "wb") as file:
         file.write(response.content)
 
-    subprocess.run([path_to_java, "-jar", path, f"--installClient={path_minecraft}"], creationflags=134217728)
+    subprocess.run([java, "-jar", path, f"--installClient={path_minecraft}"], creationflags=134217728)
     
     os.remove(path)
