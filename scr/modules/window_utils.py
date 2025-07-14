@@ -50,7 +50,6 @@ def ex():
     new_message(title=language_manager.get("messages.titles.warning"), message=language_manager.get("messages.texts.warning.exit"), icon="question",
                 option_1=language_manager.get("messages.answers.no"), option_2=language_manager.get("messages.answers.yes"))
     if msg.get() == language_manager.get("messages.answers.yes"):
-        stop_action()
         root.destroy()
         kernel32.ReleaseMutex(mutex)
         os._exit(0)

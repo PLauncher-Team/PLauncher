@@ -71,7 +71,6 @@ def select_language(selected_value):
                 icon="question",
                 option_1=language_manager.get("messages.answers.cansel"), option_2=language_manager.get("messages.answers.yes"))
     if msg.get() == language_manager.get("messages.answers.yes"):
-        stop_action()
         root.destroy()
         kernel32.ReleaseMutex(mutex)
         restart_app_with_bat()
