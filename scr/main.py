@@ -249,7 +249,7 @@ if __name__ == "__main__":
                      "1) Briefly (in one sentence) describe the cause of the crash\n"
                      "2) Suggest only those solutions that are directly related to the identified cause\n\n"
                      "Response format:\n"
-                     "Cause (in one sentence)\n"
+                     "Cause in one sentence\n"
                      "Solutions numbered, each on a new line starting with >\n"
                      "Solutions should be written for an average Minecraft launcher user\n"
                      "Do not include general or universal advice unless it is directly related to the identified cause.\n\n"
