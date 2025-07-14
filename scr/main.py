@@ -13,7 +13,6 @@ import ctypes
 import traceback
 import hashlib
 import sys
-import inspect
 from io import BytesIO
 from locale import getdefaultlocale
 from random import choice, randint
@@ -52,8 +51,8 @@ from ratelimit import rate_limited
 
 
 def log(message, level='INFO', source='main'):
-    caller_name = inspect.stack()[1].function
-
+    caller_name = sys._getframe(1).f_code.co_name
+    
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     output = f"[{timestamp} - {level} - {source}.{caller_name}] - {message}"
 
@@ -175,7 +174,7 @@ if __name__ == "__main__":
         "hide": False,
         "mine_path": "",
         "default": True,
-        "memory_args": str(min(max(get_available_memory() * 1024 // 2, 512), 4096)),
+        "memory_args": str(min(max(MAX_MEMORY_GB * 1024 // 2, 512), 4096)),
         "custom_args": "",
         "ely_by": False,
         "custom_skin": "",
