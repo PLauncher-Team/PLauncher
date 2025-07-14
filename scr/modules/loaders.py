@@ -2,8 +2,6 @@ def list_ver(loader):
     if not IS_INTERNET:
         return []
     other_versions_list = loaders_versions_mine[loader]
-    if loader == "Forge":
-        other_versions_list = sorted(other_versions_list, key=Version, reverse=True)
     choice_version_ctk.set(other_versions_list[0])
 
     return other_versions_list
@@ -18,19 +16,24 @@ def fun_install_loader():
             "setProgress": lambda p: progress_bar_update(progress=p, bar=progress_loader, status=False)
         }
         version_select = choice_version_ctk.get()
+        loader_select = choice_loader.get()
         if not get_java_path():
             mcl.runtime.install_jvm_runtime("jre-legacy", minecraft_path, callback=val_call)
         path_to_java = get_java_path()
-        if choice_loader.get() == "Fabric":
+        
+        log(f"Downloading Minecraft version {version_select} with loader {loader_select}..", source="loaders")
+        log(f"Java path: {path_to_java}", source="loaders")
+        
+        if loader_select == "Fabric":
             mcl.fabric.install_fabric(minecraft_version=version_select, minecraft_directory=minecraft_path,
                                       callback=val_call, java=path_to_java)
-        elif choice_loader.get() == "Quilt":
+        elif loader_select == "Quilt":
             mcl.quilt.install_quilt(minecraft_version=version_select, minecraft_directory=minecraft_path,
                                     callback=val_call, java=path_to_java)
-        elif choice_loader.get() == "Forge":
+        elif loader_select == "Forge":
             mcl.forge.install_forge_version(mcl.forge.find_forge_version(version_select), path=minecraft_path,
                                             callback=val_call, java=path_to_java)
-        elif choice_loader.get() == "OptiFine":
+        elif loader_select == "OptiFine":
             mcl.install.install_minecraft_version(versionid=version_select,
                                                   minecraft_directory=minecraft_path, callback=val_call)
             get_ver = getVersion(mc_version=version_select)
@@ -48,12 +51,14 @@ def fun_install_loader():
             loader_process.wait()
             loader_process = None
             os.remove(os.path.join("ofb", 'Optifine.jar'))
-        elif choice_loader.get() == "NeoForge":
+        elif loader_select == "NeoForge":
             mcl.install.install_minecraft_version(versionid=version_select,
                                                   minecraft_directory=minecraft_path, callback=val_call)
             mcl.neoforge.download_and_run(version=dictionary_neoforge[version_select], path_minecraft=minecraft_path,
                                           path_to_java=path_to_java)
         root.after(0, load_versions)
+        log("Installation successful.", source="loaders")
+        
     except Exception as e:
         excepthook(*sys.exc_info())
         new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.loading_loader") + str(e.__class__.__name__),
@@ -92,7 +97,7 @@ def get_loaders_versions():
                     forge_versions_mine.append(mc_version)
             forge_versions_mine.sort(key=Version, reverse=True)
         except Exception as e:
-            log("Error fetching Forge versions:", "ERROR")
+            log("Error fetching Forge versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
 
     def load_fabric():
@@ -101,7 +106,7 @@ def get_loaders_versions():
             for v in fabric:
                 fabric_versions_mine.append(v["version"])
         except Exception as e:
-            log("Error fetching Fabric versions:", "ERROR")
+            log("Error fetching Fabric versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
     
     def load_quilt():
@@ -110,7 +115,7 @@ def get_loaders_versions():
             for v in quilt:
                 quilt_versions_mine.append(v["version"])
         except Exception as e:
-            log("Error fetching Quilt versions:", "ERROR")
+            log("Error fetching Quilt versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
     
     def load_optifine():
@@ -118,7 +123,7 @@ def get_loaders_versions():
             versions = getVersionList()
             optifine_version_mine.extend(versions)
         except Exception as e:
-            log("Error fetching OptiFine versions:", "ERROR")
+            log("Error fetching OptiFine versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
     
     def load_neoforge():
@@ -128,7 +133,7 @@ def get_loaders_versions():
             neoforge_versions_mine.extend(dictionary_neoforge)
             neoforge_versions_mine.reverse()
         except Exception as e:
-            log("Error fetching NeoForge versions:", "ERROR")
+            log("Error fetching NeoForge versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
     
     threads = []

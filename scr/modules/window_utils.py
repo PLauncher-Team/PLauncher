@@ -11,7 +11,7 @@ def new_message(**kwargs):
         msg.get()
     
     if kwargs["icon"] == "cancel":
-        log(kwargs["message"].replace("\n", " "), "ERROR")
+        log(kwargs["message"].replace("\n", " "), "ERROR", "window_utils")
     msg = CTkMessagebox(**kwargs, font=get_dynamic_font("Segoe UI", 13), master=root, bg_color=dominant_color,
                         fg_color=lighten_dominant_10,
                         button_hover_color=lighten_dominant_5,
@@ -65,7 +65,7 @@ def get_dynamic_font(font_name, base_size, weight="normal"):
 
 def get_max_refresh_rate():
     monitors = win32api.EnumDisplayMonitors()
-    log(f"Monitors detected: {len(monitors)}")
+    log(f"Monitors detected: {len(monitors)}", source="window_utils")
     max_refresh = 0
     for monitor in monitors:
         monitor_info = win32api.GetMonitorInfo(monitor[0])

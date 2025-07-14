@@ -13,6 +13,7 @@ import ctypes
 import traceback
 import hashlib
 import sys
+import inspect
 from io import BytesIO
 from locale import getdefaultlocale
 from random import choice, randint
@@ -49,9 +50,12 @@ from pywinstyles import set_opacity
 from ratelimit import rate_limited
 
 
-def log(message, level='INFO'):
+def log(message, level='INFO', source='main'):
+    caller_name = inspect.stack()[1].function
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    output = f"[{timestamp} - {level}] - {message}"
+    output = f"[{timestamp} - {level} - {source}.{caller_name}] - {message}"
+
     with log_lock:
         print(output)
         with open("launcher.log", "a", encoding="utf-8") as f:

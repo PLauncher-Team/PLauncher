@@ -2,7 +2,7 @@ def thread_load_versions():
     global versions
     if IS_INTERNET:
         versions = mcl.utils.get_version_list()
-        log(f"Version list retrieved: {len(versions)} items")
+        log(f"Version list retrieved: {len(versions)} items", source="launcher_core")
     root.after(0, load_versions)
 
 
@@ -72,6 +72,8 @@ def load_versions():
             version_combobox_ctk.set(latest_version + language_manager.get("main.types_versions.not_completed"))
         else:
             version_combobox_ctk.set(latest_version)
+    
+    log("Version list successfully loaded", source="launcher_core")
 
 
 def stop_action():
@@ -81,10 +83,14 @@ def stop_action():
         minecraft_log_file.close()
         is_running = False
         try:
+            log("Terminating Minecraft process.", source="launcher_core")
             minecraft_process.terminate()
             minecraft_process.wait(timeout=5)
+            log("Minecraft process terminated gracefully.", source="launcher_core")
         except TimeoutExpired:
+            log("Timeout expired; killing Minecraft process.", source="launcher_core")
             minecraft_process.kill()
+            log("Minecraft process killed.", source="launcher_core")
 
 
 def set_step(value):
@@ -198,6 +204,16 @@ def launch_game():
                 creationflags = CREATE_NO_WINDOW
 
             minecraft_log_file = open("minecraft.log", "w+", encoding="cp1251", errors="replace")
+
+            log("Launching Minecraft\n"
+                f"Version: {selected_version}\n"
+                f"User: {username}\n"
+                f"Args: {", ".join(options['jvmArguments'])}\n"
+                f"Java: {command[0]}\n"
+                f"Working directory: {minecraft_path}\n"
+                f"Debug: {debug_mode}\n"
+                f"UUID: {uuid}",
+                source="launcher_core")
             
             minecraft_process = Popen(
                 command,
@@ -258,20 +274,26 @@ def launch_game():
                     root.after(0, load_versions)
 
                 if selected_version not in version["download"]:
+                    log("Downloading Minecraft files...", source="launcher_core")
                     mcl.install.install_minecraft_version(selected_version, minecraft_path, callback={
                         "setMax": lambda val_max: set_max_value(val_max),
                         "setProgress": lambda val_prog: progress_bar_update(val_prog, progress_bar),
                         "setStatus": set_step,
                     })
+                    log("Minecraft files are ready.", source="launcher_core")
+                    
                 elif check_var.get():
+                    log("Verifying Minecraft files...", source="launcher_core")
                     mcl.install.install_minecraft_version(selected_version, minecraft_path, callback={
                         "setProgress": lambda val_prog: progress_bar_update(check=False)
                     })
+                    log("Minecraft files are ready.", source="launcher_core")
+                    
                 if selected_version not in version["download"]:
                     version["download"].append(selected_version)
                     version["not_comp"].remove(selected_version)
                     root.after(0, load_versions)
-                
+            
             is_running = True
             save_version(version)
             progress_bar.set(1)
@@ -283,7 +305,8 @@ def launch_game():
             new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.loading") + str(e), icon="cancel",
                         option_1=language_manager.get("messages.answers.ok"))
             set_status(language_manager.get("main.status.loding_error"))
-
+    
+    
     download_thread = threading.Thread(target=download_and_run)
     download_thread.start()
 
