@@ -131,7 +131,6 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             self.button_container = self.frame
 
         self.dummy_entry = customtkinter.CTkEntry(self.frame, fg_color="transparent", border_width=0, height=1, width=1)
-        self.no_match = customtkinter.CTkLabel(self.button_container, text="No Match")
         self.height = height
         self.height_new = height
         self.width = width
@@ -373,7 +372,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             return
         if self.winfo_ismapped():
             self.hide_flag = False
-        if self.hide_flag and self.values:
+        if self.hide_flag and self.all_values:
             self.event_generate("<<Opened>>")
             self.focus()
             self.hide_flag = False
@@ -389,7 +388,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.event_generate("<<Selected>>")
         self.fade = True
         if self.command:
-            self.command()
+            self.command(k)
         if hasattr(self, "search_var") and self.search_var.get().strip() != "":
             self.filtered_values = None
             self.current_page = 0
@@ -417,20 +416,12 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             else:
                 values_to_show = filtered
             self.update_buttons(values_to_show)
-            if not values_to_show:
-                self.no_match = customtkinter.CTkLabel(self.button_container, text="No Match")
-                self.no_match.pack(fill="x", pady=2, padx=(self.padding, 0))
-            else:
-                if hasattr(self, 'no_match') and self.no_match.winfo_exists():
-                    self.no_match.pack_forget()
             if self.pagination:
                 self.pagination_frame.pack(fill="x", side="bottom")
             self.place_dropdown()
         else:
             if self.pagination:
                 self.pagination_frame.pack(fill="x", side="bottom")
-            if hasattr(self, 'no_match') and self.no_match.winfo_exists():
-                self.no_match.pack_forget()
             self.filtered_values = None
             self.current_page = 0
             self._init_buttons()
@@ -465,7 +456,7 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             self._update_pagination_buttons()
 
     def _deiconify(self):
-        if self.values:
+        if self.all_values:
             self.deiconify()
 
     def popup(self, x=None, y=None):
