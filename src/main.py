@@ -1,8 +1,3 @@
-"""
-VERSION 1.0.0
-Python 3.13
-By Code_po_vene team
-"""
 from time import perf_counter, time
 start_time = perf_counter()
 
@@ -13,6 +8,7 @@ import ctypes
 import traceback
 import hashlib
 import sys
+import webbrowser
 from io import BytesIO
 from locale import getdefaultlocale
 from random import choice, randint
@@ -132,6 +128,7 @@ if __name__ == "__main__":
     launcher_path = os.path.join(os.getenv('APPDATA'), "pylauncher")
 
     IS_INTERNET = check_internet_connection()
+    CURRENT_VERSION = "v1.0.0"
     FPS = get_max_refresh_rate()
     MAX_MEMORY_GB = get_available_memory()
     FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform"
@@ -156,6 +153,7 @@ if __name__ == "__main__":
     versions = []
     old_types_versions = []
 
+    log(f"Version: {CURRENT_VERSION}")
     log(f"Highest monitor refresh rate: {FPS} Hz")
     log(f"Internet status: {IS_INTERNET}")
     log(f"RAM size: {MAX_MEMORY_GB} GB")

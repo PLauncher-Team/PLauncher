@@ -59,6 +59,8 @@ ely_by_var = ctk.BooleanVar(value=config["ely_by"])
 default_skin_var = ctk.BooleanVar(value=config["default_skin"])
 latest_version = version["version"]
 
+version_frame = VersionFrame(root)
+version_frame.place(relwidth=0.175, relheight=0.177, relx=0.797, rely=0.05)
 blackout_frame = ctk.CTkFrame(root, fg_color="black")
 blackout_frame.place(relwidth=1, relheight=1)
 set_opacity(blackout_frame, value=0)
