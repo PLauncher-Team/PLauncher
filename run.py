@@ -11,7 +11,7 @@ MIN_PY = (3, 10)
 BASE_DIR = Path(__file__).parent.resolve()
 VENV_DIR = BASE_DIR / ".venv"
 REQUIREMENTS = BASE_DIR / "requirements.txt"
-MAIN_PY = BASE_DIR / "scr" / "main.py"
+MAIN_PY = BASE_DIR / "src" / "main.py"
 
 def check_python_version():
     """
@@ -64,7 +64,7 @@ def run_main():
     if not MAIN_PY.exists():
         sys.exit(f"[ERROR] main.py not found at {MAIN_PY}")
     print("▶️ Running main.py...")
-    subprocess.check_call([str(py), str(MAIN_PY)], cwd="scr")
+    subprocess.check_call([str(py), str(MAIN_PY)], cwd="src")
 
 def main():
     """

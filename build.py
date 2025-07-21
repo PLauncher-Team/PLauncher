@@ -18,9 +18,9 @@ BASE_DIR = Path(__file__).parent.resolve()
 VENV_DIR = BASE_DIR / ".venv"
 PY_EXE = VENV_DIR / "Scripts" / "python.exe"
 
-MODULES_DIR = BASE_DIR / 'scr' / 'modules'
-MAIN_PY = BASE_DIR / 'scr' / 'main.py'
-RESOURCES_DIR = BASE_DIR / 'scr'
+MODULES_DIR = BASE_DIR / 'src' / 'modules'
+MAIN_PY = BASE_DIR / 'src' / 'main.py'
+RESOURCES_DIR = BASE_DIR / 'src'
 DIST_DIR = BASE_DIR / 'dist' / 'main.dist'
 
 # Nuitka command
