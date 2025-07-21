@@ -25,6 +25,7 @@ venv/
 # PLauncher
 **/data.json
 *.log
+test/
 
 # Windows
 Thumbs.db
