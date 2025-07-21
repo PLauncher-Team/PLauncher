@@ -18,7 +18,7 @@
       "loading_canceled": "Завантаження скасовано",
       "game_completed": "Гру завершено",
       "loading_completed": "Завантаження завершено",
-      "loding_error": "Помилка завантаження",
+      "loading_error": "Помилка завантаження",
       "launch_error": "Помилка запуску",
       "loading": "Завантаження...",
       "finalizing": "Скасовуємо..."

@@ -311,7 +311,7 @@ def launch_game():
             normal_state()
             new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.loading") + str(e), icon="cancel",
                         option_1=language_manager.get("messages.answers.ok"))
-            set_status(language_manager.get("main.status.loding_error"))
+            set_status(language_manager.get("main.status.loading_error"))
     
     
     download_thread = threading.Thread(target=download_and_run)

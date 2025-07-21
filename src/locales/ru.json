@@ -18,7 +18,7 @@
       "loading_canceled": "Загрузка отменена",
       "game_completed": "Игра завершена",
       "loading_completed": "Загрузка завершена",
-      "loding_error": "Ошибка загрузки",
+      "loading_error": "Ошибка загрузки",
       "launch_error": "Ошибка запуска",
       "loading": "Загрузка...",
       "finalizing": "Отменяем..."
