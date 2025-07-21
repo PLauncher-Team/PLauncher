@@ -79,6 +79,7 @@ def execute_module(module_name: str):
         expected = EXPECTED_HASHES.get(module_name)
         actual = compute_sha256(module_path)
         if actual != expected:
+            log(f"Hash mismatch for module '{module_name}'.", level="ERROR")
             sys.exit(1)
 
     try:
