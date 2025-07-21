@@ -10,8 +10,8 @@
       "logs": "Logs",
       "settings": "Settings",
       "launch_game": "Launch Game",
-      "cansel_loading": "Cancel Loading",
-      "complete_game": "Complete Game"
+      "cancel_loading": "Cancel Loading",
+      "complete_game": "Exit Game"
     },
     "status": {
       "waiting": "Waiting",
@@ -74,8 +74,7 @@
     "4_page": {
       "loaders_mods": "Mods loaders",
       "install_loader": "Install loader",
-      "cansel_loading": "Cancel loading",
-      "finalizando": "Canceling...",
+      "cancel_loading": "Cancel loading",
       "mods_profiles": "Mods profiles",
       "new_profile": "Enter the name of the new profile",
       "new_name_profile": "Enter the new profile name",
@@ -84,7 +83,7 @@
       "delete": "Delete",
       "change": "Change",
       "save": "Save",
-      "cansel": "Cancel",
+      "cancel": "Cancel",
       "open_folder": "Open profile folder"
     }
   },
@@ -95,7 +94,7 @@
     "cancel_analysis": "Cancel analysis"
   },
   "feedback": {
-    "titie": "Sending Feedback",
+    "title": "Sending Feedback",
     "email": "Email (optional)",
     "subject": "Subject",
     "description": "Problem / suggestion description",
@@ -121,7 +120,9 @@
         "skin_select": "Failed to load skin:\n",
         "exit_code": "Exit code: ",
         "java": "Failed to retrieve Java version information.",
-        "failed_analyze": "Failed to analyze error log:\n"
+        "failed_analyze": "Failed to analyze error log:\n",
+        "feedback_send": "Please enter a valid email address.",
+        "feedback_email": "Failed to send feedback:\n"
       },
       "warning": {
         "exit": "Are you sure you want to exit?",
@@ -141,7 +142,7 @@
       "yes": "Yes",
       "no": "No",
       "ok": "Ok",
-      "cansel": "Cancel"
+      "cancel": "Cancel"
     }
   }
 }

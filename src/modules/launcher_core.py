@@ -322,4 +322,4 @@ def launch_game():
         kill_thread(download_thread)
         cancel()
 
-    launch_button.configure(command=off_load, text=language_manager.get("main.buttons.cansel_loading"))
+    launch_button.configure(command=off_load, text=language_manager.get("main.status.loading"))

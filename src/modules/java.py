@@ -136,7 +136,7 @@ def del_java():
         title=language_manager.get("messages.titles.warning"),
         message=f"{language_manager.get('messages.texts.warning.java')} ({current})",
         icon="question",
-        option_1=language_manager.get("messages.answers.cansel"),
+        option_1=language_manager.get("messages.answers."),
         option_2=language_manager.get("messages.answers.yes")
     )
     if msg.get() == language_manager.get("messages.answers.yes"):

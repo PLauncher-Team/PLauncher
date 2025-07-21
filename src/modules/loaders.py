@@ -74,7 +74,7 @@ def fun_install_loaders():
 
     download_thread = threading.Thread(target=fun_install_loader)
     download_thread.start()
-    install_loader.configure(command=off_load, text=language_manager.get("settings.4_page.cansel_loading"))
+    install_loader.configure(command=off_load, text=language_manager.get("settings.4_page._loading"))
     launch_button.configure(state="disabled")
     
     download_thread.join()

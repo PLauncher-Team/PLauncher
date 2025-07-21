@@ -10,7 +10,7 @@
       "logs": "Registros",
       "settings": "Configuraciones",
       "launch_game": "Iniciar juego",
-      "cansel_loading": "Cancelar carga",
+      "cancel_loading": "Cancelar carga",
       "complete_game": "Finalizar juego"
     },
     "status": {
@@ -74,8 +74,7 @@
     "4_page": {
       "loaders_mods": "Cargadores de mods",
       "install_loader": "Instalar cargador",
-      "cansel_loading": "Cancelar carga",
-      "finalizando": "Cancelando...",
+      "cancel_loading": "Cancelar carga",
       "mods_profiles": "Perfiles de mods",
       "new_profile": "Ingrese el nombre del nuevo perfil",
       "new_name_profile": "Ingrese el nuevo nombre del perfil",
@@ -84,7 +83,7 @@
       "delete": "Eliminar",
       "change": "Modificar",
       "save": "Guardar",
-      "cansel": "Cancelar",
+      "cancel": "Cancelar",
       "open_folder": "Abrir carpeta del perfil"
     }
   },
@@ -121,7 +120,9 @@
         "skin_select": "No se pudo cargar el skin:\n",
         "exit_code": "Código de salida",
         "java": "No se pudo obtener información sobre la versión de Java.",
-        "failed_analyze": "No se pudo analizar el registro de errores:\n"
+        "failed_analyze": "No se pudo analizar el registro de errores:\n",
+        "feedback_send": "Por favor, introduce una dirección de correo electrónico válida.",
+        "feedback_email": "No se pudo enviar la opinión:\n"
       },
       "warning": {
         "exit": "¿Realmente deseas salir?",
@@ -141,7 +142,7 @@
       "yes": "Sí",
       "no": "No",
       "ok": "Ok",
-      "cansel": "Cancelar"
+      "cancel": "Cancelar"
     }
   }
 }
