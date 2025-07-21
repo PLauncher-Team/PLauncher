@@ -69,7 +69,7 @@ def select_language(selected_value):
     new_message(title=language_manager.get("messages.titles.warning"),
                 message=language_manager.get("messages.texts.warning.language"),
                 icon="question",
-                option_1=language_manager.get("messages.answers."), option_2=language_manager.get("messages.answers.yes"))
+                option_1=language_manager.get("messages.answers.no"), option_2=language_manager.get("messages.answers.yes"))
     if msg.get() == language_manager.get("messages.answers.yes"):
         root.destroy()
         kernel32.ReleaseMutex(mutex)
