@@ -11,9 +11,10 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
                  resize=False, frame_border_color=None, text_color=None, autocomplete=False,
                  hover_color=None, pagination: bool = True, items_per_page: int = 50,
                  groups=None, **button_kwargs):
-
         super().__init__(master=attach.winfo_toplevel(), takefocus=1)
 
+        self.group_patterns = None
+        self.grouped_values = None
         self.y_pos = None
         self.width_new = None
         self.x_pos = None
@@ -35,17 +36,36 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.items_per_page = items_per_page
         self.current_page = 0
         self.filtered_values = None
-        self.groups = groups
         self.current_group = 0
-
-        if self.groups:
-            self.group_names = [g["name"] for g in groups]
-            self.group_patterns = [re.compile(g["pattern"]) for g in groups]
-            self.grouped_values = {
-                i: [v for v in self.all_values if self.group_patterns[i].search(v)]
-                for i in range(len(self.groups))
-            }
-
+        self.groups = []
+        if groups is not None:
+            for g in groups:
+                if isinstance(g, (list, tuple)) and len(g) >= 2:
+                    self.groups.append({"name": g[0], "pattern": g[1]})
+                else:
+                    raise ValueError(f"groups must be a list of [name, pattern], got {g!r}")
+        
+        self.group_names = [g["name"] for g in self.groups]
+        self.group_patterns = []
+        included_values = set()
+        
+        for g in self.groups:
+            pattern = g["pattern"]
+            if pattern == "__OTHERS__":
+                self.group_patterns.append("__OTHERS__")
+            else:
+                compiled = re.compile(pattern)
+                self.group_patterns.append(compiled)
+                matched = [v for v in self.all_values if compiled.search(v)]
+                included_values.update(matched)
+        
+        self.grouped_values = {}
+        for i, pat in enumerate(self.group_patterns):
+            if pat == "__OTHERS__":
+                self.grouped_values[i] = [v for v in self.all_values if v not in included_values]
+            else:
+                self.grouped_values[i] = [v for v in self.all_values if pat.search(v)]
+        
         if sys.platform.startswith("win"):
             self.after(100, lambda: self.overrideredirect(True))
             self.transparent_color = self._apply_appearance_mode(self._fg_color) if hasattr(self, '_fg_color') else "#FFFFFF"
@@ -61,14 +81,12 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             self.corner = 0
             self.padding = 18
             self.withdraw()
-
         self.hide_flag = True
         self.attach.bind('<Configure>', lambda e: self._withdraw() if not self.disable else None, add="+")
         self.attach.winfo_toplevel().bind('<Configure>', lambda e: self._withdraw() if not self.disable else None, add="+")
         self.attach.winfo_toplevel().bind("<ButtonPress>", lambda e: self._withdraw() if not self.disable else None, add="+")
         self.bind("<Escape>", lambda e: self._withdraw() if not self.disable else None, add="+")
         self.attributes('-alpha', 0)
-
         self.fg_color = customtkinter.ThemeManager.theme["CTkFrame"]["fg_color"] if fg_color is None else fg_color
         self.scroll_button_color = customtkinter.ThemeManager.theme["CTkScrollbar"]["button_color"] if scrollbar_button_color is None else scrollbar_button_color
         self.scroll_hover_color = customtkinter.ThemeManager.theme["CTkScrollbar"]["button_hover_color"] if scrollbar_button_hover_color is None else scrollbar_button_hover_color
@@ -76,23 +94,18 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.button_color = customtkinter.ThemeManager.theme["CTkFrame"]["top_fg_color"] if button_color is None else button_color
         self.text_color = customtkinter.ThemeManager.theme["CTkLabel"]["text_color"] if text_color is None else text_color
         self.hover_color = customtkinter.ThemeManager.theme["CTkButton"]["hover_color"] if hover_color is None else hover_color
-
         if not scrollbar:
             self.scroll_button_color = self.fg_color
             self.scroll_hover_color = self.fg_color
-
         if self.pagination:
             self.search_var = customtkinter.StringVar()
             self.search_var.trace_add('write', lambda *args: self.live_update(self.search_var.get()))
             self.search_entry = customtkinter.CTkEntry(self, textvariable=self.search_var)
             self.search_entry.pack(fill="x")
-
         if self.groups:
             self.group_frame = customtkinter.CTkFrame(self, fg_color=self.fg_color)
             self.group_frame.pack(fill="x", padx=5)
-            
             self.group_buttons = []
-            
             for idx, name in enumerate(self.group_names):
                 btn = customtkinter.CTkButton(
                     self.group_frame,
@@ -104,11 +117,8 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
                     command=lambda i=idx: self.switch_group(i),
                 )
                 self.group_buttons.append(btn)
-            
             self.group_frame.bind("<Configure>", self._on_group_frame_configure, add="+")
-            
             self.group_button_colors = [btn.cget("fg_color") for btn in self.group_buttons]
-        
         self.frame = customtkinter.CTkScrollableFrame(
             self,
             bg_color=self.transparent_color,
@@ -121,7 +131,6 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         )
         self.frame._scrollbar.grid_configure(padx=3)
         self.frame.pack(expand=True, fill="both")
-
         if self.pagination:
             self.button_container = customtkinter.CTkFrame(self.frame, fg_color=self.fg_color)
             self.button_container.pack(expand=True, fill="both")
@@ -129,7 +138,6 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             self.pagination_frame.pack(fill="x", side="bottom")
         else:
             self.button_container = self.frame
-
         self.dummy_entry = customtkinter.CTkEntry(self.frame, fg_color="transparent", border_width=0, height=1, width=1)
         self.height = height
         self.height_new = height
@@ -140,17 +148,14 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
         self.autocomplete = autocomplete
         self.var_update = customtkinter.StringVar()
         self.appear = True
-
         if justify.lower() == "left":
             self.justify = "w"
         elif justify.lower() == "right":
             self.justify = "e"
         else:
             self.justify = "c"
-
         self.button_height = button_height
         self.image_values = None if len(image_values) != len(self.values) else image_values
-
         self.resizable(width=False, height=False)
         self.transient(self.master)
         if double_click or isinstance(self.attach, customtkinter.CTkEntry) or isinstance(self.attach, customtkinter.CTkComboBox):
@@ -167,21 +172,16 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             self.attach._text_label.bind("<Button-1>", lambda e: self._iconify())
             if self.command is None:
                 self.command = self.attach.set
-
         self.attach.bind("<Destroy>", lambda _: self._destroy(), add="+")
         self.update_idletasks()
         self.x = x
         self.y = y
-
         if self.autocomplete:
             self.bind_autocomplete()
-
         self.withdraw()
         self.attributes("-alpha", self.alpha)
-
         if self.groups:
             self.switch_group(0)
-
         self._init_buttons()
 
     def _on_group_frame_configure(self, event):
@@ -488,12 +488,57 @@ class CTkScrollableDropdown(customtkinter.CTkToplevel):
             self._init_buttons()
             if hasattr(self, "search_var"):
                 self.search_var.set("")
-            if self.groups:
-                self.grouped_values = {
-                    i: [v for v in self.all_values if self.group_patterns[i].search(v)]
-                    for i in range(len(self.groups))
-                }
+            if getattr(self, "groups", None):
+                self.group_patterns = []
+                included_values = set()
+                for g in self.groups:
+                    pattern = g["pattern"]
+                    if pattern == "__OTHERS__":
+                        self.group_patterns.append("__OTHERS__")
+                    else:
+                        compiled = re.compile(pattern)
+                        self.group_patterns.append(compiled)
+                        matched = [v for v in self.all_values if compiled.search(v)]
+                        included_values.update(matched)
+                self.grouped_values = {}
+                for i, pat in enumerate(self.group_patterns):
+                    if pat == "__OTHERS__":
+                        self.grouped_values[i] = [v for v in self.all_values if v not in included_values]
+                    else:
+                        self.grouped_values[i] = [v for v in self.all_values if pat.search(v)]
                 self.switch_group(self.current_group)
+        if "groups" in kwargs:
+            raw_groups = kwargs.pop("groups")
+            self.groups = []
+            for g in raw_groups:
+                if isinstance(g, (list, tuple)) and len(g) >= 2:
+                    self.groups.append({"name": g[0], "pattern": g[1]})
+                else:
+                    raise ValueError(f"groups must be list of [name, pattern], got {g!r}")
+        
+            self.group_names = [g["name"] for g in self.groups]
+            self.group_patterns = []
+            included_values = set()
+        
+            for g in self.groups:
+                pattern = g["pattern"]
+                if pattern == "__OTHERS__":
+                    self.group_patterns.append("__OTHERS__")
+                else:
+                    compiled = re.compile(pattern)
+                    self.group_patterns.append(compiled)
+                    matched = [v for v in self.all_values if compiled.search(v)]
+                    included_values.update(matched)
+        
+            self.grouped_values = {}
+            for i, pat in enumerate(self.group_patterns):
+                if pat == "__OTHERS__":
+                    self.grouped_values[i] = [v for v in self.all_values if v not in included_values]
+                else:
+                    self.grouped_values[i] = [v for v in self.all_values if pat.search(v)]
+        
+            self.current_group = 0
+            self.switch_group(self.current_group)
         if "image_values" in kwargs:
             self.image_values = kwargs.pop("image_values")
             self.image_values = None if len(self.image_values) != len(self.values) else self.image_values
