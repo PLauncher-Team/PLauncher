@@ -109,49 +109,10 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.geometry(f"+{center(self, crash_x, crash_y)}")
         
 
-
 class FreeGPTClient:
     def __init__(self):
         self.USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         self.POLLINATIONS_ENDPOINT = "https://text.pollinations.ai/openai"
-
-    @staticmethod
-    def generate_signature(timestamp: int, text: str, secret: str = "") -> str:
-        message = f"{timestamp}:{text}:{secret}"
-        return hashlib.sha256(message.encode()).hexdigest()
-
-    def _try_free2gpt(self, messages: list, timeout: int) -> str:
-        url = "https://chat10.free2gpt.xyz/api/generate"
-        headers = {
-            "User-Agent": self.USER_AGENT,
-            "Accept": "*/*",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Content-Type": "application/json",
-            "Referer": "https://chat10.free2gpt.xyz/",
-            "Origin": "https://chat10.free2gpt.xyz"
-        }
-
-        timestamp = int(time() * 1000)
-        payload = {
-            "messages": messages,
-            "time": timestamp,
-            "pass": None,
-            "sign": self.generate_signature(timestamp, messages[-1]["content"])
-        }
-
-
-        try:
-            response = requests.post(
-                url,
-                json=payload,
-                headers=headers,
-                timeout=timeout
-            )
-            return response.text
-
-        except Exception as e:
-            excepthook(*sys.exc_info())
-            return [e.__class__.__name__]
 
     def _try_pollinations_ai(self, messages: list, timeout: int) -> str:
         headers = {
@@ -188,13 +149,9 @@ class FreeGPTClient:
             messages: list,
             timeout: int = 30,
     ) -> str:
-
-        response1 = self._try_free2gpt(messages, timeout)
+        
+        response1 = self._try_pollinations_ai(messages, timeout)
         if not isinstance(response1, list):
             return response1
 
-        response2 = self._try_pollinations_ai(messages, timeout)
-        if not isinstance(response2, list):
-            return response2
-
-        return [None, [response1[0], response2[0]]]
+        return [None, [response1[0]]]
