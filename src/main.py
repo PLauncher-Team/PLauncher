@@ -37,7 +37,7 @@ import win32con
 import win32api
 from bs4 import BeautifulSoup
 from CTkMessagebox import CTkMessagebox
-from CTkScrollableDropdown import CTkScrollableDropdown
+from CTkScrollableDropdownPP import CTkScrollableDropdown
 from optipy import getVersion, getVersionList
 from packaging.version import Version
 from PIL import Image
