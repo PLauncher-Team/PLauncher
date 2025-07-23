@@ -869,7 +869,6 @@ version_combobox = CTkScrollableDropdown(
     version_combobox_ctk,
     values=[],
     justify="left",
-    height=root_y,
     fg_color=lighten_dominant_5,
     button_color=lighten_dominant_10,
     hover_color=lighten_dominant_15,
