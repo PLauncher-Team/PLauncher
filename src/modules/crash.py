@@ -107,51 +107,64 @@ class CrashLogWindow(ctk.CTkToplevel):
     def open(self):
         self.deiconify()
         self.geometry(f"+{center(self, crash_x, crash_y)}")
-        
+
 
 class FreeGPTClient:
     def __init__(self):
         self.USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         self.POLLINATIONS_ENDPOINT = "https://text.pollinations.ai/openai"
+        self.TEACH_ANYTHING_URL = "https://www.teach-anything.com/api/generate"
 
-    def _try_pollinations_ai(self, messages: list, timeout: int) -> str:
+    def _try_pollinations_ai(self, messages: list, timeout: int) -> str | list:
         headers = {
             "User-Agent": self.USER_AGENT,
             "Content-Type": "application/json",
             "Referer": "https://pollinations.ai"
         }
-
         payload = {
             "messages": messages,
             "model": "openai",
             "stream": False
         }
-
         try:
-            response = requests.post(
-                self.POLLINATIONS_ENDPOINT,
-                json=payload,
-                headers=headers,
-                timeout=timeout
-            )
+            resp = requests.post(self.POLLINATIONS_ENDPOINT, json=payload, headers=headers, timeout=timeout)
+            resp.raise_for_status()
+            data = resp.json()
+            if "choices" in data and data["choices"]:
+                return data["choices"][0].get("message", {}).get("content", "")
+        except Exception:
+            sys.excepthook(*sys.exc_info())
+            return [Exception.__name__]
 
-            data = response.json()
-            if "choices" in data and len(data["choices"]) > 0:
-                message = data["choices"][0].get("message", {})
-                return message.get("content", "")
+    def _try_teach_anything(self, messages: list, timeout: int) -> str | list:
+        headers = {
+            "User-Agent": self.USER_AGENT,
+            "Content-Type": "application/json",
+            "Origin": "https://www.teach-anything.com",
+            "Referer": "https://www.teach-anything.com/"
+        }
+        def format_prompt(msgs: list) -> str:
+            parts = []
+            for m in msgs:
+                parts.append(f"[{m['role'].upper()}] {m['content']}")
+            return "\n".join(parts)
+        payload = {
+            "prompt": format_prompt(messages)
+        }
+        try:
+            resp = requests.post(self.TEACH_ANYTHING_URL, json=payload, headers=headers, timeout=timeout)
+            resp.raise_for_status()
+            return resp.text
+        except Exception:
+            sys.excepthook(*sys.exc_info())
+            return [Exception.__name__]
 
-        except Exception as e:
-            excepthook(*sys.exc_info())
-            return [e.__class__.__name__]
-    
-    def get_response(
-            self,
-            messages: list,
-            timeout: int = 30,
-    ) -> str:
-        
+    def get_response(self, messages: list, timeout: int = 30) -> str | list:
         response1 = self._try_pollinations_ai(messages, timeout)
         if not isinstance(response1, list):
             return response1
-
-        return [None, [response1[0]]]
+        
+        response2 = self._try_teach_anything(messages, timeout)
+        if not isinstance(response2, list):
+            return response2
+        return [None, [response2]]
