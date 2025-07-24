@@ -109,7 +109,7 @@ def entry_input():
 def change_mine(selection=True):
     global minecraft_path, version
     if selection:
-        folder = filedialog.askdirectory(title=language_manager.get("settings.2_page.select_directory")).replace("/", "\\")
+        folder = tk.filedialog.askdirectory(title=language_manager.get("settings.2_page.select_directory")).replace("/", "\\")
         if folder == os.path.join(os.getenv('APPDATA'), ".minecraft"):
             default_directory.toggle()
             change_mine(False)
@@ -148,11 +148,11 @@ def del_installed_version():
         title=language_manager.get("messages.titles.warning"),
         message=f"{language_manager.get('messages.texts.warning.delete_game_version')} ({current})",
         icon="question",
-        option_1=language_manager.get("messages.answers."),
+        option_1=language_manager.get("messages.answers.no"),
         option_2=language_manager.get("messages.answers.yes")
     )
     if msg.get() == language_manager.get("messages.answers.yes"):
-        rmtree(os.path.join(minecraft_path, "versions", current))
+        shutil.rmtree(os.path.join(minecraft_path, "versions", current))
         for i in ("download", "not_comp"):
             if current in version[i]:
                 version[i].remove(current)
@@ -174,3 +174,18 @@ def kill_thread(thread):
         ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
     
     return getattr(thread, "_return", None)
+
+
+def copy_folder_contents(src_dir, dst_dir):
+    os.makedirs(dst_dir, exist_ok=True)
+
+    for item in os.listdir(src_dir):
+        src_path = os.path.join(src_dir, item)
+        dst_path = os.path.join(dst_dir, item)
+
+        if os.path.isdir(src_path):
+            if os.path.exists(dst_path):
+                shutil.rmtree(dst_path)
+            shutil.copytree(src_path, dst_path)
+        else:
+            shutil.copy2(src_path, dst_path)

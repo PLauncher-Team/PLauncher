@@ -55,7 +55,7 @@ del "%~f0"
     with open(bat_path, "w", encoding="utf-8") as f:
         f.write(bat)
 
-    Popen(bat_path, creationflags=CREATE_NO_WINDOW)
+    subprocess.Popen(bat_path, creationflags=subprocess.CREATE_NO_WINDOW)
 
     kernel32.ReleaseMutex(mutex)
     os._exit(0)

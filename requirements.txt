@@ -5,7 +5,7 @@ pywin32
 beautifulsoup4
 optipy
 packaging
-Pillow
+pillow
 psutil
 pywinstyles
 ratelimit

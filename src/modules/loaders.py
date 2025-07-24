@@ -36,7 +36,7 @@ def fun_install_loader():
         elif loader_select == "OptiFine":
             mcl.install.install_minecraft_version(versionid=version_select,
                                                   minecraft_directory=minecraft_path, callback=val_call)
-            get_ver = getVersion(mc_version=version_select)
+            get_ver = optipy.getVersion(mc_version=version_select)
             url = get_ver[version_select][0]["url"]
             response = requests.get(url)
             with open(os.path.join("ofb", 'Optifine.jar'), 'wb') as f:
@@ -47,7 +47,7 @@ def fun_install_loader():
                 'Bridge.jar',
                 minecraft_path
             ]
-            loader_process = Popen(command, creationflags=CREATE_NO_WINDOW)
+            loader_process = subprocess.Popen(command, creationflags=subprocess.CREATE_NO_WINDOW)
             loader_process.wait()
             loader_process = None
             os.remove(os.path.join("ofb", 'Optifine.jar'))
@@ -95,7 +95,7 @@ def get_loaders_versions():
                 mc_version = version.split("-")[0]
                 if mc_version not in forge_versions_mine:
                     forge_versions_mine.append(mc_version)
-            forge_versions_mine.sort(key=Version, reverse=True)
+            forge_versions_mine.sort(key=packaging.version.Version, reverse=True)
         except Exception as e:
             log("Error fetching Forge versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
@@ -120,7 +120,7 @@ def get_loaders_versions():
     
     def load_optifine():
         try:
-            versions = getVersionList()
+            versions = optipy.getVersionList()
             optifine_version_mine.extend(versions)
         except Exception as e:
             log("Error fetching OptiFine versions:", "ERROR", source="loaders")

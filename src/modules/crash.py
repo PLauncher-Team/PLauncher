@@ -17,7 +17,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         top_frame = ctk.CTkFrame(self, fg_color="transparent")
         top_frame.place(relx=0.0333, rely=0.0286, relwidth=0.9333, relheight=0.1143)
 
-        raw_logo = Image.open("png/GUI/bug.png")
+        raw_logo = PIL.Image.open("png/GUI/bug.png")
         logo_ctk_image = ctk.CTkImage(light_image=raw_logo, size=(32, 32))
         logo_label = ctk.CTkLabel(top_frame, image=logo_ctk_image, fg_color="transparent", text_color=user_color)
         logo_label.place(relx=0.0, relwidth=0.0571, relheight=0.64)

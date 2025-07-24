@@ -110,7 +110,7 @@ class VersionFrame(ctk.CTkFrame):
 
     def is_newer_version(self, latest_tag: str, current_tag: str) -> bool:
         try:
-            return Version(latest_tag.lstrip('v')) > Version(current_tag.lstrip('v'))
+            return packaging.version.Version(latest_tag.lstrip('v')) > packaging.version.Version(current_tag.lstrip('v'))
         except Exception:
             return False
 

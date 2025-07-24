@@ -12,10 +12,10 @@ def get_formatted_java_info(path: str) -> str:
     output = None
     for flag in ("--version", "-version"):
         try:
-            res = run([path, flag], capture_output=True, text=True, check=True)
+            res = subprocess.run([path, flag], capture_output=True, text=True, check=True)
             output = (res.stdout or res.stderr).strip()
             break
-        except CalledProcessError as e:
+        except subprocess.CalledProcessError as e:
             output = (e.stdout or e.stderr).strip()
             if flag == "-version":
                 break
@@ -70,7 +70,7 @@ def select_java_path():
     Открывает диалоговое окно для выбора файла (например, java.exe)
     и возвращает выбранный путь.
     """
-    file_path = filedialog.askopenfilename(
+    file_path = tk.filedialog.askopenfilename(
         title=language_manager.get("settings.2_page.select_java"),
         filetypes=[(language_manager.get("settings.2_page.java_exe"), "java.exe")]
     )
@@ -89,14 +89,14 @@ def check_java(java_path):
     :return: True, если Java работает, False в противном случае.
     """
     try:
-        result = run([java_path, '-version'], capture_output=True, text=True, creationflags=CREATE_NO_WINDOW)
+        result = subprocess.run([java_path, '-version'], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         if result.returncode == 0:
             return True
     except Exception:
         return False
 
     try:
-        result = run([java_path, '--version'], capture_output=True, text=True, creationflags=CREATE_NO_WINDOW)
+        result = subprocess.run([java_path, '--version'], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         if result.returncode == 0:
             return True
     except Exception:
@@ -136,7 +136,7 @@ def del_java():
         title=language_manager.get("messages.titles.warning"),
         message=f"{language_manager.get('messages.texts.warning.java')} ({current})",
         icon="question",
-        option_1=language_manager.get("messages.answers."),
+        option_1=language_manager.get("messages.answers.no"),
         option_2=language_manager.get("messages.answers.yes")
     )
     if msg.get() == language_manager.get("messages.answers.yes"):

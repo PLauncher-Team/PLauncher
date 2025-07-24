@@ -73,7 +73,7 @@ class FeedbackApp(ctk.CTkToplevel):
     def fetch_dynamic_field_ids(self, form_view_url: str) -> dict[str, str]:
         response = requests.get(form_view_url, timeout=5)
         response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = bs4.BeautifulSoup(response.text, 'html.parser')
         script_content = next((script.string for script in soup.find_all('script') if script.string and 'FB_PUBLIC_LOAD_DATA_' in script.string), None)
         match = re.search(r"var FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;", script_content, re.DOTALL)
         form_data = json.loads(match.group(1))
@@ -124,10 +124,6 @@ class FeedbackApp(ctk.CTkToplevel):
                 message=language_manager.get("messages.texts.check.feedback_send"),
                 icon="info",
                 option_1=language_manager.get("messages.answers.ok")
-            )
-            messagebox.showinfo(
-                "Успех",
-                
             )
             self.email_entry.delete(0, "end")
             self.subject_entry.delete(0, "end")

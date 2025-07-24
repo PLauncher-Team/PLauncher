@@ -1,3 +1,6 @@
+import os.path
+
+
 def thread_load_versions():
     global versions
     if IS_INTERNET:
@@ -87,7 +90,7 @@ def stop_action():
             minecraft_process.terminate()
             minecraft_process.wait(timeout=5)
             log("Minecraft process terminated gracefully.", source="launcher_core")
-        except TimeoutExpired:
+        except subprocess.TimeoutExpired:
             log("Timeout expired; killing Minecraft process.", source="launcher_core")
             minecraft_process.kill()
             log("Minecraft process killed.", source="launcher_core")
@@ -154,7 +157,7 @@ def launch_game():
         global minecraft_process, is_running, version, minecraft_log_file
         try:
             if os.path.isdir(os.path.join(minecraft_path, "resourcepacks", "PLauncher skins")):
-                rmtree(os.path.join(minecraft_path, "resourcepacks", "PLauncher skins"))
+                shutil.rmtree(os.path.join(minecraft_path, "resourcepacks", "PLauncher skins"))
             if IS_INTERNET and ely_by_var.get() and not default_skin_var.get():
                 try:
                     uuid_response = requests.get(fr"https://authserver.ely.by/api/users/profiles/minecraft/{username}",
@@ -173,44 +176,46 @@ def launch_game():
                 uuid = config[username]
             if config["custom_skin"] and not ely_by_var.get() and not default_skin_var.get():
                 MinecraftTexturePackCreator(minecraft_path, config["custom_skin"]).run()
-    
+
+            if version["profile"]:
+                work_folder = os.path.join(minecraft_path, "profiles", "profile_" + version["profile"])
+            else:
+                work_folder = minecraft_path
+            
             save_config(config)
             args_custom = args_entry.get().split()
             
             options = {
+                "gameDirectory": work_folder,
                 "username": username,
                 "uuid": uuid,
                 "jvmArguments": args_custom + ["-Xmx" + config["memory_args"] + "M",
                                                "-Xms" + str(int(config["memory_args"]) // 2) + "M",
                                                "-Djavax.net.ssl.trustStoreType=Windows-ROOT"]
             }
+            
             if config["java"]:
                 options["executablePath"] = config["java_paths"][config["java"]]
             
             if IS_INTERNET and ely_by_var.get() and not default_skin_var.get():
                 options["jvmArguments"].append(rf"-javaagent:{os.path.abspath('injector.jar')}=ely.by")
 
-            if version["profile"]:
-                if os.path.isdir(os.path.join(minecraft_path, "mods")):
-                    rmtree(os.path.join(minecraft_path, "mods"))
-                copytree(os.path.join(minecraft_path, "profiles", "profile_" + version["profile"]),
-                         os.path.join(minecraft_path, "mods"))
-
             command = mcl.command.get_minecraft_command(selected_version, minecraft_path, options)
             debug_mode = debug_var.get()
 
             creationflags = 0
             if not debug_mode:
-                creationflags = CREATE_NO_WINDOW
+                creationflags = subprocess.CREATE_NO_WINDOW
 
             minecraft_log_file = open("minecraft.log", "w+", encoding="cp1251", errors="replace")
 
+            
             log("Launching Minecraft\n"
                 f"Version: {selected_version}\n"
                 f"User: {username}\n"
                 f"Args: {", ".join(options['jvmArguments'])}\n"
                 f"Java: {command[0]}\n"
-                f"Working directory: {minecraft_path}\n"
+                f"Working directory: {work_folder}\n"
                 f"Debug: {debug_mode}\n"
                 f"UUID: {uuid}",
                 source="launcher_core")
@@ -220,12 +225,12 @@ def launch_game():
             extended_info["BasicLimitInformation"]["LimitFlags"] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
             win32job.SetInformationJobObject(hJob, win32job.JobObjectExtendedLimitInformation, extended_info)
             
-            minecraft_process = Popen(
+            minecraft_process = subprocess.Popen(
                 command,
-                cwd=minecraft_path,
+                cwd=work_folder,
                 creationflags=creationflags,
                 stdout=minecraft_log_file,
-                stderr=STDOUT,
+                stderr=subprocess.STDOUT,
                 text=True,
                 bufsize=1
             )

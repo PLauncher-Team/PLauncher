@@ -1,3 +1,6 @@
+import os.path
+
+
 def profile_select(*args):
     current = list_profiles.get()
     version["profile"] = False if current == language_manager.get("settings.4_page.no") else current
@@ -11,16 +14,12 @@ def del_profile():
             title=language_manager.get("messages.titles.warning"),
             message=f"{language_manager.get('messages.texts.warning.profile')} ({current})",
             icon="question",
-            option_1=language_manager.get("messages.answers.cancel"),
+            option_1=language_manager.get("messages.answers.no"),
             option_2=language_manager.get("messages.answers.yes")
         )
         if msg.get() == language_manager.get("messages.answers.yes"):
-            try:
-                rmtree(os.path.join(minecraft_path, "profiles", "profile_" + current))
-                if os.path.isdir(os.path.join(minecraft_path, "mods")):
-                    rmtree(os.path.join(minecraft_path, "mods"))
-            except FileNotFoundError:
-                pass
+            if os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + current)):
+                shutil.rmtree(os.path.join(minecraft_path, "profiles", "profile_" + current))
 
             list_profiles.configure(values=list_dir())
             first = list_profiles.cget("values")[0] if list_profiles.cget("values")[0] != "" else language_manager.get("settings.4_page.no")
@@ -80,7 +79,7 @@ def fun_add_profile():
     list_profiles.configure(state="disabled")
     open_profile.configure(state="disabled")
     del_profile_button.configure(
-        text=language_manager.get("messages.answers.cancel"),
+        text=language_manager.get("messages.answers.no"),
         command=_add_profile
     )
     add_profile_button.configure(
@@ -138,7 +137,7 @@ def fun_rename_profile():
         rename_profile_button.configure(state="disabled")
         list_profiles.configure(state="disabled")
         open_profile.configure(state="disabled")
-        del_profile_button.configure(text=language_manager.get("messages.answers.cancel"), command=_add_profile)
+        del_profile_button.configure(text=language_manager.get("messages.answers.no"), command=_add_profile)
         add_profile_button.configure(
             text=language_manager.get("settings.4_page.save"),
             command=lambda: rename_profile(current)

@@ -23,13 +23,13 @@ theme_type = "dark"
 if not config["random_theme"]:
     selected_theme = config["selected_theme"]
 else:
-    selected_theme = randint(1, 5)
+    selected_theme = random.randint(1, 5)
 color_selected = selected_theme - 1
 
 image_path = os.path.join("png", theme_type, f"{selected_theme}.png")
 
 msg = None
-pil_image = Image.open(image_path)
+pil_image = PIL.Image.open(image_path)
 ctk_image = ctk.CTkImage(pil_image, size=(root_x, root_y))
 label = ctk.CTkLabel(root, image=ctk_image)
 label.place(relheight=1, relwidth=1)
@@ -792,7 +792,7 @@ username_entry.insert(0, config["name"])
 username_entry.place(relx=0.015, rely=0.848, relwidth=0.313, relheight=0.124)
 set_opacity(username_entry, color="#000001", value=0.9)
 
-pil_image_about_us = Image.open("png/GUI/feedback.png")
+pil_image_about_us = PIL.Image.open("png/GUI/feedback.png")
 ctk_image_about_us = ctk.CTkImage(pil_image_about_us, size=(int(30 * width_factor), int(30 * height_factor)))
 feedback_button = ctk.CTkButton(
     root,
@@ -812,7 +812,7 @@ set_opacity(feedback_button, color="#000001", value=0.8)
 if not IS_INTERNET:
     feedback_button.configure(state="disabled")
 
-pil_image_logs = Image.open("png/GUI/logs.png")
+pil_image_logs = PIL.Image.open("png/GUI/logs.png")
 ctk_image_logs = ctk.CTkImage(pil_image_logs, size=(int(30 * width_factor), int(30 * height_factor)))
 logs_button = ctk.CTkButton(
     root,
@@ -829,7 +829,7 @@ logs_button = ctk.CTkButton(
 logs_button.place(relx=0.02, rely=0.617, relwidth=language_manager.get("main.width_buttons") * width_factor / root_x, relheight=0.067)
 set_opacity(logs_button, color="#000001", value=0.8)
 
-pil_image_settings = Image.open("png/GUI/settings.png")
+pil_image_settings = PIL.Image.open("png/GUI/settings.png")
 ctk_image_settings = ctk.CTkImage(pil_image_settings, size=(int(30 * width_factor), int(30 * height_factor)))
 settings_button = ctk.CTkButton(
     root,

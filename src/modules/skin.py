@@ -77,7 +77,7 @@ class MinecraftSkinRenderer:
         return faces
 
     def _render_front(self, faces):
-        canvas = Image.new("RGBA", (16, 32), (0, 0, 0, 0))
+        canvas = PIL.Image.new("RGBA", (16, 32), (0, 0, 0, 0))
         canvas.paste(faces['head_front'], (4, 0))
         canvas.paste(faces['body_front'], (4, 8))
         canvas.paste(faces['arm_front'], (0, 8))
@@ -101,7 +101,7 @@ class MinecraftSkinRenderer:
         ratio = self.height / size_obj[1]
         new_width = int(size_obj[0] * ratio)
         new_height = int(self.height)
-        resized_image = front_view.resize((new_width, new_height), Image.Resampling.NEAREST)
+        resized_image = front_view.resize((new_width, new_height), PIL.Image.Resampling.NEAREST)
         return ctk.CTkImage(light_image=resized_image, dark_image=resized_image, size=(new_width, new_height))
 
 
@@ -111,7 +111,7 @@ def get_skin_png(nickname):
         url = f'http://skinsystem.ely.by/skins/{nickname}.png'
         response = requests.get(url)
         response.raise_for_status()
-        return Image.open(BytesIO(response.content))
+        return PIL.Image.open(BytesIO(response.content))
     except Exception as e:
         excepthook(*sys.exc_info())
         label_skin.configure(image=None)
@@ -131,7 +131,7 @@ def set_skin():
             image_skin = get_skin_png(username_entry.get())
         elif config["custom_skin"]:
             if os.path.isfile(config["custom_skin"]):
-                image_skin = Image.open(config["custom_skin"])
+                image_skin = PIL.Image.open(config["custom_skin"])
             else:
                 config["custom_skin"] = default_config["custom_skin"]
                 label_skin.configure(image=None)
@@ -148,7 +148,7 @@ def set_skin():
 
 
 def select_png_file():
-    file_path = filedialog.askopenfilename(
+    file_path = tk.filedialog.askopenfilename(
         title=language_manager.get("settings.3_page.choice_png_file"),
         filetypes=[(language_manager.get("settings.3_page.png_skin"), "*.png")]
     )
@@ -197,7 +197,7 @@ class MinecraftTexturePackCreator:
 
         res_pack_folder = os.path.join(res_packs_dir, self.pack_name)
         if os.path.exists(res_pack_folder):
-            rmtree(res_pack_folder)
+            shutil.rmtree(res_pack_folder)
         os.makedirs(res_pack_folder, exist_ok=True)
 
         modern_entity_dir = os.path.join(res_pack_folder, "assets", "minecraft", "textures", "entity")
@@ -208,12 +208,12 @@ class MinecraftTexturePackCreator:
         os.makedirs(player_slim_dir, exist_ok=True)
         os.makedirs(player_wide_dir, exist_ok=True)
 
-        copy(self.skin_path, os.path.join(modern_entity_dir, "steve.png"))
-        copy(self.skin_path, os.path.join(modern_entity_dir, "alex.png"))
+        shutil.copy(self.skin_path, os.path.join(modern_entity_dir, "steve.png"))
+        shutil.copy(self.skin_path, os.path.join(modern_entity_dir, "alex.png"))
 
         for model_file in self.models:
-            copy(self.skin_path, os.path.join(player_slim_dir, model_file))
-            copy(self.skin_path, os.path.join(player_wide_dir, model_file))
+            shutil.copy(self.skin_path, os.path.join(player_slim_dir, model_file))
+            shutil.copy(self.skin_path, os.path.join(player_wide_dir, model_file))
 
         packmeta = {
             "pack": {

@@ -8,39 +8,30 @@ import ctypes
 import traceback
 import hashlib
 import sys
+import shutil
+import random
 import webbrowser
+import subprocess
+import threading
 from io import BytesIO
 from locale import getdefaultlocale
-from random import choice, randint
-from shutil import copy, copytree, rmtree
 from socket import create_connection
-from subprocess import (
-    CalledProcessError,
-    PIPE,
-    Popen,
-    STDOUT,
-    TimeoutExpired,
-    run,
-    CREATE_NO_WINDOW,
-)
 from datetime import datetime
-import threading
-from tkinter import filedialog, messagebox, TclError
 from uuid import uuid4
 
 import minecraft_launcher_lib as mcl
 import customtkinter as ctk
 import requests
+import packaging
 import hPyT
+import bs4
 import win32job
 import win32con
 import win32api
-from bs4 import BeautifulSoup
+import optipy
+import PIL
 from CTkMessagebox import CTkMessagebox
 from CTkScrollableDropdownPP import CTkScrollableDropdown
-from optipy import getVersion, getVersionList
-from packaging.version import Version
-from PIL import Image
 from psutil import virtual_memory
 from pywinstyles import set_opacity
 from ratelimit import rate_limited
@@ -258,7 +249,8 @@ if __name__ == "__main__":
                      "Do not include general or universal advice unless it is directly related to the identified cause.\n\n"
                      "If the input is not a Minecraft log, respond exactly with `None` (without any additional text).\n"
                      "If the logs do not contain enough information to clearly determine the cause, respond exactly with `None` (without any additional text).")
-
+    
+    
     mods_path = os.path.join(minecraft_path, "mods")
     if version["profile"]:
         if not os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + version["profile"])):
@@ -266,8 +258,28 @@ if __name__ == "__main__":
             version["profile"] = False
             save_version(version)
         if os.path.isdir(mods_path):
-            rmtree(mods_path)
-
+            shutil.rmtree(mods_path)
+    
+    
+    for profile in [os.path.join(minecraft_path, "profiles", name) for name in os.listdir(os.path.join(minecraft_path, "profiles")) if os.path.isdir(os.path.join(os.path.join(minecraft_path, "profiles"), name))]:
+        items = os.listdir(profile)
+    
+        for item in items:
+            full_path = os.path.join(profile, item)
+            if not os.path.isfile(full_path) or not item.lower().endswith('.jar'):
+                break
+        else:
+            log(f"Profile \"{profile}\" is using the old system. Switching to the new one...")
+            if items:
+                mods_folder = os.path.join(profile, "mods")
+                if not os.path.exists(mods_folder):
+                    os.mkdir(mods_folder)
+    
+                for item in items:
+                    src = os.path.join(profile, item)
+                    dst = os.path.join(mods_folder, item)
+                    shutil.move(src, dst)
+    
     create_minecraft_environment()
 
     log(f"Starting interface initialization...")
