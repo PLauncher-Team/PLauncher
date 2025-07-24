@@ -1,12 +1,12 @@
 class Translator:
     def __init__(self, language=None):
-        supported_languages = {"ru", "en", "es", "uk", "be"}
+        supported_languages = {"ru", "en"}
 
         if not language:
             sys_locale = getdefaultlocale()[0]
             if sys_locale:
                 lang_code = sys_locale.split("_")[0].lower()
-                self.language = lang_code if lang_code in supported_languages else "ru"
+                self.language = lang_code if lang_code in supported_languages else "en"
             else:
                 self.language = "ru"
             config["language"] = self.language
