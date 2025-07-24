@@ -55,7 +55,7 @@ No additional setup is required — just download and run!
 
 * **Profile Management**
 
-    * Create, select, and delete profiles, each with its own `mods` folder.
+    * Create, select, and delete fully-isolated profiles with separate game data and settings.
 
 * **Java Configuration**
 
