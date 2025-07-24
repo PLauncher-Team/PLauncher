@@ -1,5 +1,3 @@
-import hPyT
-
 root = ctk.CTk()
 
 screen_width = max(960, root.winfo_screenwidth())
