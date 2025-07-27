@@ -12,7 +12,7 @@ class Translator:
             config["language"] = self.language
             save_config(config)
         else:
-            self.language = language if language in supported_languages else "en"
+            self.language = language
     
         self.translations = {}
         self._load_translations()
