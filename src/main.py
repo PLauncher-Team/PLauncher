@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     IS_INTERNET = check_internet_connection()
     CURRENT_VERSION = "v1.0.0"
-    FPS = get_max_refresh_rate()
+    FPS = get_refresh_rate()
     MAX_MEMORY_GB = get_available_memory()
     FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform"
     FORM_SUBMIT_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/formResponse"
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     old_types_versions = []
 
     log(f"Version: {CURRENT_VERSION}")
-    log(f"Highest monitor refresh rate: {FPS} Hz")
+    log(f"Monitor refresh rate: {FPS} Hz")
     log(f"Internet status: {IS_INTERNET}")
     log(f"RAM size: {MAX_MEMORY_GB} GB")
 
