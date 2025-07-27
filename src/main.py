@@ -18,6 +18,7 @@ from locale import getdefaultlocale
 from socket import create_connection
 from datetime import datetime
 from uuid import uuid4
+from tkinter import filedialog
 
 import minecraft_launcher_lib as mcl
 import customtkinter as ctk

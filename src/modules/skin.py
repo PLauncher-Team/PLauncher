@@ -148,7 +148,7 @@ def set_skin():
 
 
 def select_png_file():
-    file_path = tk.filedialog.askopenfilename(
+    file_path = filedialog.askopenfilename(
         title=language_manager.get("settings.3_page.choice_png_file"),
         filetypes=[(language_manager.get("settings.3_page.png_skin"), "*.png")]
     )

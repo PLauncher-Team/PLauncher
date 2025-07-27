@@ -70,7 +70,7 @@ def select_java_path():
     Открывает диалоговое окно для выбора файла (например, java.exe)
     и возвращает выбранный путь.
     """
-    file_path = tk.filedialog.askopenfilename(
+    file_path = filedialog.askopenfilename(
         title=language_manager.get("settings.2_page.select_java"),
         filetypes=[(language_manager.get("settings.2_page.java_exe"), "java.exe")]
     )

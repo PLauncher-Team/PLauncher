@@ -109,7 +109,7 @@ def entry_input():
 def change_mine(selection=True):
     global minecraft_path, version
     if selection:
-        folder = tk.filedialog.askdirectory(title=language_manager.get("settings.2_page.select_directory")).replace("/", "\\")
+        folder = filedialog.askdirectory(title=language_manager.get("settings.2_page.select_directory")).replace("/", "\\")
         if folder == os.path.join(os.getenv('APPDATA'), ".minecraft"):
             default_directory.toggle()
             change_mine(False)
