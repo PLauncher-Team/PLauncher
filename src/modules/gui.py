@@ -476,7 +476,6 @@ label_skin.place(relheight=1, relx=0.5, rely=0.5, anchor="center")
 update_skin_button = ctk.CTkButton(
     frame_skin,
     text=language_manager.get("settings.3_page.update"),
-    bg_color="#000001",
     font=get_dynamic_font("Segoe UI", 20),
     command=lambda: threading.Thread(target=set_skin).start(),
     text_color=user_color,
@@ -485,7 +484,7 @@ update_skin_button = ctk.CTkButton(
     corner_radius=20,
 )
 update_skin_button.place(relx=1, rely=1, relwidth=0.4, relheight=0.15, anchor="se")
-set_opacity(update_skin_button, color="#000001")
+set_opacity(update_skin_button, color="#242424")
 
 select_skin_button = ctk.CTkButton(
     content_frames[tabs[2]],
@@ -750,22 +749,19 @@ status_label = ctk.CTkLabel(
     text=language_manager.get("main.status.waiting"),
     font=get_dynamic_font("Segoe UI", 17, "bold"),
     anchor="s",
-    text_color=user_color,
-    image=snip_image(pil_image, 671 * width_factor, 408 * height_factor, 984 * width_factor, 450 * height_factor),
+    text_color=user_color
 )
 status_label.place(relx=0.671, rely=0.725, relwidth=0.313, relheight=0.074)
-status_label.lower()
-label.lower()
+set_opacity(status_label, color="#242424")
 
 progress_bg = ctk.CTkProgressBar(
     root,
     corner_radius=20,
-    bg_color="#000001",
     fg_color=lighten_dominant_10,
     progress_color=lighten_dominant_10,
 )
 progress_bg.place(relx=0.671, rely=0.8, relwidth=0.313, relheight=0.035)
-set_opacity(progress_bg, color="#000001", value=0.9)
+set_opacity(progress_bg, color="#242424", value=0.9)
 
 progress_bar = ctk.CTkProgressBar(
     root,
@@ -783,14 +779,13 @@ username_entry = ctk.CTkEntry(
     font=get_dynamic_font("Segoe UI", 23),
     text_color=user_color,
     corner_radius=20,
-    bg_color="#000001",
     border_width=0,
     fg_color=lighten_dominant_10
 )
 username_entry.bind("<KeyRelease>", lambda h: save_config_menu())
 username_entry.insert(0, config["name"])
 username_entry.place(relx=0.015, rely=0.848, relwidth=0.313, relheight=0.124)
-set_opacity(username_entry, color="#000001", value=0.9)
+set_opacity(username_entry, color="#242424", value=0.9)
 
 pil_image_about_us = PIL.Image.open("png/GUI/feedback.png")
 ctk_image_about_us = ctk.CTkImage(pil_image_about_us, size=(int(30 * width_factor), int(30 * height_factor)))
@@ -799,7 +794,6 @@ feedback_button = ctk.CTkButton(
     width=language_manager.get("main.width_buttons"),
     corner_radius=20,
     command=FeedbackApp,  
-    bg_color="#000001",
     fg_color=lighten_dominant_10,
     image=ctk_image_about_us,
     text=language_manager.get("main.buttons.feedback"),
@@ -808,7 +802,7 @@ feedback_button = ctk.CTkButton(
     hover_color=lighten_dominant_5,
 )
 feedback_button.place(relx=0.02, rely=0.51, relwidth=language_manager.get("main.width_buttons") * width_factor / root_x, relheight=0.067)
-set_opacity(feedback_button, color="#000001", value=0.8)
+set_opacity(feedback_button, color="#242424", value=0.8)
 if not IS_INTERNET:
     feedback_button.configure(state="disabled")
 
@@ -818,7 +812,6 @@ logs_button = ctk.CTkButton(
     root,
     text=language_manager.get("main.buttons.logs"),
     image=ctk_image_logs,
-    bg_color="#000001",
     corner_radius=20,
     fg_color=lighten_dominant_10,
     text_color=user_color,
@@ -827,14 +820,13 @@ logs_button = ctk.CTkButton(
     hover_color=lighten_dominant_5,
 )
 logs_button.place(relx=0.02, rely=0.617, relwidth=language_manager.get("main.width_buttons") * width_factor / root_x, relheight=0.067)
-set_opacity(logs_button, color="#000001", value=0.8)
+set_opacity(logs_button, color="#242424", value=0.8)
 
 pil_image_settings = PIL.Image.open("png/GUI/settings.png")
 ctk_image_settings = ctk.CTkImage(pil_image_settings, size=(int(30 * width_factor), int(30 * height_factor)))
 settings_button = ctk.CTkButton(
     root,
     text=language_manager.get("main.buttons.settings"),
-    bg_color="#000001",
     corner_radius=20,
     fg_color=lighten_dominant_10,
     text_color=user_color,
@@ -844,7 +836,7 @@ settings_button = ctk.CTkButton(
     image=ctk_image_settings,
 )
 settings_button.place(relx=0.02, rely=0.724, relwidth=language_manager.get("main.width_buttons") * width_factor / root_x, relheight=0.067)
-set_opacity(settings_button, color="#000001", value=0.8)
+set_opacity(settings_button, color="#242424", value=0.8)
 
 version_combobox_ctk = ctk.CTkComboBox(
     root,
@@ -853,7 +845,6 @@ version_combobox_ctk = ctk.CTkComboBox(
     fg_color=lighten_dominant_10,
     dropdown_hover_color=lighten_dominant_5,
     font=get_dynamic_font("Segoe UI", 20),
-    bg_color="#000001",
     border_width=0,
     button_color=lighten_dominant_5,
     dropdown_fg_color=lighten_dominant_5,
@@ -862,7 +853,7 @@ version_combobox_ctk = ctk.CTkComboBox(
 )
 version_combobox_ctk.set(version["version"])
 version_combobox_ctk.place(relx=0.343, rely=0.848, relwidth=0.313)
-set_opacity(version_combobox_ctk, color="#000001", value=0.9)
+set_opacity(version_combobox_ctk, color="#242424", value=0.9)
 version_combobox = CTkScrollableDropdown(
     version_combobox_ctk,
     values=[],
@@ -896,11 +887,10 @@ launch_button = ctk.CTkButton(
     fg_color=lighten_dominant_10,
     font=get_dynamic_font("Segoe UI", 20, "bold"),
     corner_radius=25,
-    bg_color="#000001",
     text_color=user_color,
 )
 launch_button.place(relx=0.671, rely=0.848, relwidth=0.313, relheight=0.124)
-set_opacity(launch_button, color="#000001", value=0.9)
+set_opacity(launch_button, color="#242424", value=0.9)
 
 for i in root, crash_window:
     hPyT.title_bar_color.set(i, dominant_color)

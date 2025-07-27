@@ -87,9 +87,8 @@ class VersionFrame(ctk.CTkFrame):
                          fg_color="#111111",
                          corner_radius=20,
                          border_width=2,
-                         border_color="#FFFFFF",
-                         bg_color="#000001")
-        set_opacity(self, value=0.6, color="#000001")
+                         border_color="#FFFFFF")
+        set_opacity(self, value=0.6, color="#242424")
         self.url = "https://github.com/PLauncher-Team/PLauncher/releases/latest"
         self.version_label = ctk.CTkLabel(self,
                                           text=CURRENT_VERSION,
