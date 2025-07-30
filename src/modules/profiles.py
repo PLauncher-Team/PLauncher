@@ -1,3 +1,6 @@
+import os.path
+
+
 def profile_select(*args):
     """
     Handles profile selection from the dropdown. 
@@ -119,9 +122,8 @@ def list_dir() -> list:
     """
     profiles_dir = os.path.join(minecraft_path, "profiles")
     return [language_manager.get("settings.4_page.no")] + [
-        g[8:] for g in os.listdir(profiles_dir)
+        g[8:] for g in os.listdir(profiles_dir) if len(g) >= 9 and os.path.isdir(os.path.join(profiles_dir, g))
     ]
-
 
 def rename_profile(old_name: str):
     """

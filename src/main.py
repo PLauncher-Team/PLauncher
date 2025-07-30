@@ -315,8 +315,8 @@ if __name__ == "__main__":
             if not os.path.isfile(full_path) or not item.lower().endswith('.jar'):
                 break
         else:
-            log(f"Profile \"{profile}\" is using the old system. Switching to the new one...")
             if items:
+                log(f"Profile \"{profile}\" is using the old system. Switching to the new one...")
                 mods_folder = os.path.join(profile, "mods")
                 if not os.path.exists(mods_folder):
                     os.mkdir(mods_folder)
