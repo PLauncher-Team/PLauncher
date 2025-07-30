@@ -105,18 +105,14 @@ class MinecraftSkinRenderer:
         return ctk.CTkImage(light_image=resized_image, dark_image=resized_image, size=(new_width, new_height))
 
 
-
 def get_skin_png(nickname):
     try:
         url = f'http://skinsystem.ely.by/skins/{nickname}.png'
         response = requests.get(url)
         response.raise_for_status()
         return PIL.Image.open(BytesIO(response.content))
-    except Exception as e:
-        excepthook(*sys.exc_info())
+    except Exception:
         label_skin.configure(image=None)
-        if response.status_code != 404:
-            new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.ely_by_skin") + str(e), icon="cancel", option_1=language_manager.get("messages.answers.ok"))
 
 
 def set_skin():

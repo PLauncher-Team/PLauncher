@@ -40,9 +40,10 @@ from ratelimit import rate_limited
 
 def log(message, level='INFO', source='main'):
     caller_name = sys._getframe(1).f_code.co_name
-    
+    thread_name = threading.current_thread().name
+
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    output = f"[{timestamp} - {level} - {source}.{caller_name}] - {message}"
+    output = f"[{timestamp} - {level} - {source}.{caller_name} - {thread_name}] - {message}"
 
     with log_lock:
         print(output)
