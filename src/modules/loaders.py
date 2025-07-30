@@ -1,4 +1,6 @@
-def list_ver(loader):
+def list_ver(loader: str) -> list:
+    """Returns a list of available versions for the specified loader.
+    If no internet connection, returns empty list."""
     if not IS_INTERNET:
         return []
     other_versions_list = loaders_versions_mine[loader]
@@ -8,6 +10,7 @@ def list_ver(loader):
 
 
 def fun_install_loader():
+    """Main function for installing Minecraft loaders (Fabric, Quilt, Forge, etc.)"""
     global loader_process
     progress_loader.configure(progress_color=dominant_color)
     try:
@@ -17,13 +20,16 @@ def fun_install_loader():
         }
         version_select = choice_version_ctk.get()
         loader_select = choice_loader.get()
+
+        # Install Java if not installed
         if not get_java_path():
             mcl.runtime.install_jvm_runtime("jre-legacy", minecraft_path, callback=val_call)
         path_to_java = get_java_path()
-        
+
         log(f"Downloading Minecraft version {version_select} with loader {loader_select}..", source="loaders")
         log(f"Java path: {path_to_java}", source="loaders")
-        
+
+        # Handle different loader types
         if loader_select == "Fabric":
             mcl.fabric.install_fabric(minecraft_version=version_select, minecraft_directory=minecraft_path,
                                       callback=val_call, java=path_to_java)
@@ -34,6 +40,7 @@ def fun_install_loader():
             mcl.forge.install_forge_version(mcl.forge.find_forge_version(version_select), path=minecraft_path,
                                             callback=val_call, java=path_to_java)
         elif loader_select == "OptiFine":
+            # Special handling for OptiFine installation
             mcl.install.install_minecraft_version(versionid=version_select,
                                                   minecraft_directory=minecraft_path, callback=val_call)
             get_ver = optipy.getVersion(mc_version=version_select)
@@ -56,29 +63,36 @@ def fun_install_loader():
                                                   minecraft_directory=minecraft_path, callback=val_call)
             mcl.neoforge.download_and_run(version=dictionary_neoforge[version_select], path_minecraft=minecraft_path,
                                           path_to_java=path_to_java)
+
+        # Refresh versions list after installation
         root.after(0, load_versions)
         log("Installation successful.", source="loaders")
-        
+
     except Exception as e:
         excepthook(*sys.exc_info())
-        new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.loading_loader") + str(e.__class__.__name__),
+        new_message(title=language_manager.get("messages.titles.error"),
+                    message=language_manager.get("messages.texts.error.loading_loader") + str(e.__class__.__name__),
                     icon="warning", option_1=language_manager.get("messages.answers.ok"))
 
 
 def fun_install_loaders():
+    """Wrapper function for loader installation that handles threading and UI updates"""
     def off_load():
+        """Callback function to cancel the installation process"""
         install_loader.configure(state="disabled", text=language_manager.get("main.status.finalizing"))
         kill_thread(download_thread)
         if loader_process:
             loader_process.terminate()
 
+    # Start installation in a separate thread
     download_thread = threading.Thread(target=fun_install_loader)
     download_thread.start()
     install_loader.configure(command=off_load, text=language_manager.get("settings.4_page.cancel_loading"))
     launch_button.configure(state="disabled")
-    
+
     download_thread.join()
-    
+
+    # Restore UI after installation completes
     install_loader.configure(state="normal", text=language_manager.get("settings.4_page.install_loader"),
                              command=lambda: threading.Thread(target=fun_install_loaders).start())
     launch_button.configure(state="normal")
@@ -86,10 +100,12 @@ def fun_install_loaders():
 
 
 def get_loaders_versions():
+    """Fetches available versions for all loaders (Forge, Fabric, etc.) in parallel threads"""
     if not IS_INTERNET:
         return
 
     def load_forge():
+        """Load available Forge versions"""
         try:
             for version in mcl.forge.list_forge_versions():
                 mc_version = version.split("-")[0]
@@ -101,6 +117,7 @@ def get_loaders_versions():
             excepthook(*sys.exc_info())
 
     def load_fabric():
+        """Load available Fabric versions"""
         try:
             fabric = mcl.fabric.get_all_minecraft_versions()
             for v in fabric:
@@ -108,8 +125,9 @@ def get_loaders_versions():
         except Exception as e:
             log("Error fetching Fabric versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
-    
+
     def load_quilt():
+        """Load available Quilt versions"""
         try:
             quilt = mcl.quilt.get_all_minecraft_versions()
             for v in quilt:
@@ -117,16 +135,18 @@ def get_loaders_versions():
         except Exception as e:
             log("Error fetching Quilt versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
-    
+
     def load_optifine():
+        """Load available OptiFine versions"""
         try:
             versions = optipy.getVersionList()
             optifine_version_mine.extend(versions)
         except Exception as e:
             log("Error fetching OptiFine versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
-    
+
     def load_neoforge():
+        """Load available NeoForge versions"""
         global dictionary_neoforge
         try:
             dictionary_neoforge = mcl.neoforge.get_versions()
@@ -135,16 +155,19 @@ def get_loaders_versions():
         except Exception as e:
             log("Error fetching NeoForge versions:", "ERROR", source="loaders")
             excepthook(*sys.exc_info())
-    
+
+    # Start all loader version fetchers in parallel threads
     threads = []
     for target in (load_forge, load_fabric, load_quilt, load_optifine, load_neoforge):
         t = threading.Thread(target=target)
         t.start()
         threads.append(t)
 
+    # Wait for all threads to complete
     for t in threads:
         t.join()
 
+    # Update UI with available loaders
     available_loaders = []
     if fabric_versions_mine:
         available_loaders.append("Fabric")
@@ -160,6 +183,7 @@ def get_loaders_versions():
     root.after(0, lambda: choice_loader.configure(values=available_loaders))
     choice_loader.set(available_loaders[0] if available_loaders else "")
 
+    # Update versions list for the selected loader
     if available_loaders:
         loader = choice_loader.get()
         versions_map = {

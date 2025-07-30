@@ -1,4 +1,8 @@
-def get_java_path():
+def get_java_path() -> str | bool:
+    """
+    Retrieves the path to the installed Java runtime within the Minecraft directory.
+    Returns False if no JVM runtime is installed.
+    """
     jvm_installed = mcl.runtime.get_installed_jvm_runtimes(minecraft_path)
     if not jvm_installed:
         return False
@@ -6,9 +10,13 @@ def get_java_path():
     return os.path.join(minecraft_path, "runtime", jvm_installed, "windows-x64", jvm_installed, "bin", "java.exe")
 
 
-def get_formatted_java_info(path: str) -> str:
+def get_formatted_java_info(path: str) -> str | None:
+    """
+    Returns a formatted string containing Java vendor, version, LTS status and release date.
+    Returns None if path is invalid or Java check fails.
+    """
     if not path or not check_java(path):
-        return 
+        return
     output = None
     for flag in ("--version", "-version"):
         try:
@@ -26,6 +34,7 @@ def get_formatted_java_info(path: str) -> str:
     first_line = output.splitlines()[0]
     low = first_line.lower()
 
+    # Determine Java vendor based on output
     if "openjdk" in low:
         vendor = "OpenJDK"
     elif "java version" in low:
@@ -33,6 +42,7 @@ def get_formatted_java_info(path: str) -> str:
     else:
         vendor = "Java"
 
+    # Extract version and date information using regex
     m_ver = re.search(r"(\d+)(?:\.(\d+)(?:\.(\d+))?)?", first_line)
     m_date = re.search(r"(\d{4}-\d{2}-\d{2})", first_line)
     is_lts = "lts" in low
@@ -54,6 +64,7 @@ def get_formatted_java_info(path: str) -> str:
         except ValueError:
             release_date = m_date.group(1)
 
+    # Construct formatted Java info string
     formatted_parts = [vendor]
     if full_ver:
         formatted_parts.append(full_ver)
@@ -65,10 +76,10 @@ def get_formatted_java_info(path: str) -> str:
     return " ".join(formatted_parts)
 
 
-def select_java_path():
+def select_java_path() -> str | None:
     """
-    Открывает диалоговое окно для выбора файла (например, java.exe)
-    и возвращает выбранный путь.
+    Opens a file dialog to allow the user to select a Java executable file.
+    Returns the selected file path or None if no file was selected.
     """
     file_path = filedialog.askopenfilename(
         title=language_manager.get("settings.2_page.select_java"),
@@ -77,16 +88,12 @@ def select_java_path():
 
     if file_path:
         return file_path
-    else:
-        return None
 
 
-def check_java(java_path):
+def check_java(java_path: str) -> bool:
     """
-    Проверяет работоспособность java по указанному пути.
-    
-    :param java_path: Полный путь к исполняемому файлу java.
-    :return: True, если Java работает, False в противном случае.
+    Checks whether the specified java executable path points to a valid Java runtime.
+    Returns True if Java version command succeeds, False otherwise.
     """
     try:
         result = subprocess.run([java_path, '-version'], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
@@ -106,6 +113,11 @@ def check_java(java_path):
 
 
 def add_java():
+    """
+    Allows user to add a new Java path by selecting an executable and
+    storing its formatted info and path into the config.
+    Updates the Java selection combobox accordingly.
+    """
     path = select_java_path()
     info = get_formatted_java_info(path)
     if info:
@@ -113,10 +125,20 @@ def add_java():
         save_config(config)
         java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
     elif path:
-        new_message(title=language_manager.get("messages.titles.error"), message=language_manager.get("messages.texts.error.java"), icon="cancel", option_1=language_manager.get("messages.answers.ok"))
+        new_message(
+            title=language_manager.get("messages.titles.error"),
+            message=language_manager.get("messages.texts.error.java"),
+            icon="cancel",
+            option_1=language_manager.get("messages.answers.ok")
+        )
 
 
-def on_select_java(name):
+def on_select_java(name: str):
+    """
+    Handles user selection from the Java combobox.
+    If user selects 'Add', triggers add_java().
+    Otherwise, updates config with selected Java path.
+    """
     if name == language_manager.get("settings.2_page.add"):
         java_combobox.set(config["java"] or language_manager.get("settings.2_page.recommended_java"))
         add_java()
@@ -129,9 +151,13 @@ def on_select_java(name):
 
 
 def del_java():
+    """
+    Deletes the currently selected custom Java path from config after confirmation.
+    Resets selection to recommended Java if deletion confirmed.
+    """
     current = java_combobox.get()
     if current == language_manager.get("settings.2_page.recommended_java"):
-        return 
+        return
     new_message(
         title=language_manager.get("messages.titles.warning"),
         message=f"{language_manager.get('messages.texts.warning.java')} ({current})",
@@ -145,4 +171,3 @@ def del_java():
         save_config(config)
         java_combobox.set(language_manager.get("settings.2_page.recommended_java"))
         java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
-        
