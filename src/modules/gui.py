@@ -872,7 +872,7 @@ version_combobox = CTkScrollableDropdown(
         ["OptiFine", r"(?i).*optifine.*"],
         ["NeoForge", r"(?i).*neoforge.*"],
         ["Quilt",    r"(?i).*quilt.*"],
-        ["Minecraft", r"(?i)^(?!.*(forge|fabric-loader|optifine|neoforge|quilt)).*$"],
+        ["Minecraft", "__OTHERS__"],
         [installed_text.replace("(", "").replace(")", ""), rf"{re.escape(installed_text)}\s*$"],
         [not_complete_text.replace("(", "").replace(")", ""), rf"{re.escape(not_complete_text)}\s*$"]
     ]
