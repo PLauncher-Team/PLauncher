@@ -305,6 +305,9 @@ if __name__ == "__main__":
             version["profile"] = False
             save_version(version)
 
+    # Create required Minecraft directories
+    create_minecraft_environment()
+    
     # Migrate old profile system to new one if needed
     for profile in [os.path.join(minecraft_path, "profiles", name) for name in os.listdir(os.path.join(minecraft_path, "profiles")) if os.path.isdir(os.path.join(os.path.join(minecraft_path, "profiles"), name))]:
         items = os.listdir(profile)
