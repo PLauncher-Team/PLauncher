@@ -873,8 +873,8 @@ version_combobox = CTkScrollableDropdown(
         ["NeoForge", r"(?i).*neoforge.*"],
         ["Quilt",    r"(?i).*quilt.*"],
         ["Minecraft", "__OTHERS__"],
-        [installed_text, rf"{re.escape(installed_text)}\s*$"],
-        [not_complete_text, rf"{re.escape(not_complete_text)}\s*$"]
+        [installed_text.replace("(", "").replace(")", ""), rf"{re.escape(installed_text)}\s*$"],
+        [not_complete_text.replace("(", "").replace(")", ""), rf"{re.escape(not_complete_text)}\s*$"]
     ]
 )
 version_combobox.search_entry.configure(font=get_dynamic_font("Segoe UI", 23),
