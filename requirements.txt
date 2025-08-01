@@ -9,4 +9,4 @@ pillow
 psutil
 pywinstyles
 ratelimit
-ctkscrollabledropdownpp
+CTkScrollableDropdownPP @ git+https://github.com/PLauncher-Team/CTkScrollableDropdownPP.git
