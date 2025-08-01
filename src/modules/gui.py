@@ -865,7 +865,7 @@ version_combobox = CTkScrollableDropdown(
     button_color=lighten_dominant_10,
     hover_color=lighten_dominant_15,
     command=set_version,
-    font=get_dynamic_font("Segoe UI", 13),
+    font=get_dynamic_font("Segoe UI", 12),
     groups=[
         ["Forge",    r"(?i)(?<!neo)forge.*"],
         ["Fabric",   r"(?i).*fabric-loader.*"],
