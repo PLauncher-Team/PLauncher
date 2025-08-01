@@ -854,6 +854,9 @@ version_combobox_ctk = ctk.CTkComboBox(
 version_combobox_ctk.set(version["version"])
 version_combobox_ctk.place(relx=0.343, rely=0.848, relwidth=0.313)
 set_opacity(version_combobox_ctk, color="#242424", value=0.9)
+
+installed_text = language_manager.get("main.types_versions.installed")
+not_complete_text = language_manager.get("main.types_versions.not_completed")
 version_combobox = CTkScrollableDropdown(
     version_combobox_ctk,
     values=[],
@@ -869,7 +872,9 @@ version_combobox = CTkScrollableDropdown(
         ["OptiFine", r"(?i).*optifine.*"],
         ["NeoForge", r"(?i).*neoforge.*"],
         ["Quilt",    r"(?i).*quilt.*"],
-        ["Minecraft", "__OTHERS__"]
+        ["Minecraft", "__OTHERS__"],
+        [installed_text, rf"{re.escape(installed_text)}\s*$"],
+        [not_complete_text, rf"{re.escape(not_complete_text)}\s*$"]
     ]
 )
 version_combobox.search_entry.configure(font=get_dynamic_font("Segoe UI", 23),
