@@ -2,6 +2,9 @@
   License text: [licenses/LICENSE-icons.txt](licenses/LICENSE-icons.txt)
 
 
+- **OptifineInstallerBridge** (MIT License © zabi94)
+  License text: [licenses/LICENSE-optifinebridge.txt](licenses/LICENSE-optifinebridge.txt)
+
 - **minecraft_launcher_lib** (BSD 2-Clause License © JakobDev)  
   License text: [licenses/LICENSE-mcl.txt](licenses/LICENSE-mcl.txt)
 
