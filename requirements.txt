@@ -1,4 +1,3 @@
-customtkinter
 requests
 hPyT
 pywin32
