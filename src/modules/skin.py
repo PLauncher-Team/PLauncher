@@ -94,7 +94,7 @@ class MinecraftSkinRenderer:
 
 
 # Downloads skin PNG from ely.by
-def get_skin_png(nickname: str) -> PIL.Image.Image | None:
+def get_skin_png(nickname: str) -> PIL.Image.Image:
     try:
         url = f'http://skinsystem.ely.by/skins/{nickname}.png'
         response = requests.get(url)

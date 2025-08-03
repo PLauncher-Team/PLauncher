@@ -10,7 +10,7 @@ def get_java_path() -> str | bool:
     return os.path.join(minecraft_path, "runtime", jvm_installed, "windows-x64", jvm_installed, "bin", "java.exe")
 
 
-def get_formatted_java_info(path: str) -> str | None:
+def get_formatted_java_info(path: str) -> str:
     """
     Returns a formatted string containing Java vendor, version, LTS status and release date.
     Returns None if path is invalid or Java check fails.
@@ -76,7 +76,7 @@ def get_formatted_java_info(path: str) -> str | None:
     return " ".join(formatted_parts)
 
 
-def select_java_path() -> str | None:
+def select_java_path() -> str:
     """
     Opens a file dialog to allow the user to select a Java executable file.
     Returns the selected file path or None if no file was selected.

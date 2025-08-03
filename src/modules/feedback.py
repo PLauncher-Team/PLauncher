@@ -19,40 +19,35 @@ class FeedbackApp(ctk.CTkToplevel):
         self.email_label = ctk.CTkLabel(
             self,
             text=language_manager.get("feedback.email"),
-            font=get_dynamic_font("Segoe UI", 13),
-            text_color=user_color
+            font=get_dynamic_font("Segoe UI", 13)
         )
         self.email_label.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.05)
 
         self.email_entry = ctk.CTkEntry(
             self,
             font=get_dynamic_font("Segoe UI", 13),
-            border_width=0,
-            text_color=user_color
+            border_width=0
         )
         self.email_entry.place(relx=0.02, rely=0.07, relwidth=0.96, relheight=0.07)
 
         self.subject_label = ctk.CTkLabel(
             self,
             text=language_manager.get("feedback.subject"),
-            font=get_dynamic_font("Segoe UI", 13),
-            text_color=user_color
+            font=get_dynamic_font("Segoe UI", 13)
         )
         self.subject_label.place(relx=0.02, rely=0.16, relwidth=0.96, relheight=0.05)
 
         self.subject_entry = ctk.CTkEntry(
             self,
             font=get_dynamic_font("Segoe UI", 13),
-            border_width=0,
-            text_color=user_color
+            border_width=0
         )
         self.subject_entry.place(relx=0.02, rely=0.21, relwidth=0.96, relheight=0.07)
 
         self.desc_label = ctk.CTkLabel(
             self,
             text=language_manager.get("feedback.description"),
-            font=get_dynamic_font("Segoe UI", 13),
-            text_color=user_color
+            font=get_dynamic_font("Segoe UI", 13)
         )
         self.desc_label.place(relx=0.02, rely=0.30, relwidth=0.96, relheight=0.05)
 
@@ -63,21 +58,11 @@ class FeedbackApp(ctk.CTkToplevel):
             self,
             text=language_manager.get("feedback.send"),
             command=self.on_send_click,
-            font=get_dynamic_font("Segoe UI", 13, "bold"),
-            fg_color=lighten_dominant_10,
-            hover_color=lighten_dominant_5,
-            text_color=user_color
+            font=get_dynamic_font("Segoe UI", 13, "bold")
         )
         self.send_button.place(relx=0.40, rely=0.82, relwidth=0.20, relheight=0.06)
 
         self.deiconify()
-
-    def _restore_titlebar_color(self, event=None):
-        """
-        Restore custom title bar color on window map event
-        """
-        hPyT.title_bar_color.set(self, dominant_color)
-        hPyT.title_bar_text_color.set(self, "#000000" if user_color == "black" else "#FFFFFF")
 
     def fetch_dynamic_field_ids(self, form_view_url: str) -> dict[str, str]:
         """

@@ -32,7 +32,7 @@
   },
   "settings": {
     "title": "Configuraciones",
-    "pages": ["Lanzador", "Minecraft", "Skins", "Cargadores", "Más"],
+    "pages": ["Lanzador", "Minecraft", "Skins", "Cargadores", "Temas"],
     "1_page": {
       "version_types_1": "Tipos de versiones",
       "version_types_2": "Tipos de versiones mostradas en la lista en la pantalla principal:",

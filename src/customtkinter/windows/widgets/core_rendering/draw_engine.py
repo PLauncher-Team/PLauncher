@@ -690,36 +690,45 @@ class DrawEngine:
 
         return requires_recoloring
 
-    def draw_rounded_progress_bar_with_border(self, width: Union[float, int], height: Union[float, int], corner_radius: Union[float, int],
-                                              border_width: Union[float, int], progress_value_1: float, progress_value_2: float, orientation: str) -> bool:
-        """ Draws a rounded bar on the canvas, and onntop sits a progress bar from value 1 to value 2 (range 0-1, left to right, bottom to top).
-            The border elements get the 'border_parts' tag", the main elements get the 'inner_parts' tag and
-            the progress elements get the 'progress_parts' tag. The 'orientation' argument defines from which direction the progress starts (n, w, s, e).
-
-            returns bool if recoloring is necessary """
-
+    def draw_rounded_progress_bar_with_border(self,
+                                              width: Union[float, int],
+                                              height: Union[float, int],
+                                              corner_radius: Union[float, int],
+                                              border_width: Union[float, int],
+                                              progress_value_1: float,
+                                              progress_value_2: float,
+                                              orientation: str) -> bool:
         if self._round_width_to_even_numbers:
-            width = math.floor(width / 2) * 2  # round _current_width and _current_height and restrict them to even values only
+            width = math.floor(width / 2) * 2
         if self._round_height_to_even_numbers:
             height = math.floor(height / 2) * 2
-
-        if corner_radius > width / 2 or corner_radius > height / 2:  # restrict corner_radius if it's too larger
+    
+        if corner_radius > width / 2 or corner_radius > height / 2:
             corner_radius = min(width / 2, height / 2)
-
+    
         border_width = round(border_width)
-        corner_radius = self.__calc_optimal_corner_radius(corner_radius)  # optimize corner_radius for different drawing methods (different rounding)
-
+        corner_radius = self.__calc_optimal_corner_radius(corner_radius)
+    
         if corner_radius >= border_width:
             inner_corner_radius = corner_radius - border_width
         else:
             inner_corner_radius = 0
-
+    
+        if abs(progress_value_1 - progress_value_2) <= 0.00001:
+            self._canvas.itemconfig("progress_parts", state="hidden")
+        else:
+            self._canvas.itemconfig("progress_parts", state="normal")
+    
         if self.preferred_drawing_method == "polygon_shapes" or self.preferred_drawing_method == "circle_shapes":
-            return self.__draw_rounded_progress_bar_with_border_polygon_shapes(width, height, corner_radius, border_width, inner_corner_radius,
-                                                                               progress_value_1, progress_value_2, orientation)
+            return self.__draw_rounded_progress_bar_with_border_polygon_shapes(
+                width, height, corner_radius, border_width, inner_corner_radius,
+                progress_value_1, progress_value_2, orientation
+            )
         elif self.preferred_drawing_method == "font_shapes":
-            return self.__draw_rounded_progress_bar_with_border_font_shapes(width, height, corner_radius, border_width, inner_corner_radius,
-                                                                            progress_value_1, progress_value_2, orientation)
+            return self.__draw_rounded_progress_bar_with_border_font_shapes(
+                width, height, corner_radius, border_width, inner_corner_radius,
+                progress_value_1, progress_value_2, orientation
+            )
 
     def __draw_rounded_progress_bar_with_border_polygon_shapes(self, width: int, height: int, corner_radius: int, border_width: int, inner_corner_radius: int,
                                                                progress_value_1: float, progress_value_2: float, orientation: str) -> bool:

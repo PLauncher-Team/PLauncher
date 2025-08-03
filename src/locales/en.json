@@ -32,7 +32,7 @@
   },
   "settings": {
     "title": "Settings",
-    "pages": ["Launcher", "Minecraft", "Skins", "Loaders", "More"],
+    "pages": ["Launcher", "Minecraft", "Skins", "Loaders", "Themes"],
     "1_page": {
       "version_types_1": "Version Types",
       "version_types_2": "Types of versions displayed in the list on the main screen:",

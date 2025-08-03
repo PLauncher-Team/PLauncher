@@ -12,7 +12,6 @@ def list_ver(loader: str) -> list:
 def fun_install_loader():
     """Main function for installing Minecraft loaders (Fabric, Quilt, Forge, etc.)"""
     global loader_process
-    progress_loader.configure(progress_color=dominant_color)
     try:
         val_call = {
             "setMax": set_max_value,
@@ -96,7 +95,7 @@ def fun_install_loaders():
     install_loader.configure(state="normal", text=language_manager.get("settings.4_page.install_loader"),
                              command=lambda: threading.Thread(target=fun_install_loaders).start())
     launch_button.configure(state="normal")
-    progress_loader.configure(progress_color=lighten_dominant_5)
+    progress_loader.configure()
 
 
 def get_loaders_versions():

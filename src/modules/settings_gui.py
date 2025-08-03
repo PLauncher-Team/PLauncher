@@ -83,10 +83,10 @@ def show_tab(name: str):
 
     for idx, (n, btn) in enumerate(tab_buttons.items()):
         if n == name:
-            btn.configure(fg_color=lighten_dominant_5, text_color=user_color)
+            btn.configure(fg_color=hover_color, text_color="gray")
             animate_indicator(idx * (1 / len(tabs)))
         else:
-            btn.configure(fg_color=lighten_dominant_10, text_color="gray")
+            btn.configure(fg_color=fg_color, text_color=text_color)
 
 
 def animate_value(start: tuple = (1, 0), end: tuple = (0.55, 0.3), duration_ms: int = 250, on_complete=None):

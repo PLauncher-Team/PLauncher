@@ -163,7 +163,6 @@ def launch_game():
         selected_memory.set(value=default_config["memory_args"])
 
     # Prepare UI for launch
-    progress_bar.configure(progress_color=dominant_color)
     progress_bar.set(0)
     for obj in settings_button, logs_button, feedback_button:
         obj.configure(state="disabled")
@@ -179,9 +178,9 @@ def launch_game():
         launch_button.configure(text=language_manager.get("main.buttons.launch_game"),
                                 command=lambda: threading.Thread(target=launch_game).start(),
                                 state="normal")
-        progress_bar.configure(progress_color=lighten_dominant_5)
         for obj in settings_button, logs_button, feedback_button:
             obj.configure(state="normal")
+        progress_bar.set(0)
 
     def run_minecraft():
         """Execute Minecraft process with configured options."""

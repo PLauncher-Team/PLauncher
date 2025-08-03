@@ -15,7 +15,6 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.thread = None
         self.message = None
         self.transient(root)
-        self.bind("<Map>", self._restore_titlebar_color)
         hPyT.maximize_minimize_button.hide(self)
 
         # Top frame containing the logo and title
@@ -25,7 +24,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         # Load and display the bug icon logo
         raw_logo = PIL.Image.open("png/GUI/bug.png")
         logo_ctk_image = ctk.CTkImage(light_image=raw_logo, size=(32, 32))
-        logo_label = ctk.CTkLabel(top_frame, image=logo_ctk_image, fg_color="transparent", text_color=user_color)
+        logo_label = ctk.CTkLabel(top_frame, image=logo_ctk_image, fg_color="transparent")
         logo_label.place(relx=0.0, relwidth=0.0571, relheight=0.64)
 
         # Title label for the crash log window
@@ -35,7 +34,6 @@ class CrashLogWindow(ctk.CTkToplevel):
             font=get_dynamic_font("Segoe UI", 25, "bold"),
             fg_color="transparent",
             anchor="w",
-            text_color=user_color
         )
         title_label.place(relx=0.0714, relwidth=0.9286, relheight=0.60)
 
@@ -49,7 +47,6 @@ class CrashLogWindow(ctk.CTkToplevel):
             font=get_dynamic_font("Segoe UI", 13),
             state="disabled",
             wrap="word",
-            text_color=user_color
         )
         self.log_textbox.place(relx=0.0333, rely=0.1286, relwidth=0.9333, relheight=0.7143)
 
@@ -62,22 +59,12 @@ class CrashLogWindow(ctk.CTkToplevel):
             button_frame,
             text=language_manager.get("crash_log.ai_analysis"),
             command=lambda: threading.Thread(target=self.analyze_with_ai).start(),
-            hover_color=lighten_dominant_5,
-            fg_color=lighten_dominant_10,
             font=get_dynamic_font("Segoe UI", 20, "bold"),
-            text_color=user_color
         )
         self.ai_button.place(relx=0.32145, rely=0.15, relwidth=0.3571, relheight=0.7)
         if not IS_INTERNET:
             self.ai_button.configure(state="disabled")
-
-    def _restore_titlebar_color(self, event=None):
-        """
-        Restore the title bar color and text color according to user settings.
-        """
-        hPyT.title_bar_color.set(self, dominant_color)
-        hPyT.title_bar_text_color.set(self, "#000000" if user_color == "black" else "#FFFFFF")
-
+    
     def cancel_analyze(self):
         """
         Cancel the ongoing AI analysis by disabling the button and killing the thread.

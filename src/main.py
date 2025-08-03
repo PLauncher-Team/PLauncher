@@ -49,11 +49,10 @@ def log(message: str, level: str = 'INFO', source: str = 'main') -> None:
         source: Source module of the log message
     """
     caller_name = sys._getframe(1).f_code.co_name  # Get calling function name
-    thread_name = threading.current_thread().name  # Get current thread name
 
     # Format timestamp with milliseconds
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    output = f"[{timestamp} - {level} - {source}.{caller_name} - {thread_name}] - {message}"
+    output = f"[{timestamp} - {level} - {source}.{caller_name}] - {message}"
 
     # Thread-safe logging
     with log_lock:
@@ -134,15 +133,6 @@ if __name__ == "__main__":
     sys.excepthook = excepthook
     log("Welcome to debug...")
 
-    # Try to set DPI awareness for proper scaling on high-DPI displays
-    try:
-        ctypes.windll.shcore.SetProcessDpiAwareness(1)
-    except Exception:
-        try:
-            ctypes.windll.user32.SetProcessDPIAware()
-        except Exception:
-            pass
-
     # Load all required modules
     for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui"]:
         execute_module(module)
@@ -196,9 +186,9 @@ if __name__ == "__main__":
         "old_beta": False,
         "old_alpha": False,
         "check_files": True,
-        "theme_type": "default",
         "random_theme": True,
         "selected_theme": 1,
+        "custom_image": "",
         "custom_theme": "",
         "hide": False,
         "mine_path": "",
@@ -223,6 +213,12 @@ if __name__ == "__main__":
             if t not in config:
                 log(f"New settings parameter: {t}={default_config[t]}")
                 config[t] = default_config[t]
+        
+        # Validate image file path
+        if config["custom_image"] and not os.path.isfile(config["custom_image"]):
+            log("Image file not found", "ERROR")
+            config["custom_image"] = default_config["custom_image"]
+        
         # Validate skin file path
         if config["custom_skin"] and not os.path.isfile(config["custom_skin"]):
             log("Skin file not found", "ERROR")
@@ -248,11 +244,9 @@ if __name__ == "__main__":
     # Validate Java paths in configuration
     if config["java_paths"]:
         for key, value in list(config["java_paths"].items()):
-            if not check_java(value):
-                if config["java"] == key:
-                    config["java"] = default_config["java"]
+            if not os.path.isfile(value):
                 config["java_paths"].pop(key)
-                log(f"{key} not found or not working", "ERROR")
+                log(f"{key} not found", "ERROR")
 
     # Default version configuration
     default_version = {
@@ -304,31 +298,6 @@ if __name__ == "__main__":
             log("Profile folder not found", "ERROR")
             version["profile"] = False
             save_version(version)
-
-    # Create required Minecraft directories
-    create_minecraft_environment()
-    
-    # Migrate old profile system to new one if needed
-    for profile in [os.path.join(minecraft_path, "profiles", name) for name in os.listdir(os.path.join(minecraft_path, "profiles")) if os.path.isdir(os.path.join(os.path.join(minecraft_path, "profiles"), name))]:
-        items = os.listdir(profile)
-
-        # Check if profile uses old system (mods directly in profile folder)
-        for item in items:
-            full_path = os.path.join(profile, item)
-            if not os.path.isfile(full_path) or not item.lower().endswith('.jar'):
-                break
-        else:
-            if items:
-                log(f"Profile \"{profile}\" is using the old system. Switching to the new one...")
-                mods_folder = os.path.join(profile, "mods")
-                if not os.path.exists(mods_folder):
-                    os.mkdir(mods_folder)
-
-                # Move mod files to mods subdirectory
-                for item in items:
-                    src = os.path.join(profile, item)
-                    dst = os.path.join(mods_folder, item)
-                    shutil.move(src, dst)
 
     # Create required Minecraft directories
     create_minecraft_environment()
