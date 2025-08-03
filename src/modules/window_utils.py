@@ -21,14 +21,6 @@ def new_message(**kwargs):
         **kwargs,
         font=get_dynamic_font("Segoe UI", 13),
         master=root,
-        bg_color=dominant_color,
-        fg_color=lighten_dominant_10,
-        button_hover_color=lighten_dominant_5,
-        button_color=lighten_dominant_10,
-        button_text_color=user_color,
-        border_color=dominant_color,
-        text_color=user_color,
-        title_color=user_color,
         fps=FPS
     )
     msg.lift()
