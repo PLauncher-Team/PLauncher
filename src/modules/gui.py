@@ -28,9 +28,9 @@ crash_y = int(round(700 * height_factor))
 feedback_x = int(round(500 * width_factor))
 feedback_y = int(round(400 * height_factor))
 scale = ((screen_width / 1920) + (screen_height / 1080)) / 2
-fg_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
-hover_color = ctk.ThemeManager.theme["CTkButton"]["hover_color"]
-text_color = ctk.ThemeManager.theme["CTkButton"]["text_color"]
+fg_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"][1]
+hover_color = ctk.ThemeManager.theme["CTkButton"]["hover_color"][1]
+text_color = ctk.ThemeManager.theme["CTkButton"]["text_color"][1]
 
 root.resizable(False, False)
 root.geometry(f"{root_x}x{root_y}+{center(root, root_x, root_y)}")
@@ -723,6 +723,8 @@ launch_button = ctk.CTkButton(
 )
 launch_button.place(relx=0.671, rely=0.848, relwidth=0.313, relheight=0.124)
 set_opacity(launch_button, color="#242424", value=0.9)
+
+hPyT.title_bar_color.set(root, color_name_to_hex(fg_color))
 
 root.after(0, thread_load_versions)
 
