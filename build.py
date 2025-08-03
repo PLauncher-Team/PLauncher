@@ -131,7 +131,7 @@ def run_command(cmd: list) -> int:
 def copy_resources():
     print("📁 Copying resources...")
     targets = [
-        'modules', 'locales', 'ofb', 'png', os.path.join('files', 'CTkMessagebox')
+        'modules', 'locales', 'ofb', 'png', os.path.join('files', 'CTkMessagebox'), "themes"
     ]
     for t in targets:
         src = RESOURCES_DIR / t
