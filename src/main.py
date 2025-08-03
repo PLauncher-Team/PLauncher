@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
     # Configuration constants
     IS_INTERNET = check_internet_connection()
-    CURRENT_VERSION = "v1.0.0"
+    CURRENT_VERSION = "v1.0.1"
     FPS = get_refresh_rate()
     MAX_MEMORY_GB = get_available_memory()
     FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform"
