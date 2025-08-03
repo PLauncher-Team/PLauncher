@@ -173,3 +173,16 @@ class VersionFrame(ctk.CTkFrame):
         widget.configure(cursor="hand2")
         widget.bind("<Enter>", lambda e: self.configure(fg_color="#111111"))
         widget.bind("<Leave>", lambda e: self.configure(fg_color="#000001"))
+
+def color_name_to_hex(color: str) -> str:
+    if re.fullmatch(r'#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})', color):
+        return color.lower()
+
+    rgb_tuple = root.winfo_rgb(color)
+    root.destroy()
+
+    r = rgb_tuple[0] // 256
+    g = rgb_tuple[1] // 256
+    b = rgb_tuple[2] // 256
+
+    return f'#{r:02x}{g:02x}{b:02x}'
