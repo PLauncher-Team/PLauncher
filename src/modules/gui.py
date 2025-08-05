@@ -724,7 +724,7 @@ launch_button = ctk.CTkButton(
 launch_button.place(relx=0.671, rely=0.848, relwidth=0.313, relheight=0.124)
 set_opacity(launch_button, color="#242424", value=0.9)
 
-hPyT.title_bar_color.set(root, color_name_to_hex(fg_color))
+hPyT.title_bar_color.set(root, color_name_to_hex(hover_color))
 
 root.after(0, thread_load_versions)
 
