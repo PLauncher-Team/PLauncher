@@ -61,7 +61,7 @@ def fun_install_loader():
             mcl.install.install_minecraft_version(versionid=version_select,
                                                   minecraft_directory=minecraft_path, callback=val_call)
             mcl.neoforge.download_and_run(version=dictionary_neoforge[version_select], path_minecraft=minecraft_path,
-                                          path_to_java=path_to_java)
+                                          java=path_to_java)
 
         # Refresh versions list after installation
         root.after(0, load_versions)
