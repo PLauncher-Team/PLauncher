@@ -49,7 +49,7 @@ def save_config(val):
         json.dump(val, con, indent=4)
 
 
-def create_minecraft_environment():
+def create_minecraft_environment(minecraft_path):
     """Create required Minecraft directories and files."""
     global version
     # List of required Minecraft directories
@@ -171,7 +171,7 @@ def change_mine(selection: bool=True):
             text=language_manager.get('settings.2_page.current_path') + minecraft_path)
 
         # Recreate environment in new location
-        create_minecraft_environment()
+        create_minecraft_environment(minecraft_path)
 
         if not default_var.get():
             config["mine_path"] = minecraft_path

@@ -1,6 +1,3 @@
-import os.path
-
-
 def profile_select(*args):
     """
     Handles profile selection from the dropdown. 
@@ -66,7 +63,15 @@ def save_add_profile():
         return
 
     try:
-        os.makedirs(os.path.join(minecraft_path, "profiles", "profile_" + name))
+        profile_path = os.path.join(minecraft_path, "profiles", "profile_" + name)
+        os.makedirs(profile_path)
+        # List of required Minecraft directories
+        dirs = ["assets", "bin", "libraries", "logs", "resourcepacks", "saves",
+                "screenshots", "shaderpacks", "versions", "profiles", "mods"]
+    
+        # Create directories if they don't exist
+        for directory in dirs:
+            os.makedirs(os.path.join(profile_path, directory), exist_ok=True)
     except Exception as e:
         excepthook(*sys.exc_info())
         new_message(

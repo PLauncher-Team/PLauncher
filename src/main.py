@@ -300,7 +300,7 @@ if __name__ == "__main__":
             save_version(version)
 
     # Create required Minecraft directories
-    create_minecraft_environment()
+    create_minecraft_environment(minecraft_path)
 
     # Initialize GUI
     log(f"Starting interface initialization...")
