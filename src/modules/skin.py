@@ -127,7 +127,7 @@ def set_skin():
         if image_skin:
             ctk_image_skin = MinecraftSkinRenderer(image_skin, settings_y * 0.6).run()
             root.after(0, lambda: label_skin.configure(image=ctk_image_skin))
-            label_skin.update()
+            label_skin.update_idletasks()
         update_skin_button.configure(state="normal")
         if IS_INTERNET:
             skins_ely_by_checkbox.configure(state="normal")

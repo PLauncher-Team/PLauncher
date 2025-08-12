@@ -57,7 +57,7 @@ def animate_indicator(target_relx: float, duration: int = 125, easing=None):
             t = i / steps
             current = start + distance * ease(t)
             indicator.place_configure(relx=current)
-            indicator.update()
+            indicator.update_idletasks()
             if i < steps:
                 button_frame.after(interval, lambda: step(i + 1))
         else:
