@@ -9,7 +9,6 @@ else:
             name_without_ext = os.path.splitext(filename)[0]
             themes.append(name_without_ext)
     theme_path = random.choice(themes)
-
 log(f"Launcher theme: {theme_path}", source="gui")
 ctk.set_default_color_theme(f"themes/{theme_path}.json")
 
