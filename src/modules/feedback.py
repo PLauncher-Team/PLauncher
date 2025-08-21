@@ -64,6 +64,12 @@ class FeedbackApp(ctk.CTkToplevel):
 
         self.deiconify()
 
+    def _restore_titlebar_color(self, event=None):
+        """
+        Restore custom title bar color on window map event
+        """
+        hPyT.title_bar_color.set(self, color_name_to_hex(hover_color))
+    
     def fetch_dynamic_field_ids(self, form_view_url: str) -> dict[str, str]:
         """
         Fetch dynamic Google Form field IDs from the HTML content

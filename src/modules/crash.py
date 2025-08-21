@@ -15,6 +15,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.thread = None
         self.message = None
         self.transient(root)
+        self.bind("<Map>", self._restore_titlebar_color)
         hPyT.maximize_minimize_button.hide(self)
 
         # Top frame containing the logo and title
@@ -64,6 +65,12 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.ai_button.place(relx=0.32145, rely=0.15, relwidth=0.3571, relheight=0.7)
         if not IS_INTERNET:
             self.ai_button.configure(state="disabled")
+
+    def _restore_titlebar_color(self, event=None):
+        """
+        Restore custom title bar color on window map event
+        """
+        hPyT.title_bar_color.set(self, color_name_to_hex(hover_color))
     
     def cancel_analyze(self):
         """
