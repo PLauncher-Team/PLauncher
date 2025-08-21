@@ -338,7 +338,6 @@ def launch_game():
                 if selected_version not in version["not_comp"]:
                     version["not_comp"].append(selected_version)
                     save_version(version)
-                    root.after(0, load_versions)
 
                 # Download version if not already installed
                 if selected_version not in version["download"]:

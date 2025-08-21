@@ -204,6 +204,7 @@ def del_installed_version():
         for i in ("download", "not_comp"):
             if current in version[i]:
                 version[i].remove(current)
+        save_version(version)
         root.after(0, load_versions)
 
 
