@@ -709,7 +709,8 @@ version_combobox = CTkScrollableDropdown(
         ["Minecraft", "__OTHERS__"],
         [installed_text.replace("(", "").replace(")", ""), rf"{re.escape(installed_text)}\s*$"],
         [not_complete_text.replace("(", "").replace(")", ""), rf"{re.escape(not_complete_text)}\s*$"]
-    ]
+    ],
+    fps=FPS
 )
 version_combobox.search_entry.configure(font=get_dynamic_font("Segoe UI", 23),
                                         border_width=0)
