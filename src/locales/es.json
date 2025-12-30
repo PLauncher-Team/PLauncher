@@ -132,7 +132,7 @@
         "profile": "¿Estás seguro de que deseas eliminar este perfil?",
         "java": "¿Está seguro de que desea eliminar esta Java de la lista?",
         "language": "Los cambios se aplicarán después de reiniciar.\n¿Reiniciar ahora?",
-        "delete_game_version": "¿Está seguro de que desea eliminar esta versión del juego?"
+        "delete_game_version": "¿Está seguro de que desea eliminar estas versiones del juego?"
       },
       "check": {
         "feedback_send": "¡Comentarios enviados con éxito!"

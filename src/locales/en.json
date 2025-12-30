@@ -132,7 +132,7 @@
         "profile": "Are you sure you want to delete this profile?",
         "java": "Are you sure you want to remove this Java from the list?",
         "language": "Changes will take effect after a restart.\nRestart now?",
-        "delete_game_version": "Are you sure you want to delete this game version?"
+        "delete_game_version": "Are you sure you want to delete these game versions?"
       },
       "check": {
         "feedback_send": "Feedback sent successfully!"

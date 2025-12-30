@@ -204,6 +204,7 @@ installed_versions_combobox = CTkScrollableDropdown(
     scrollbar_button_hover_color=hover_color,
     pagination=False,
     font=get_dynamic_font("Segoe UI", 13),
+    multiple=True
 )
 
 del_version = ctk.CTkButton(
@@ -243,26 +244,6 @@ language_choice = ctk.CTkSegmentedButton(content_frames[tabs[0]],
 language_choice.place(relwidth=1, relheight=0.087, rely=0.714)
 language_choice.set(texts_language[language_manager.language])
 
-check_files = ctk.CTkCheckBox(
-    content_frames[tabs[0]],
-    factor=scale,
-    text=language_manager.get("settings.1_page.check_files"),
-    command=lambda: save_set("check_files", check_var.get()),
-    variable=check_var,
-    font=get_dynamic_font("Segoe UI", 13)
-)
-check_files.place(rely=0.818)
-
-debug_checkbox = ctk.CTkCheckBox(
-    content_frames[tabs[0]],
-    factor=scale,
-    text=language_manager.get("settings.1_page.debug_mode"),
-    command=lambda: save_set("debug", debug_var.get()),
-    variable=debug_var,
-    font=get_dynamic_font("Segoe UI", 13)
-)
-debug_checkbox.place(relx=0.55, rely=0.818)
-
 hide_checkbox = ctk.CTkCheckBox(
     content_frames[tabs[0]],
     factor=scale,
@@ -271,7 +252,27 @@ hide_checkbox = ctk.CTkCheckBox(
     command=lambda: save_set("hide", hide_var.get()),
     font=get_dynamic_font("Segoe UI", 13)
 )
-hide_checkbox.place(rely=0.92)
+hide_checkbox.place(rely=0.818)
+
+check_files = ctk.CTkCheckBox(
+    content_frames[tabs[0]],
+    factor=scale,
+    text=language_manager.get("settings.1_page.check_files"),
+    command=lambda: save_set("check_files", check_var.get()),
+    variable=check_var,
+    font=get_dynamic_font("Segoe UI", 13)
+)
+check_files.place(rely=0.89)
+
+# debug_checkbox = ctk.CTkCheckBox(
+#     content_frames[tabs[0]],
+#     factor=scale,
+#     text=language_manager.get("settings.1_page.debug_mode"),
+#     command=lambda: save_set("debug", debug_var.get()),
+#     variable=debug_var,
+#     font=get_dynamic_font("Segoe UI", 13)
+# )
+# debug_checkbox.place(relx=0.55, rely=0.818)
 
 ctk.CTkLabel(
     content_frames[tabs[1]],

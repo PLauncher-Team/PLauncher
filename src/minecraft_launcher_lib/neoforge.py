@@ -4,7 +4,7 @@ import subprocess
 from typing import Dict
 from ._helper import get_requests_response_cache
 
-base_url = "http://maven.neoforged.net/releases/net/neoforged/neoforge/"
+base_url = "https://maven.neoforged.net/releases/net/neoforged/neoforge/"
 
 def get_versions() -> Dict[str, str]:
     """

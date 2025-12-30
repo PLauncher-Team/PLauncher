@@ -179,7 +179,7 @@ class FreeGPTClient:
             if "choices" in data and data["choices"]:
                 return data["choices"][0].get("message", {}).get("content", "")
         except Exception:
-            sys.excepthook(*sys.exc_info())
+            excepthook(*sys.exc_info())
             return [Exception.__name__]
 
     def _try_teach_anything(self, messages: list, timeout: int) -> str | list:
@@ -221,7 +221,7 @@ class FreeGPTClient:
             resp.raise_for_status()
             return resp.text
         except Exception:
-            sys.excepthook(*sys.exc_info())
+            excepthook(*sys.exc_info())
             return [Exception.__name__]
 
     def get_response(self, messages: list, timeout: int = 30) -> str | list:

@@ -139,9 +139,6 @@ if __name__ == "__main__":
 
     log("Module import completed")
 
-    # Path constants
-    launcher_path = os.path.join(os.getenv('APPDATA'), "pylauncher")
-
     # Configuration constants
     IS_INTERNET = check_internet_connection()
     CURRENT_VERSION = "v1.0.1"

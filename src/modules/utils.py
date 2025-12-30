@@ -185,14 +185,14 @@ def change_mine(selection: bool=True):
 
 def del_installed_version():
     """Delete an installed Minecraft version."""
-    current = installed_versions_combobox_ctk.get()
-    if not current:
+    currents = installed_versions_combobox_ctk.get()
+    if not currents:
         return
 
-        # Show confirmation dialog
+    # Show confirmation dialog
     new_message(
         title=language_manager.get("messages.titles.warning"),
-        message=f"{language_manager.get('messages.texts.warning.delete_game_version')} ({current})",
+        message=f"{language_manager.get('messages.texts.warning.delete_game_version')} ({currents})",
         icon="question",
         option_1=language_manager.get("messages.answers.no"),
         option_2=language_manager.get("messages.answers.yes")
@@ -200,10 +200,11 @@ def del_installed_version():
 
     if msg.get() == language_manager.get("messages.answers.yes"):
         # Remove version directory and update configuration
-        shutil.rmtree(os.path.join(minecraft_path, "versions", current))
-        for i in ("download", "not_comp"):
-            if current in version[i]:
-                version[i].remove(current)
+        for current in currents.split():
+            shutil.rmtree(os.path.join(minecraft_path, "versions", current))
+            for i in ("download", "not_comp"):
+                if current in version[i]:
+                    version[i].remove(current)
         save_version(version)
         root.after(0, load_versions)
 

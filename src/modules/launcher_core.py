@@ -26,7 +26,7 @@ def load_versions():
         # Get installed versions and their IDs
         installed_versions = mcl.utils.get_installed_versions(minecraft_path)
         installed_versions_ids = {version['id'] for version in installed_versions}
-
+        
         # Get version filter settings
         show_release = release_var.get()
         show_snapshot = snapshot_var.get()
@@ -52,7 +52,10 @@ def load_versions():
 
         # Update UI elements with version lists
         installed_versions_combobox.configure(values=installed_versions_list)
-        installed_versions_combobox_ctk.set(installed_versions_list[0] if installed_versions_list else "")
+        if installed_versions_list:
+            installed_versions_combobox._attach_key_press(installed_versions_list[0])
+        else:
+            installed_versions_combobox_ctk.set("")
 
         # Add status indicators for installed versions
         for i, value_dow in enumerate(installed_versions_list):
@@ -77,15 +80,12 @@ def load_versions():
     else:
         check_version = latest_version
 
-    if check_version not in version_combobox.values:
-        version_combobox_ctk.set("")
+    if latest_version in version["download"]:
+        version_combobox_ctk.set(latest_version + language_manager.get("main.types_versions.installed"))
+    elif latest_version in version["not_comp"]:
+        version_combobox_ctk.set(latest_version + language_manager.get("main.types_versions.not_completed"))
     else:
-        if latest_version in version["download"]:
-            version_combobox_ctk.set(latest_version + language_manager.get("main.types_versions.installed"))
-        elif latest_version in version["not_comp"]:
-            version_combobox_ctk.set(latest_version + language_manager.get("main.types_versions.not_completed"))
-        else:
-            version_combobox_ctk.set(latest_version)
+        version_combobox_ctk.set(latest_version)
 
     log("Version list successfully loaded", source="launcher_core")
 
@@ -275,10 +275,6 @@ def launch_game():
                 command,
                 cwd=work_folder,
                 creationflags=creationflags,
-                stdout=minecraft_log_file,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1
             )
 
             # Assign process to job object

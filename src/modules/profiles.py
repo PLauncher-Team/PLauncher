@@ -184,6 +184,7 @@ def fun_rename_profile():
     current = list_profiles.get()
     if current != language_manager.get("settings.4_page.no"):
         add_profile_Entry.lift()
+        add_profile_Entry.insert(0, current)
         rename_profile_button.configure(state="disabled")
         list_profiles.configure(state="disabled")
         open_profile.configure(state="disabled")
