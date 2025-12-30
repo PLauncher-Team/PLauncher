@@ -75,7 +75,7 @@ def install_dependencies():
     try:
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '-r', 'requirements.txt'])
-        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', 'nuitka'])
+        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', 'nuitka==2.7.16'])
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Dependency installation failed: {e}")
         sys.exit(e.returncode)
