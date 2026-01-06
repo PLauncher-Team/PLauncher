@@ -29,6 +29,7 @@ class Translator:
             with open(path, encoding="utf-8") as f:
                 self.translations = json.load(f)
         except FileNotFoundError:
+            log(f"Translation file not found: {path}", level="ERROR", source="translator")
             self.translations = {}
 
     def get(self, key: str, default: str = None) -> str:
@@ -81,7 +82,8 @@ def select_language(selected_value: str):
     if config["language"] == selected_value:
         return
 
-    config["language"] = texts_language_reverse[selected_value]
+    new_lang = texts_language_reverse[selected_value]
+    config["language"] = new_lang
     save_config(config)
 
     new_message(
@@ -93,6 +95,7 @@ def select_language(selected_value: str):
     )
 
     if msg.get() == language_manager.get("messages.answers.yes"):
+        log("Restarting application for language change", source="translator")
         root.destroy()
         kernel32.ReleaseMutex(mutex)
         restart_app_with_bat()

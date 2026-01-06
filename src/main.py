@@ -122,7 +122,7 @@ if __name__ == "__main__":
         os._exit(0)
 
     log_lock = threading.Lock()  # Lock for thread-safe logging
-
+    
     # Clear previous log file if exists
     if os.path.isfile("launcher.log"):
         os.remove("launcher.log")
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         execute_module(module)
 
     log("Module import completed")
-
+    
     # Configuration constants
     IS_INTERNET = check_internet_connection()
     CURRENT_VERSION = "v1.0.1"

@@ -105,6 +105,7 @@ class FeedbackApp(ctk.CTkToplevel):
         :return: Tuple of success status and error message (if any)
         """
         try:
+            log(f"Sending feedback: subject='{subject}', email='{email}'", source="feedback")
             field_ids = self.fetch_dynamic_field_ids(FORM_VIEW_URL)
             payload = {
                 field_ids[TARGET_FIELD_CONFIG["Email"]["label_in_form_data"]]: email,
@@ -113,8 +114,10 @@ class FeedbackApp(ctk.CTkToplevel):
             }
             response = requests.post(FORM_SUBMIT_URL, data=payload, timeout=5)
             response.raise_for_status()
+            log("Feedback sent successfully", source="feedback")
             return True, ""
         except Exception as e:
+            log(f"Failed to send feedback: {e}", level="ERROR", source="feedback")
             excepthook(*sys.exc_info())
             return False, str(e)
 
@@ -130,6 +133,7 @@ class FeedbackApp(ctk.CTkToplevel):
             return
 
         if email and not EMAIL_REGEX.match(email):
+            log(f"Invalid email format: {email}", level="WARNING", source="feedback")
             new_message(
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.feedback_send"),
@@ -137,7 +141,6 @@ class FeedbackApp(ctk.CTkToplevel):
                 option_1=language_manager.get("messages.answers.ok")
             )
             return
-
         self.send_button.configure(state="disabled")
         success, error_msg = self.send_feedback(subject=subject, description=description, email=email)
 

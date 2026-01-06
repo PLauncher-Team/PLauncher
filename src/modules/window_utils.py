@@ -1,13 +1,3 @@
-def set_version(e: str = None):
-    # Set selected version from combobox and save it
-    if e:
-        version_combobox_ctk.set(e)
-        version["version"] = version_combobox_ctk.get() \
-            .replace(language_manager.get("main.types_versions.not_completed"), "") \
-            .replace(language_manager.get("main.types_versions.installed"), "")
-        save_version(version)
-
-
 def new_message(**kwargs):
     # Show a custom message box with logging support for cancel icon
     global msg
@@ -135,7 +125,11 @@ class VersionFrame(ctk.CTkFrame):
     def check_update(self, current_version: str) -> str | bool:
         # Return latest tag if it is newer than current version
         latest_tag = self.get_latest_version_by_redirect()
-        return latest_tag if latest_tag and self.is_newer_version(latest_tag, current_version) else False
+        if latest_tag and self.is_newer_version(latest_tag, current_version):
+            log(f"Update available: {current_version} -> {latest_tag}", source="window_utils")
+            return latest_tag
+        else:
+            return False
 
     def open_download(self, event: object=None):
         # Open browser to download latest release
@@ -145,7 +139,6 @@ class VersionFrame(ctk.CTkFrame):
         # Background thread: check for new version and update label if needed
         new_tag = self.check_update(CURRENT_VERSION)
         if new_tag:
-            log(f"A new version of the launcher has been detected: {new_tag}")
             self.after(0, lambda: self._display_new_version(new_tag))
 
     def _display_new_version(self, new_tag: str):
@@ -173,6 +166,7 @@ class VersionFrame(ctk.CTkFrame):
         widget.configure(cursor="hand2")
         widget.bind("<Enter>", lambda e: self.configure(fg_color="#111111"))
         widget.bind("<Leave>", lambda e: self.configure(fg_color="#000001"))
+
 
 def color_name_to_hex(color: str) -> str:
     if re.fullmatch(r'#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})', color):

@@ -6,6 +6,7 @@ def profile_select(*args):
     current = list_profiles.get()
     version["profile"] = False if current == language_manager.get("settings.4_page.no") else current
     save_version(version)
+    log(f"Selected profile: {current}", source="profiles")
 
 
 def del_profile():
@@ -23,6 +24,7 @@ def del_profile():
             option_2=language_manager.get("messages.answers.yes")
         )
         if msg.get() == language_manager.get("messages.answers.yes"):
+            log(f"Deleting profile: {current}", source="profiles")
             if os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + current)):
                 shutil.rmtree(os.path.join(minecraft_path, "profiles", "profile_" + current))
 
@@ -31,6 +33,7 @@ def del_profile():
             list_profiles.set(first)
             version["profile"] = False if first == language_manager.get("settings.4_page.no") else first
             save_version(version)
+            log(f"Profile {current} deleted successfully", source="profiles")
 
 
 def _add_profile():
@@ -62,6 +65,7 @@ def save_add_profile():
     if not name or name == no:
         return
 
+    log(f"Creating new profile: {name}", source="profiles")
     try:
         profile_path = os.path.join(minecraft_path, "profiles", "profile_" + name)
         os.makedirs(profile_path)
@@ -72,7 +76,9 @@ def save_add_profile():
         # Create directories if they don't exist
         for directory in dirs:
             os.makedirs(os.path.join(profile_path, directory), exist_ok=True)
+        log(f"Profile {name} created successfully with {len(dirs)} directories", source="profiles")
     except Exception as e:
+        log(f"Failed to create profile {name}: {e}", level="ERROR", source="profiles")
         excepthook(*sys.exc_info())
         new_message(
             title=language_manager.get("messages.titles.error"),
@@ -86,6 +92,7 @@ def save_add_profile():
             list_profiles.set(name)
             save_version(version)
         list_profiles.configure(state="readonly")
+        save_version(version)
         list_profiles.configure(values=list_dir())
         add_profile_Entry.delete(0, ctk.END)
         add_profile_Entry.lower()
@@ -147,7 +154,9 @@ def rename_profile(old_name: str):
             os.path.join(minecraft_path, "profiles", "profile_" + old_name),
             os.path.join(minecraft_path, "profiles", "profile_" + new_name)
         )
+        log(f"Profile renamed successfully", source="profiles")
     except Exception as e:
+        log(f"Failed to rename profile:", level="ERROR", source="profiles")
         excepthook(*sys.exc_info())
         new_message(
             title=language_manager.get("messages.titles.error"),
@@ -205,4 +214,5 @@ def open_folder_profile():
     current = list_profiles.get()
     if current != language_manager.get("settings.4_page.no"):
         path = os.path.join(minecraft_path, "profiles", "profile_" + current)
+        log(f"Opening profile folder: {path}", source="profiles")
         os.startfile(path)

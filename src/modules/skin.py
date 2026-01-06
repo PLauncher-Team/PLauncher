@@ -17,7 +17,7 @@ class MinecraftSkinRenderer:
             )
             config["custom_skin"] = default_config["custom_skin"]
             label_skin.configure(image=None)
-            return
+            return None
         return self.skin.convert("RGBA")
 
     # Combines overlay layer with base layer using alpha compositing
@@ -81,7 +81,7 @@ class MinecraftSkinRenderer:
     def run(self):
         skin = self._load_skin()
         if not skin:
-            return
+            return None
         auto_slim = self._detect_slim(skin) if skin.size == (64, 64) else False
         is_slim = self.force_slim or auto_slim
         front_view = self.create_view(skin, is_slim)
@@ -96,7 +96,7 @@ class MinecraftSkinRenderer:
 # Downloads skin PNG from ely.by
 def get_skin_png(nickname: str) -> PIL.Image.Image:
     try:
-        url = f'http://skinsystem.ely.by/skins/{nickname}.png'
+        url = f'https://skinsystem.ely.by/skins/{nickname}.png'
         response = requests.get(url)
         response.raise_for_status()
         return PIL.Image.open(BytesIO(response.content))
@@ -108,17 +108,21 @@ def get_skin_png(nickname: str) -> PIL.Image.Image:
 def set_skin():
     global label_skin
     if config["default_skin"]:
+        log("Using default skin", source="skin")
         label_skin.configure(image=None)
     else:
         update_skin_button.configure(state="disabled")
         skins_ely_by_checkbox.configure(state="disabled")
         image_skin = None
         if IS_INTERNET and config["ely_by"]:
+            log(f"Loading skin from Ely.by for user: {username_entry.get()}", source="skin")
             image_skin = get_skin_png(username_entry.get())
         elif config["custom_skin"]:
             if os.path.isfile(config["custom_skin"]):
+                log(f"Loading custom skin from: {config['custom_skin']}", source="skin")
                 image_skin = PIL.Image.open(config["custom_skin"])
             else:
+                log(f"Custom skin file not found: {config['custom_skin']}", level="WARNING", source="skin")
                 config["custom_skin"] = default_config["custom_skin"]
                 label_skin.configure(image=None)
         else:
@@ -147,6 +151,7 @@ def select_png_file():
         set_skin()
         save_config(config)
     except Exception as e:
+        log(f"Failed to load skin file {file_path}: {e}", level="ERROR", source="skin")
         excepthook(*sys.exc_info())
         config["custom_skin"] = old_path
         new_message(
@@ -253,5 +258,7 @@ class MinecraftTexturePackCreator:
 
     # Runs full resource pack creation and configuration
     def run(self):
+        log("Starting texture pack creation", source="skin")
         self.create_texture_pack()
         self.modify_options()
+        log("Texture pack creation completed", source="skin")

@@ -85,11 +85,13 @@ class CrashLogWindow(ctk.CTkToplevel):
         Start the AI analysis process, updating button text and state accordingly.
         Shows the analysis result in a message box when done.
         """
+        log("Starting AI analysis of crash log", source="crash")
         self.ai_button.configure(text=language_manager.get("crash_log.cancel_analysis"), command=self.cancel_analyze)
         self.thread = threading.Thread(target=self.analyze)
         self.thread.start()
         self.thread.join()
         if self.thread:
+            log("AI analysis completed, showing result", source="crash")
             new_message(
                 title=language_manager.get("messages.titles.info"),
                 message=self.message,
@@ -235,11 +237,16 @@ class FreeGPTClient:
         Returns:
             str | list: AI response string or list with error details.
         """
+        log("Trying Pollinations AI API", source="crash")
         response1 = self._try_pollinations_ai(messages, timeout)
         if not isinstance(response1, list):
+            log("Received response from Pollinations AI", source="crash")
             return response1
 
+        log("Pollinations AI failed, trying Teach Anything API", source="crash")
         response2 = self._try_teach_anything(messages, timeout)
         if not isinstance(response2, list):
+            log("Received response from Teach Anything API", source="crash")
             return response2
+        log("All AI APIs failed", level="ERROR", source="crash")
         return [None, [response2]]

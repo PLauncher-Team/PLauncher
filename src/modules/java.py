@@ -7,7 +7,8 @@ def get_java_path() -> str | bool:
     if not jvm_installed:
         return False
     jvm_installed = jvm_installed[0]
-    return os.path.join(minecraft_path, "runtime", jvm_installed, "windows-x64", jvm_installed, "bin", "java.exe")
+    java_path = os.path.join(minecraft_path, "runtime", jvm_installed, "windows-x64", jvm_installed, "bin", "java.exe")
+    return java_path
 
 
 def get_formatted_java_info(path: str) -> str:
@@ -100,14 +101,14 @@ def check_java(java_path: str) -> bool:
         if result.returncode == 0:
             return True
     except Exception:
-        return False
+        pass
 
     try:
         result = subprocess.run([java_path, '--version'], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         if result.returncode == 0:
             return True
     except Exception:
-        return False
+        pass
 
     return False
 
@@ -121,10 +122,12 @@ def add_java():
     path = select_java_path()
     info = get_formatted_java_info(path)
     if info:
+        log(f"Adding Java installation: {info} at {path}", source="java")
         config["java_paths"][info] = path
         save_config(config)
         java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
     elif path:
+        log(f"Failed to add Java installation: {path}", level="ERROR", source="java")
         new_message(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.java"),
@@ -166,6 +169,7 @@ def del_java():
         option_2=language_manager.get("messages.answers.yes")
     )
     if msg.get() == language_manager.get("messages.answers.yes"):
+        log(f"Deleting Java installation: {current}", source="java")
         config["java"] = default_config["java"]
         config["java_paths"].pop(current)
         save_config(config)

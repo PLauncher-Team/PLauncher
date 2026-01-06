@@ -46,6 +46,16 @@ def save_config(val):
         json.dump(val, con, indent=4)
 
 
+def set_version(e: str = None):
+    # Set selected version from combobox and save it
+    if e:
+        version_combobox_ctk.set(e)
+        version["version"] = version_combobox_ctk.get() \
+            .replace(language_manager.get("main.types_versions.not_completed"), "") \
+            .replace(language_manager.get("main.types_versions.installed"), "")
+        save_version(version)
+
+
 def create_minecraft_environment(minecraft_path):
     """Create required Minecraft directories and files."""
     global version
@@ -181,6 +191,7 @@ def change_mine(selection: bool=True):
             list_profiles.set(version["profile"])
         else:
             list_profiles.set(language_manager.get("settings.4_page.no"))
+        log(f"Minecraft directory changed to: {minecraft_path}", source="utils")
 
 
 def del_installed_version():
@@ -199,6 +210,7 @@ def del_installed_version():
     )
 
     if msg.get() == language_manager.get("messages.answers.yes"):
+        log(f"Deleting version: {currents}", source="utils")
         # Remove version directory and update configuration
         for current in currents.split():
             shutil.rmtree(os.path.join(minecraft_path, "versions", current))

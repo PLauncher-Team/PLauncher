@@ -211,16 +211,16 @@ def launch_game():
                     config[username] = str(uuid4())
                 uuid = config[username]
 
-            # Handle custom skin if specified
-            if config["custom_skin"] and not ely_by_var.get() and not default_skin_var.get():
-                MinecraftTexturePackCreator(minecraft_path, config["custom_skin"]).run()
-
             # Set working directory based on profile
             if version["profile"]:
                 work_folder = os.path.join(minecraft_path, "profiles", "profile_" + version["profile"])
             else:
                 work_folder = minecraft_path
 
+            # Handle custom skin if specified
+            if config["custom_skin"] and not ely_by_var.get() and not default_skin_var.get():
+                MinecraftTexturePackCreator(work_folder, config["custom_skin"]).run()
+            
             save_config(config)
             args_custom = args_entry.get().split()
 
