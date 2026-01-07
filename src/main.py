@@ -73,33 +73,38 @@ def compute_sha256(path: str) -> str:
     Returns:
         Hexadecimal string representation of the SHA256 hash
     """
-    sha256 = hashlib.sha256()
+    array = sha256()
     with open(path, 'rb') as f:
         for chunk in iter(lambda: f.read(8192), b''):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+            array.update(chunk)
+    return array.hexdigest()
 
 
 def execute_module(module_name: str) -> None:
-    """Execute a Python module with hash verification.
+    """Execute a Python module with hash verification using a single file read.
     
     Args:
         module_name: Name of the module to execute (without .py extension)
     """
     module_path = os.path.join("modules", f"{module_name}.py")
 
-    # Verify file hash if expected hashes are available
-    if EXPECTED_HASHES:
-        expected = EXPECTED_HASHES.get(module_name)
-        actual = compute_sha256(module_path)
-        if actual != expected:
-            log(f"Hash mismatch for module '{module_name}'.", level="ERROR")
-            sys.exit(1)
-
     try:
-        with open(module_path, encoding="utf-8") as file:
-            code = file.read()
-        exec(code, globals())  # Execute the module code in global namespace
+        # Read file
+        with open(module_path, "rb") as f:
+            code_bytes = f.read()
+
+        # Verify hash
+        if EXPECTED_HASHES:
+            expected = EXPECTED_HASHES.get(module_name)
+            actual = hashlib.sha256(code_bytes).hexdigest()
+
+            if actual != expected:
+                log(f"Hash mismatch for module '{module_name}'.", level="ERROR")
+                sys.exit(1)
+
+        # Compile and execute
+        exec(compile(code_bytes, module_path, "exec"), globals())
+
     except Exception:
         log(f"Error found in module {module_name}, exiting...", "ERROR")
         excepthook(*sys.exc_info())
