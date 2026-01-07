@@ -39,7 +39,6 @@ NUITKA_CMD = [
     '--include-package=PIL',
     '--include-package=optipy',
     '--include-package=packaging',
-    '--include-package=psutil',
     '--include-module=psutil._psutil_windows',
     '--include-package=pywinstyles',
     '--include-package=ratelimit',
@@ -51,18 +50,21 @@ EXPECTED_HASHES = {}
 
 
 def check_windows():
+    """Check if the script is running on Windows."""
     if os.name != 'nt':
         print("[ERROR] This build script runs only on Windows.")
         sys.exit(1)
 
 
 def check_python_version():
+    """Check if the Python version meets the minimum requirement."""
     if sys.version_info < MIN_PY_VERSION:
         print(f"[ERROR] Python {MIN_PY_VERSION[0]}.{MIN_PY_VERSION[1]}+ is required.")
         sys.exit(1)
 
 
 def create_virtualenv():
+    """Create a virtual environment if it doesn't exist."""
     if not VENV_DIR.exists():
         print("🔧 Creating virtual environment...")
         venv.create(VENV_DIR, with_pip=True)
@@ -71,6 +73,7 @@ def create_virtualenv():
 
 
 def install_dependencies():
+    """Install required dependencies from requirements.txt."""
     print("📦 Installing dependencies...")
     try:
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'pip'])
@@ -82,6 +85,7 @@ def install_dependencies():
 
 
 def compute_sha256(path: Path) -> str:
+    """Compute SHA256 hash of a file."""
     sha = hashlib.sha256()
     with path.open('rb') as f:
         for chunk in iter(lambda: f.read(8192), b''):
@@ -90,6 +94,7 @@ def compute_sha256(path: Path) -> str:
 
 
 def collect_hashes() -> dict:
+    """Collect SHA256 hashes of all Python files in the modules directory."""
     if not MODULES_DIR.is_dir():
         print(f"[ERROR] Modules directory not found: {MODULES_DIR}")
         sys.exit(1)
@@ -100,6 +105,7 @@ def collect_hashes() -> dict:
 
 
 def update_expected_hashes(hashes: dict):
+    """Update the EXPECTED_HASHES dictionary in main.py with computed hashes."""
     new_block = ["EXPECTED_HASHES = {"]
     for name, h in hashes.items():
         new_block.append(f'    "{name}": "{h}",')
@@ -117,6 +123,7 @@ def update_expected_hashes(hashes: dict):
 
 
 def run_command(cmd: list) -> int:
+    """Run a shell command and print its output in real-time."""
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         for line in proc.stdout:
@@ -129,6 +136,7 @@ def run_command(cmd: list) -> int:
 
 
 def copy_resources():
+    """Copy required resource files and directories to the distribution folder."""
     print("📁 Copying resources...")
     targets = [
         'modules', 'locales', 'ofb', 'png', os.path.join('files', 'CTkMessagebox'), "themes"
@@ -153,10 +161,24 @@ def copy_resources():
 
 
 def clear_expected_hashes():
+    """Clear the EXPECTED_HASHES dictionary in main.py (set to empty)."""
     content = MAIN_PY.read_text(encoding='utf-8')
     cleared = re.sub(r'EXPECTED_HASHES\s*=\s*\{[^}]*\}', 'EXPECTED_HASHES = {}', content, flags=re.DOTALL)
     MAIN_PY.write_text(cleared, encoding='utf-8')
     print("🔄 EXPECTED_HASHES cleared.")
+
+
+def ask_insert_hashes() -> bool:
+    """Ask user whether to insert hashes into main.py."""
+    while True:
+        response = input("Insert hashes into main.py? [Y/n]: ").strip().upper()
+        if response == '':
+            return True  # Default: Y
+        if response in ['Y', 'YES']:
+            return True
+        if response in ['N', 'NO']:
+            return False
+        print("Please enter Y or N")
 
 
 if __name__ == '__main__':
@@ -166,8 +188,12 @@ if __name__ == '__main__':
     create_virtualenv()
     install_dependencies()
 
+    # Ask user whether to insert hashes
     hashes = collect_hashes()
-    update_expected_hashes(hashes)
+    if ask_insert_hashes():
+        update_expected_hashes(hashes)
+    else:
+        print("⏭ Skipping hash insertion...")
 
     print("🛠 Starting compilation...")
     ret = run_command(NUITKA_CMD)
@@ -177,6 +203,11 @@ if __name__ == '__main__':
     print("✅ Compilation finished.")
 
     copy_resources()
-    clear_expected_hashes()
+
+    # Only clear hashes if they were inserted
+    if hashes:
+        clear_expected_hashes()
+    else:
+        print("⏭ Skipping hash cleanup...")
 
     print("🎉 Build complete! Check dist/main.dist/main.exe")
