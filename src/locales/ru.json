@@ -6,12 +6,19 @@
       "not_completed": " (Не завершено)"
     },
     "buttons": {
-      "feedback": "Связь",
+      "feedback": "Обратная связь",
       "logs": "Логи",
       "settings": "Настройки",
       "launch_game": "Запустить игру",
       "cancel_loading": "Отменить загрузку",
       "complete_game": "Завершить игру"
+    },
+    "labels": {
+      "username": "Имя игрока",
+      "username_placeholder": "Введите ник",
+      "version": "Версия Minecraft",
+      "quick_actions": "Быстрые действия",
+      "status": "Статус запуска"
     },
     "status": {
       "waiting": "Ожидание",
@@ -32,7 +39,7 @@
   },
   "settings": {
     "title": "Настройки",
-    "pages": ["Лаунчер", "Minecraft", "Скины", "Загрузчики", "Темы"],
+    "pages": ["Лаунчер", "Minecraft", "Скины", "Загрузчики", "Утилиты"],
     "1_page" : {
       "version_types_1": "Типы версий",
       "version_types_2": "Типы версий, отображаемые в списке на главном экране:",
@@ -85,10 +92,18 @@
       "save": "Сохранить",
       "cancel": "Отмена",
       "open_folder": "Открыть папку профиля"
+    },
+    "5_page": {
+      "experimental": "Экспериментальные функции",
+      "cleanup": "Утилиты очистки и удаления данных",
+      "clear_cache": "Очистить кэш лаунчера",
+      "reset_settings": "Сбросить настройки",
+      "delete_minecraft": "Удалить данные Minecraft",
+      "uninstall_launcher": "Удалить лаунчер"
     }
   },
   "feedback": {
-    "title": "Отправка FeedBack",
+    "title": "Отправка обратной связи",
     "email": "Email (необязательно)",
     "subject": "Тема",
     "description": "Описание проблемы / предложения",

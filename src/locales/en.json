@@ -13,6 +13,13 @@
       "cancel_loading": "Cancel Loading",
       "complete_game": "Exit Game"
     },
+    "labels": {
+      "username": "Player name",
+      "username_placeholder": "Enter nickname",
+      "version": "Minecraft version",
+      "quick_actions": "Quick actions",
+      "status": "Launch status"
+    },
     "status": {
       "waiting": "Waiting",
       "loading_canceled": "Loading canceled",
@@ -32,7 +39,7 @@
   },
   "settings": {
     "title": "Settings",
-    "pages": ["Launcher", "Minecraft", "Skins", "Loaders", "Themes"],
+    "pages": ["Launcher", "Minecraft", "Skins", "Loaders", "Utilities"],
     "1_page": {
       "version_types_1": "Version Types",
       "version_types_2": "Types of versions displayed in the list on the main screen:",
@@ -85,6 +92,14 @@
       "save": "Save",
       "cancel": "Cancel",
       "open_folder": "Open profile folder"
+    },
+    "5_page": {
+      "experimental": "Experimental features",
+      "cleanup": "Cleanup and data removal tools",
+      "clear_cache": "Clear launcher cache",
+      "reset_settings": "Reset settings",
+      "delete_minecraft": "Delete Minecraft data",
+      "uninstall_launcher": "Uninstall launcher"
     }
   },
   "crash_log": {

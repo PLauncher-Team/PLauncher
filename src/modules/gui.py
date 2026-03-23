@@ -71,6 +71,18 @@ latest_version = version["version"]
 
 version_frame = VersionFrame(root)
 version_frame.place(relwidth=0.175, relheight=0.177, relx=0.797, rely=0.05)
+
+left_panel = ctk.CTkFrame(root, fg_color="#111111", corner_radius=18, border_width=1, border_color="#3A3A3A")
+left_panel.place(relx=0.01, rely=0.47, relwidth=0.185, relheight=0.36)
+set_opacity(left_panel, color="#242424", value=0.72)
+
+bottom_panel = ctk.CTkFrame(root, fg_color="#111111", corner_radius=22, border_width=1, border_color="#3A3A3A")
+bottom_panel.place(relx=0.01, rely=0.81, relwidth=0.98, relheight=0.17)
+set_opacity(bottom_panel, color="#242424", value=0.72)
+
+status_panel = ctk.CTkFrame(root, fg_color="#111111", corner_radius=18, border_width=1, border_color="#3A3A3A")
+status_panel.place(relx=0.665, rely=0.69, relwidth=0.322, relheight=0.145)
+set_opacity(status_panel, color="#242424", value=0.72)
 blackout_frame = ctk.CTkFrame(root, fg_color="black")
 blackout_frame.place(relwidth=1, relheight=1)
 set_opacity(blackout_frame, value=0)
@@ -84,9 +96,11 @@ header_frame = ctk.CTkFrame(settings_frame, fg_color="#252526")
 header_frame.place(relx=0, rely=0, relwidth=1, relheight=0.1)
 back_btn = ctk.CTkButton(
     header_frame,
-    text="<",
+    text="←",
     command=close_settings,
-    font=get_dynamic_font("Segoe UI", 13)
+    width=44,
+    corner_radius=12,
+    font=get_dynamic_font("Segoe UI", 16, "bold")
 )
 back_btn.place(relx=0.02, rely=0.5, relwidth=0.066, relheight=0.533, anchor="w")
 
@@ -114,9 +128,8 @@ for i, name in enumerate(tabs):
     btn.place(relx=i*(1/len(tabs)), rely=0, relwidth=1/len(tabs), relheight=1)
     tab_buttons[name] = btn
 
-indicator = ctk.CTkFrame(button_frame, fg_color="red", height=3)
+indicator = ctk.CTkFrame(button_frame, fg_color=hover_color, height=3)
 indicator.place(relx=0, rely=1, anchor='sw', relwidth=1/len(tabs))
-tab_buttons[tabs[4]].configure(state="disabled")
 content_frames = {}
 for name in tabs:
     frame = ctk.CTkFrame(settings_frame, fg_color="#252526")
@@ -345,6 +358,7 @@ ctk.CTkLabel(
 args_entry = ctk.CTkEntry(
     content_frames[tabs[1]],
     border_width=0,
+    placeholder_text="-XX:+UseG1GC -XX:+UnlockExperimentalVMOptions",
     font=get_dynamic_font("Segoe UI", 13),
 )
 args_entry.insert(0, config["custom_args"])
@@ -574,43 +588,79 @@ list_profiles.lift()
 
 ctk.CTkLabel(
     content_frames[tabs[4]],
-    text="Экспериментальные функции",
+    text=language_manager.get("settings.5_page.experimental"),
     font=get_dynamic_font("Segoe UI", 15, "bold")
 ).place(relwidth=1)
 
 ctk.CTkLabel(
     content_frames[tabs[4]],
-    text="Утилиты очистки и удаления данных",
+    text=language_manager.get("settings.5_page.cleanup"),
     font=get_dynamic_font("Segoe UI", 15, "bold")
 ).place(relwidth=1, rely=0.697)
 
 btn_clear_cache = ctk.CTkButton(
     content_frames[tabs[4]],
-    text="Очистить кеш лаунчера",
+    text=language_manager.get("settings.5_page.clear_cache"),
     font=get_dynamic_font("Segoe UI", 13),
 )
 btn_clear_cache.place(relwidth=0.45, relheight=0.083, rely=0.797)
 
 btn_reset_settings = ctk.CTkButton(
     content_frames[tabs[4]],
-    text="Сбросить настройки",
+    text=language_manager.get("settings.5_page.reset_settings"),
     hover_color="red",
 )
 btn_reset_settings.place(relwidth=0.45, relheight=0.083, rely=0.917)
 
 btn_delete_mc = ctk.CTkButton(
     content_frames[tabs[4]],
-    text="Удалить данные Minecraft",
+    text=language_manager.get("settings.5_page.delete_minecraft"),
     hover_color="red",
 )
 btn_delete_mc.place(relwidth=0.45, relheight=0.083, relx=0.55, rely=0.797)
 
 btn_uninstall = ctk.CTkButton(
     content_frames[tabs[4]],
-    text="Удалить лаунчер",
+    text=language_manager.get("settings.5_page.uninstall_launcher"),
     hover_color="red",
 )
 btn_uninstall.place(relwidth=0.45, relheight=0.083, relx=0.55, rely=0.917)
+
+username_label = ctk.CTkLabel(
+    root,
+    text=language_manager.get("main.labels.username"),
+    font=get_dynamic_font("Segoe UI", 11, "bold"),
+    anchor="w",
+    text_color="#D9D9D9"
+)
+username_label.place(relx=0.025, rely=0.825, relwidth=0.16, relheight=0.03)
+
+version_label = ctk.CTkLabel(
+    root,
+    text=language_manager.get("main.labels.version"),
+    font=get_dynamic_font("Segoe UI", 11, "bold"),
+    anchor="w",
+    text_color="#D9D9D9"
+)
+version_label.place(relx=0.35, rely=0.825, relwidth=0.18, relheight=0.03)
+
+quick_actions_label = ctk.CTkLabel(
+    root,
+    text=language_manager.get("main.labels.quick_actions"),
+    font=get_dynamic_font("Segoe UI", 11, "bold"),
+    anchor="w",
+    text_color="#D9D9D9"
+)
+quick_actions_label.place(relx=0.025, rely=0.485, relwidth=0.16, relheight=0.03)
+
+status_caption = ctk.CTkLabel(
+    root,
+    text=language_manager.get("main.labels.status"),
+    font=get_dynamic_font("Segoe UI", 11, "bold"),
+    anchor="w",
+    text_color="#D9D9D9"
+)
+status_caption.place(relx=0.679, rely=0.703, relwidth=0.12, relheight=0.028)
 
 status_label = ctk.CTkLabel(
     root,
@@ -632,7 +682,7 @@ set_opacity(progress_bar, value=0.9)
 
 username_entry = ctk.CTkEntry(
     root,
-    placeholder_text="Steve",
+    placeholder_text=language_manager.get("main.labels.username_placeholder"),
     font=get_dynamic_font("Segoe UI", 23),
     border_width=0,
 )

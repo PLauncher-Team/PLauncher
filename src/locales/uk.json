@@ -13,6 +13,13 @@
       "cancel_loading": "Скасувати завантаження",
       "complete_game": "Завершити гру"
     },
+    "labels": {
+      "username": "Ім'я гравця",
+      "username_placeholder": "Введіть нік",
+      "version": "Версія Minecraft",
+      "quick_actions": "Швидкі дії",
+      "status": "Статус запуску"
+    },
     "status": {
       "waiting": "Очікування",
       "loading_canceled": "Завантаження скасовано",
@@ -32,7 +39,7 @@
   },
   "settings": {
     "title": "Налаштування",
-    "pages": ["Лаунчер", "Minecraft", "Скіни", "Завантажувачі", "Теми"],
+    "pages": ["Лаунчер", "Minecraft", "Скіни", "Завантажувачі", "Утиліти"],
     "1_page": {
       "version_types_1": "Типи версій",
       "version_types_2": "Типи версій, що відображаються в списку на головному екрані:",
@@ -85,6 +92,14 @@
       "save": "Зберегти",
       "cancel": "Скасувати",
       "open_folder": "Відкрити папку профілю"
+    },
+    "5_page": {
+      "experimental": "Експериментальні функції",
+      "cleanup": "Утиліти очищення та видалення даних",
+      "clear_cache": "Очистити кеш лаунчера",
+      "reset_settings": "Скинути налаштування",
+      "delete_minecraft": "Видалити дані Minecraft",
+      "uninstall_launcher": "Видалити лаунчер"
     }
   },
   "feedback": {

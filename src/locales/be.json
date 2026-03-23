@@ -6,12 +6,19 @@
       "not_completed": " (Не завершана)"
     },
     "buttons": {
-      "feedback": "Сувязь",
+      "feedback": "Зваротная сувязь",
       "logs": "Лагі",
       "settings": "Налады",
       "launch_game": "Запусціць гульню",
       "cancel_loading": "Адмяніць запампоўку",
       "complete_game": "Завяршыць гульню"
+    },
+    "labels": {
+      "username": "Імя гульца",
+      "username_placeholder": "Увядзіце нік",
+      "version": "Версія Minecraft",
+      "quick_actions": "Хуткія дзеянні",
+      "status": "Статус запуску"
     },
     "status": {
       "waiting": "Чаканне",
@@ -32,7 +39,7 @@
   },
   "settings": {
     "title": "Налады",
-    "pages": ["Лаўнчар", "Minecraft", "Скіны", "Загрузчыкі", "Тэмы"],
+    "pages": ["Лаўнчар", "Minecraft", "Скіны", "Загрузчыкі", "Утыліты"],
     "1_page" : {
       "version_types_1": "Тыпы версій",
       "version_types_2": "Тыпы версій, якія адлюстроўваюцца ў спісе на галоўным экране:",
@@ -85,10 +92,18 @@
       "save": "Захаваць",
       "cancel": "Адмена",
       "open_folder": "Адкрыць папку профілю"
+    },
+    "5_page": {
+      "experimental": "Эксперыментальныя функцыі",
+      "cleanup": "Утыліты ачысткі і выдалення даных",
+      "clear_cache": "Ачысціць кэш лаўнчара",
+      "reset_settings": "Скінуць налады",
+      "delete_minecraft": "Выдаліць даныя Minecraft",
+      "uninstall_launcher": "Выдаліць лаўнчар"
     }
   },
   "feedback": {
-    "title": "Адпраўка FeedBack",
+    "title": "Адпраўка зваротнай сувязі",
     "email": "Email (неабавязкова)",
     "subject": "Тэма",
     "description": "Апісанне праблемы / прапановы",
