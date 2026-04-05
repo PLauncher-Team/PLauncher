@@ -10,6 +10,12 @@ from pathlib import Path
 # Build script for Windows (build.py)
 # Usage: python build.py
 
+# Fix Unicode output in GitHub Actions Windows (cp1252 → utf-8)
+if os.environ.get('CI') == 'true' or sys.platform.startswith('win'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
+
 # Minimum supported Python version
 MIN_PY_VERSION = (3, 10)
 
