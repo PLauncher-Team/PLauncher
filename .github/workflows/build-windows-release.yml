@@ -46,13 +46,13 @@ jobs:
           ren main.dist PLauncher
           Compress-Archive -Path PLauncher -DestinationPath "../PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows.zip" -Force
 
-      - name: Calculate SHA256 checksum
-        run: |
-          $file = "PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows.zip"
-          $hash = (Get-FileHash $file -Algorithm SHA256).Hash
-          echo "SHA256: $hash" | Out-File -FilePath "checksum.txt" -Encoding utf8
-          echo "::notice::SHA256 checksum for the build: $hash"
-
+      - name: Upload ZIP as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows
+          path: PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows.zip
+          retention-days: 3
+      
       - name: Upload ZIP to GitHub Release
         if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.upload_to_release == 'true') }}
         uses: softprops/action-gh-release@v2
