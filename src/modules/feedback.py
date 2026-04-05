@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 class FeedbackApp(ctk.CTkToplevel):
     def __init__(self):
         """

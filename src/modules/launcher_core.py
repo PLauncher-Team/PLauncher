@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def thread_load_versions():
     """Load Minecraft versions list in a separate thread."""
     global versions

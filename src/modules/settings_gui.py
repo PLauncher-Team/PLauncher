@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def open_settings():
     """
     Open the settings panel with animation and disable blackout frame click during animation

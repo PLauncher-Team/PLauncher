@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 # Import standard library modules
 from time import perf_counter, time
 start_time = perf_counter()  # Start performance counter for measuring initialization time
@@ -73,7 +78,7 @@ def compute_sha256(path: str) -> str:
     Returns:
         Hexadecimal string representation of the SHA256 hash
     """
-    array = sha256()
+    array = hashlib.sha256()
     with open(path, 'rb') as f:
         for chunk in iter(lambda: f.read(8192), b''):
             array.update(chunk)

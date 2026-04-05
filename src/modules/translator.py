@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 class Translator:
     def __init__(self, language: str = None):
         """

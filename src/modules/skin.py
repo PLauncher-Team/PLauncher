@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 # Class responsible for rendering Minecraft skins into front-facing images
 class MinecraftSkinRenderer:
     def __init__(self, skin: PIL.Image.Image, height: float, slim: bool = False):

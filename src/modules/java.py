@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def get_java_path() -> str | bool:
     """
     Retrieves the path to the installed Java runtime within the Minecraft directory.

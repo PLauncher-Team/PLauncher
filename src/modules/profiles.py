@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def profile_select(*args):
     """
     Handles profile selection from the dropdown. 

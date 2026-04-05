@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def new_message(**kwargs):
     # Show a custom message box with logging support for cancel icon
     global msg

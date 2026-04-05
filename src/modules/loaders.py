@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def list_ver(loader: str) -> list:
     """Returns a list of available versions for the specified loader.
     If no internet connection, returns empty list."""

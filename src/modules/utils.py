@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 def check_internet_connection() -> bool:
     """Check internet connection by attempting to connect to Cloudflare DNS server."""
     try:

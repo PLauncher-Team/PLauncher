@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from context import *
+
 ctk.set_appearance_mode("Dark")
 if config["custom_theme"]:
     theme_path = config["custom_theme"]
