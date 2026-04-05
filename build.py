@@ -33,6 +33,7 @@ DIST_DIR = BASE_DIR / 'dist' / 'main.dist'
 NUITKA_CMD = [
     str(PY_EXE), '-m', 'nuitka',
     '--standalone',
+    "--assume-yes-for-downloads",
     '--windows-console-mode=disable',
     f'--output-dir={DIST_DIR.parent}',
     '--enable-plugin=tk-inter',

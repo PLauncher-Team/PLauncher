@@ -37,6 +37,7 @@ jobs:
       - name: Build with Nuitka (CI mode)
         env:
           CI: "true"
+          PYTHONUNBUFFERED: "1"
         run: python build.py
 
       - name: Prepare release asset
