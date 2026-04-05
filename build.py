@@ -169,12 +169,13 @@ def clear_expected_hashes():
 
 
 def ask_insert_hashes() -> bool:
-    """Ask user whether to insert hashes into main.py."""
+    """Ask user whether to insert hashes into main.py (or auto in CI)."""
+    if os.environ.get('CI') == 'true':
+        print("[CI] Running in non-interactive mode → automatically inserting hashes")
+        return True
     while True:
         response = input("Insert hashes into main.py? [Y/n]: ").strip().upper()
-        if response == '':
-            return True  # Default: Y
-        if response in ['Y', 'YES']:
+        if response == '' or response in ['Y', 'YES']:
             return True
         if response in ['N', 'NO']:
             return False
