@@ -155,39 +155,7 @@ class FreeGPTClient:
         Initialize the FreeGPTClient with user agent and API endpoint URLs.
         """
         self.USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-        self.POLLINATIONS_ENDPOINT = "https://text.pollinations.ai/openai"
         self.TEACH_ANYTHING_URL = "https://www.teach-anything.com/api/generate"
-
-    def _try_pollinations_ai(self, messages: list, timeout: int) -> str | list:
-        """
-        Attempt to get a response from Pollinations AI endpoint.
-
-        Args:
-            messages (list): List of message dicts for the conversation.
-            timeout (int): Request timeout in seconds.
-
-        Returns:
-            str | list: The AI response string or a list with exception name on failure.
-        """
-        headers = {
-            "User-Agent": self.USER_AGENT,
-            "Content-Type": "application/json",
-            "Referer": "https://pollinations.ai"
-        }
-        payload = {
-            "messages": messages,
-            "model": "openai",
-            "stream": False
-        }
-        try:
-            resp = requests.post(self.POLLINATIONS_ENDPOINT, json=payload, headers=headers, timeout=timeout)
-            resp.raise_for_status()
-            data = resp.json()
-            if "choices" in data and data["choices"]:
-                return data["choices"][0].get("message", {}).get("content", "")
-        except Exception:
-            excepthook(*sys.exc_info())
-            return [Exception.__name__]
 
     def _try_teach_anything(self, messages: list, timeout: int) -> str | list:
         """
@@ -242,16 +210,10 @@ class FreeGPTClient:
         Returns:
             str | list: AI response string or list with error details.
         """
-        log("Trying Pollinations AI API", source="crash")
-        response1 = self._try_pollinations_ai(messages, timeout)
-        if not isinstance(response1, list):
-            log("Received response from Pollinations AI", source="crash")
-            return response1
-
         log("Pollinations AI failed, trying Teach Anything API", source="crash")
-        response2 = self._try_teach_anything(messages, timeout)
-        if not isinstance(response2, list):
+        response = self._try_teach_anything(messages, timeout)
+        if not isinstance(response, list):
             log("Received response from Teach Anything API", source="crash")
-            return response2
+            return response
         log("All AI APIs failed", level="ERROR", source="crash")
-        return [None, [response2]]
+        return [None, [response]]
