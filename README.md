@@ -3,6 +3,7 @@
 ![Open Issues](https://img.shields.io/github/issues-raw/PLauncher-Team/PLauncher)
 ![Closed Issues](https://img.shields.io/github/issues-closed-raw/PLauncher-Team/PLauncher)
 [![Latest Release](https://img.shields.io/github/v/release/PLauncher-Team/PLauncher)](https://github.com/PLauncher-Team/PLauncher/releases)
+[![Build Windows Release](https://github.com/PLauncher-Team/PLauncher/actions/workflows/build-windows-release.yml/badge.svg)](https://github.com/PLauncher-Team/PLauncher/actions/workflows/build-windows-release.yml)
 
 <div align="center">
   <img src="PLauncher.png" width="600">
