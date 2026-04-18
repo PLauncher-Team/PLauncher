@@ -3,24 +3,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from context import *
 
-def new_message(**kwargs):
-    # Show a custom message box with logging support for cancel icon
-    global msg
-    if msg:
-        msg.get()
-
-    if kwargs["icon"] == "cancel":
-        log(kwargs["message"].replace("\n", " "), "ERROR", "window_utils")
-
-    msg = CTkMessagebox(
-        **kwargs,
-        font=get_dynamic_font("Segoe UI", 13),
-        master=root,
-        fps=FPS
-    )
-    msg.lift()
-    msg.get()
-
 
 def center(work, x: int, y: int) -> str:
     # Calculate centered screen coordinates for a window of size x by y

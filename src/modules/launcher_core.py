@@ -69,10 +69,9 @@ def load_versions():
         version_combobox.configure(values=installed_versions_list + other_versions_list)
     except Exception as e:
         excepthook(*sys.exc_info())
-        new_message(title=language_manager.get("messages.titles.error"),
+        ToastNotification(title=language_manager.get("messages.titles.error"),
                     message=language_manager.get("messages.texts.error.loading") + str(e),
-                    icon="cancel",
-                    option_1=language_manager.get("messages.answers.ok"))
+                    toast_type="error")
 
     # Set the selected version in UI
     if latest_version in version["download"]:
@@ -157,10 +156,9 @@ def launch_game():
     username = config["name"]
 
     if not selected_version:
-        new_message(title=language_manager.get("messages.titles.warning"),
+        ToastNotification(title=language_manager.get("messages.titles.warning"),
                     message=language_manager.get("messages.texts.warning.version"),
-                    icon="warning",
-                    option_1=language_manager.get("messages.answers.ok"))
+                    toast_type="warning")
         return
 
     if not config["memory_args"]:
@@ -205,10 +203,9 @@ def launch_game():
                     uuid = uuid_response.json()["id"]
                 except Exception as e:
                     excepthook(*sys.exc_info())
-                    new_message(title=language_manager.get("messages.titles.error"),
+                    ToastNotification(title=language_manager.get("messages.titles.error"),
                                 message=language_manager.get("messages.texts.error.ely_by_uuid") + str(e),
-                                icon="cancel",
-                                option_1=language_manager.get("messages.answers.ok"))
+                                toast_type="error")
                     normal_state()
                     return
             else:
@@ -313,11 +310,10 @@ def launch_game():
             minecraft_log_file.close()
         except Exception as e:
             excepthook(*sys.exc_info())
-            new_message(
+            ToastNotification(
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.launch") + str(e),
-                icon="cancel",
-                option_1=language_manager.get("messages.answers.ok"),
+                toast_type="error"
             )
             normal_state()
             if hide_var.get():
@@ -376,10 +372,9 @@ def launch_game():
             excepthook(*sys.exc_info())
             save_version(version)
             normal_state()
-            new_message(title=language_manager.get("messages.titles.error"),
+            ToastNotification(title=language_manager.get("messages.titles.error"),
                         message=language_manager.get("messages.texts.error.loading") + str(e),
-                        icon="cancel",
-                        option_1=language_manager.get("messages.answers.ok"))
+                        toast_type="error")
             set_status(language_manager.get("main.status.loading_error"))
 
 

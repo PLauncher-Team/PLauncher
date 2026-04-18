@@ -1,12 +1,243 @@
-import customtkinter
-from pywinstyles import set_opacity
-from PIL import Image, ImageTk
-import os
-import sys
-import time
-from typing import Literal
+from typing import TYPE_CHECKING
 
-class CTkMessagebox(customtkinter.CTkToplevel):
+if TYPE_CHECKING:
+    from context import *
+
+class ToastNotification(ctk.CTkFrame):
+    active_toasts: Dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
+
+    def __init__(
+            self,
+            message: str,
+            title: Optional[str] = None,
+            master: ctk.CTk | ctk.CTkToplevel = None,
+            toast_type: Literal["success", "error", "warning"] = "success",
+            duration: int = 2500,
+            slide_from: Literal["left", "right", "top", "bottom"] = "right",
+            width: int = 360,
+            height: int = 100,
+            corner_radius: int = 20,
+            fps: int = None
+    ):
+        if master is None:
+            master = root
+        
+        if fps is None:
+            fps = FPS
+        
+        master.update_idletasks()
+
+        self.fps_delay = int(1000 / fps)
+        self.w = int(width * width_factor)
+        self.h = int(height * height_factor)
+        self.radius = int(corner_radius * scale)
+
+        schemes = {
+            "success": {"accent": "#10b981", "bg": "#052e16", "text": "#ecfdf5", "icon": "✅"},
+            "error":   {"accent": "#ef4444", "bg": "#450a0a",  "text": "#fef2f2", "icon": "❌"},
+            "warning": {"accent": "#f59e0b", "bg": "#451a03",  "text": "#fefce8", "icon": "⚠️"}
+        }
+        scheme = schemes[toast_type]
+
+        self.accent_color = scheme["accent"]
+        self.bg_color = scheme["bg"]
+        self.text_color = scheme["text"]
+        self.icon_text = scheme["icon"]
+
+        if title is None:
+            title_map = {"success": "Success", "error": "Error", "warning": "Warning"}
+            title = title_map.get(toast_type, "Notification")
+
+        super().__init__(
+            master=master,
+            fg_color=self.bg_color,
+            corner_radius=self.radius,
+            width=self.w,
+            height=self.h,
+        )
+        
+        set_opacity(self, color="#242424")
+        
+        self.master_window = master
+        self.duration = duration
+        self.slide_from = slide_from
+        self.slot = 0
+
+        self.pack_propagate(False)
+
+        self.accent_bar = ctk.CTkFrame(self, fg_color=self.accent_color, width=int(6 * scale), corner_radius=0)
+        self.accent_bar.pack(side="left", fill="y", padx=(3, 3), pady=int(10 * scale))
+
+        self.content = ctk.CTkFrame(self, fg_color="transparent")
+        self.content.pack(side="left", fill="both", expand=True, padx=int(16 * scale), pady=int(12 * scale))
+
+        self.icon_label = ctk.CTkLabel(
+            self.content, text=self.icon_text, font=ctk.CTkFont(size=int(34 * scale)),
+            text_color=self.accent_color, width=int(44 * scale)
+        )
+        self.icon_label.pack(side="left", padx=(0, int(14 * scale)))
+
+        self.text_area = ctk.CTkFrame(self.content, fg_color="transparent")
+        self.text_area.pack(side="left", fill="both", expand=True)
+
+        self.title_label = ctk.CTkLabel(
+            self.text_area, text=title,
+            font=ctk.CTkFont(size=int(16 * scale), weight="bold"),
+            text_color=self.text_color, anchor="w"
+        )
+        self.title_label.pack(anchor="w", fill="x")
+
+        self.message_label = ctk.CTkLabel(
+            self.text_area, text=message,
+            font=ctk.CTkFont(size=int(13 * scale)), text_color=self.text_color,
+            anchor="w", justify="left", wraplength=self.w - int(150 * scale)
+        )
+        self.message_label.pack(anchor="w", fill="x", pady=(int(3 * scale), 0))
+
+        self.close_label = ctk.CTkLabel(
+            self, text="✕", font=ctk.CTkFont(size=int(20 * scale), weight="bold"),
+            text_color=self.text_color, fg_color="transparent",
+            width=int(32 * scale), height=int(32 * scale), cursor="hand2"
+        )
+        self.close_label.pack(side="right", padx=int(12 * scale), pady=int(12 * scale))
+
+        self.close_label.bind("<Button-1>", lambda e: self.dismiss())
+        self.close_label.bind("<Enter>", lambda e: self.close_label.configure(text_color=self.accent_color))
+        self.close_label.bind("<Leave>", lambda e: self.close_label.configure(text_color=self.text_color))
+
+        for widget in (self, self.content, self.text_area, self.icon_label,
+                       self.title_label, self.message_label, self.accent_bar):
+            widget.bind("<Button-1>", lambda e: self.dismiss())
+
+        self._calculate_final_position()
+        self._set_initial_position()
+
+        if master not in ToastNotification.active_toasts:
+            ToastNotification.active_toasts[master] = []
+        ToastNotification.active_toasts[master].append(self)
+
+        self.place(x=self.initial_x, y=self.initial_y)
+        self.lift()
+        self.animate_slide_in()
+        self._dismiss_id = self.after(self.duration, self.start_dismiss)
+
+    def _calculate_final_position(self):
+        padding = 20
+        mw = self.master_window.winfo_width()
+        self.final_x = mw - self.w - padding
+
+        base_y = padding
+    
+        active_for_master = ToastNotification.active_toasts.get(self.master_window, [])
+        occupied_slots = {t.slot for t in active_for_master if hasattr(t, 'slot')}
+    
+        self.slot = 0
+        while self.slot in occupied_slots:
+            self.slot += 1
+
+        offset = self.slot * (self.h + 12)
+        self.final_y = base_y + offset
+
+
+    def _set_initial_position(self):
+        offset = 60
+        if self.slide_from == "right":
+            self.initial_x = self.final_x + self.w + offset
+            self.initial_y = self.final_y
+        elif self.slide_from == "left":
+            self.initial_x = self.final_x - self.w - offset
+            self.initial_y = self.final_y
+        elif self.slide_from == "bottom":
+            self.initial_x = self.final_x
+            self.initial_y = self.final_y + self.h + offset
+        elif self.slide_from == "top":
+            self.initial_x = self.final_x
+            self.initial_y = self.final_y - self.h - offset
+
+    def animate_slide_in(self, start_time: Optional[float] = None, duration: float = 0.5):
+        if start_time is None:
+            start_time = time.time()
+
+        elapsed = time.time() - start_time
+        progress = min(elapsed / duration, 1.0)
+
+        eased = 1 - (1 - progress) ** 2
+
+        dx = self.final_x - self.initial_x
+        dy = self.final_y - self.initial_y
+
+        self.place_configure(
+            x=self.initial_x + dx * eased,
+            y=self.initial_y + dy * eased
+        )
+
+        if progress < 1.0:
+            self.after(self.fps_delay, lambda: self.animate_slide_in(start_time, duration))
+        else:
+            self.place_configure(x=self.final_x, y=self.final_y)
+
+    def start_dismiss(self):
+        self.animate_slide_out()
+
+    def animate_slide_out(self, start_time: Optional[float] = None, duration: float = 0.4):
+        if start_time is None:
+            start_time = time.time()
+
+        elapsed = time.time() - start_time
+        progress = min(elapsed / duration, 1.0)
+
+        eased = progress ** 2
+
+        dx = self.initial_x - self.final_x
+        dy = self.initial_y - self.final_y
+
+        self.place_configure(
+            x=self.final_x + dx * eased,
+            y=self.final_y + dy * eased
+        )
+
+        if progress < 1.0:
+            self.after(self.fps_delay, lambda: self.animate_slide_out(start_time, duration))
+        else:
+            self._destroy_toast()
+
+    def dismiss(self):
+        if hasattr(self, "_dismiss_id"):
+            try:
+                self.after_cancel(self._dismiss_id)
+            except:
+                pass
+        self.animate_slide_out()
+
+    def _destroy_toast(self):
+        if (self.master_window in ToastNotification.active_toasts and
+                self in ToastNotification.active_toasts[self.master_window]):
+            ToastNotification.active_toasts[self.master_window].remove(self)
+            if not ToastNotification.active_toasts[self.master_window]:
+                del ToastNotification.active_toasts[self.master_window]
+        self.destroy()
+
+
+def new_message(**kwargs):
+    # Show a custom message box with logging support for cancel icon
+    global msg
+    if msg:
+        msg.get()
+
+    if kwargs["icon"] == "cancel":
+        log(kwargs["message"].replace("\n", " "), "ERROR", "window_utils")
+
+    msg = CTkMessagebox(
+        **kwargs,
+        font=get_dynamic_font("Segoe UI", 13),
+        master=root,
+        fps=FPS
+    )
+    msg.lift()
+    msg.get()
+
+
+class CTkMessagebox(ctk.CTkToplevel):
     ICONS = {
         "check": None,
         "cancel": None,
@@ -25,7 +256,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
                  option_1: str = "OK",
                  option_2: str = None,
                  option_3: str = None,
-                 options: list = [],
+                 options=None,
                  border_width: int = 1,
                  border_color: str = "default",
                  button_color: str = "default",
@@ -55,6 +286,8 @@ class CTkMessagebox(customtkinter.CTkToplevel):
                  factor_height: float = 1.0):
         super().__init__(master)
 
+        if options is None:
+            options = []
         self.master_window = master
         self.animation_complete = False
         font_factor = (factor_width + factor_height) / 2
@@ -73,13 +306,13 @@ class CTkMessagebox(customtkinter.CTkToplevel):
         self.withdraw()
         self.blackout_frames = []
         if self.master_window:
-            frame = customtkinter.CTkFrame(self.master_window, fg_color="black")
+            frame = ctk.CTkFrame(self.master_window, fg_color="black")
             set_opacity(frame, 0)
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
             self.blackout_frames.append(frame)
             for widget in self.master_window.winfo_children():
-                if isinstance(widget, customtkinter.CTkToplevel) and widget is not self:
-                    frame_child = customtkinter.CTkFrame(widget, fg_color="black")
+                if isinstance(widget, ctk.CTkToplevel) and widget is not self:
+                    frame_child = ctk.CTkFrame(widget, fg_color="black")
                     set_opacity(frame_child, 0)
                     frame_child.place(relx=0, rely=0, relwidth=1, relheight=1)
                     self.blackout_frames.append(frame_child)
@@ -171,7 +404,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
                 pass
 
         if bg_color == "default":
-            self.bg_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkFrame"]["fg_color"])
+            self.bg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
         else:
             self.bg_color = bg_color
 
@@ -179,11 +412,11 @@ class CTkMessagebox(customtkinter.CTkToplevel):
             self.dot_color = self.bg_color
 
         if fg_color == "default":
-            self.fg_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkFrame"]["top_fg_color"])
+            self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"])
         else:
             self.fg_color = fg_color
 
-        default_button_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkButton"]["fg_color"])
+        default_button_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["fg_color"])
 
         if sys.platform.startswith("win"):
             if self.bg_color == self.transparent_color or self.fg_color == self.transparent_color:
@@ -205,27 +438,27 @@ class CTkMessagebox(customtkinter.CTkToplevel):
                 self.button_color = (button_color, button_color, button_color)
 
         if text_color == "default":
-            self.text_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkLabel"]["text_color"])
+            self.text_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
         else:
             self.text_color = text_color
 
         if title_color == "default":
-            self.title_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkLabel"]["text_color"])
+            self.title_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
         else:
             self.title_color = title_color
 
         if button_text_color == "default":
-            self.bt_text_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkButton"]["text_color"])
+            self.bt_text_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["text_color"])
         else:
             self.bt_text_color = button_text_color
 
         if button_hover_color == "default":
-            self.bt_hv_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkButton"]["hover_color"])
+            self.bt_hv_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["hover_color"])
         else:
             self.bt_hv_color = button_hover_color
 
         if border_color == "default":
-            self.border_color = self._apply_appearance_mode(customtkinter.ThemeManager.theme["CTkFrame"]["border_color"])
+            self.border_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["border_color"])
         else:
             self.border_color = border_color
 
@@ -237,7 +470,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
 
         self.icon = self.load_icon(icon, icon_size) if icon else None
 
-        self.frame_top = customtkinter.CTkFrame(
+        self.frame_top = ctk.CTkFrame(
             self,
             corner_radius=self.round_corners,
             width=self.width,
@@ -259,7 +492,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
             self.frame_top.grid_rowconfigure((0, 1, 2), weight=1)
 
         if self.cancel_button == "cross":
-            self.button_close = customtkinter.CTkButton(
+            self.button_close = ctk.CTkButton(
                 self.frame_top,
                 corner_radius=10,
                 width=0,
@@ -272,7 +505,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
             )
             self.button_close.grid(row=0, column=5, sticky="ne", padx=5 + self.border_width, pady=5 + self.border_width)
         elif self.cancel_button == "circle":
-            self.button_close = customtkinter.CTkButton(
+            self.button_close = ctk.CTkButton(
                 self.frame_top,
                 corner_radius=10,
                 width=10,
@@ -284,7 +517,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
             )
             self.button_close.grid(row=0, column=5, sticky="ne", padx=10, pady=10)
 
-        self.title_label = customtkinter.CTkLabel(
+        self.title_label = ctk.CTkLabel(
             self.frame_top,
             width=1,
             text=self._title,
@@ -293,7 +526,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
         )
         self.title_label.grid(row=0, column=0, columnspan=6, sticky="nw", padx=(15, 30), pady=5)
 
-        self.info = customtkinter.CTkButton(
+        self.info = ctk.CTkButton(
             self.frame_top,
             width=1,
             height=self.height / 2,
@@ -318,7 +551,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
 
         self.option_text_1 = option_1
 
-        self.button_1 = customtkinter.CTkButton(
+        self.button_1 = ctk.CTkButton(
             self.frame_top,
             text=self.option_text_1,
             fg_color=self.button_color[0],
@@ -331,7 +564,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
 
         self.option_text_2 = option_2
         if option_2:
-            self.button_2 = customtkinter.CTkButton(
+            self.button_2 = ctk.CTkButton(
                 self.frame_top,
                 text=self.option_text_2,
                 fg_color=self.button_color[1],
@@ -344,7 +577,7 @@ class CTkMessagebox(customtkinter.CTkToplevel):
 
         self.option_text_3 = option_3
         if option_3:
-            self.button_3 = customtkinter.CTkButton(
+            self.button_3 = ctk.CTkButton(
                 self.frame_top,
                 text=self.option_text_3,
                 fg_color=self.button_color[2],
@@ -500,8 +733,8 @@ class CTkMessagebox(customtkinter.CTkToplevel):
                 size = (icon_size[0], size_height)
             else:
                 size = (self.height / 4, self.height / 4)
-            self.ICONS[icon] = customtkinter.CTkImage(Image.open(image_path), size=size)
-            self.ICON_BITMAP[icon] = ImageTk.PhotoImage(file=image_path)
+            self.ICONS[icon] = ctk.CTkImage(PIL.Image.open(image_path), size=size)
+            self.ICON_BITMAP[icon] = PIL.ImageTk.PhotoImage(file=image_path)
         if not sys.platform.startswith("darwin"):
             self.after(200, lambda: self.iconphoto(False, self.ICON_BITMAP[icon]))
         return self.ICONS[icon]

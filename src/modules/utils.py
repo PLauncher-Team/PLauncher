@@ -31,10 +31,9 @@ def get_available_memory() -> int:
 def open_logs():
     """Open Minecraft logs file or show warning if not found."""
     if not os.path.isfile("minecraft.log"):
-        new_message(title=language_manager.get("messages.titles.warning"),
+        ToastNotification(title=language_manager.get("messages.titles.warning"),
                     message=language_manager.get("messages.texts.warning.logs"),
-                    icon="warning",
-                    option_1=language_manager.get("messages.answers.ok"))
+                    toast_type="warning")
     else:
         os.startfile("minecraft.log")
 

@@ -139,32 +139,28 @@ class FeedbackApp(ctk.CTkToplevel):
 
         if email and not EMAIL_REGEX.match(email):
             log(f"Invalid email format: {email}", level="WARNING", source="feedback")
-            new_message(
+            ToastNotification(
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.feedback_send"),
-                icon="cancel",
-                option_1=language_manager.get("messages.answers.ok")
+                toast_type="error"
             )
             return
         self.send_button.configure(state="disabled")
         success, error_msg = self.send_feedback(subject=subject, description=description, email=email)
 
         if success:
-            new_message(
+            ToastNotification(
                 title=language_manager.get("messages.titles.info"),
                 message=language_manager.get("messages.texts.check.feedback_send"),
-                icon="info",
-                option_1=language_manager.get("messages.answers.ok")
             )
             self.email_entry.delete(0, "end")
             self.subject_entry.delete(0, "end")
             self.desc_text.delete("0.0", "end")
         else:
-            new_message(
+            ToastNotification(
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.feedback_email") + error_msg,
-                icon="cancel",
-                option_1=language_manager.get("messages.answers.ok")
+                toast_type="error"
             )
 
         self.send_button.configure(state="normal")

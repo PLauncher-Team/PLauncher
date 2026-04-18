@@ -133,11 +133,10 @@ def add_java():
         java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
     elif path:
         log(f"Failed to add Java installation: {path}", level="ERROR", source="java")
-        new_message(
+        ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.java"),
-            icon="cancel",
-            option_1=language_manager.get("messages.answers.ok")
+            toast_type="error"
         )
 
 

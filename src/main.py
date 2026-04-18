@@ -4,8 +4,8 @@ if TYPE_CHECKING:
     from context import *
 
 # Import standard library modules
-from time import perf_counter, time
-start_time = perf_counter()  # Start performance counter for measuring initialization time
+import time
+start_time = time.perf_counter()  # Start performance counter for measuring initialization time
 
 import json
 import os
@@ -38,7 +38,6 @@ import win32con
 import win32api
 import optipy
 import PIL
-from CTkMessagebox import CTkMessagebox
 from CTkScrollableDropdownPP import CTkScrollableDropdown
 from psutil import virtual_memory
 from pywinstyles import set_opacity
@@ -144,13 +143,14 @@ if __name__ == "__main__":
     log("Welcome to debug...")
 
     # Load all required modules
-    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui"]:
+    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui", "notifications"]:
         execute_module(module)
 
     log("Module import completed")
     
     # Configuration constants
     IS_INTERNET = check_internet_connection()
+    IS_INTERNET = False
     CURRENT_VERSION = "v1.0.1"
     FPS = get_refresh_rate()
     MAX_MEMORY_GB = get_available_memory()

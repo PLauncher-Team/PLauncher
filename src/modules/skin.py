@@ -14,11 +14,10 @@ class MinecraftSkinRenderer:
     def _load_skin(self):
         width, height = self.skin.size
         if (width, height) not in [(64, 64), (64, 32)]:
-            new_message(
+            ToastNotification(
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.skin_load"),
-                icon="cancel",
-                option_1=language_manager.get("messages.answers.ok")
+                toast_type="error"
             )
             config["custom_skin"] = default_config["custom_skin"]
             label_skin.configure(image=None)
@@ -159,11 +158,10 @@ def select_png_file():
         log(f"Failed to load skin file {file_path}: {e}", level="ERROR", source="skin")
         excepthook(*sys.exc_info())
         config["custom_skin"] = old_path
-        new_message(
+        ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.skin_select") + str(e),
-            icon="cancel",
-            option_1=language_manager.get("messages.answers.ok")
+            toast_type="error"
         )
 
 

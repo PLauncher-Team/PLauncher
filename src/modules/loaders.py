@@ -75,9 +75,9 @@ def fun_install_loader():
     except Exception as e:
         log(f"Loader installation failed:", level="ERROR", source="loaders")
         excepthook(*sys.exc_info())
-        new_message(title=language_manager.get("messages.titles.error"),
+        ToastNotification(title=language_manager.get("messages.titles.error"),
                     message=language_manager.get("messages.texts.error.loading_loader") + str(e.__class__.__name__),
-                    icon="warning", option_1=language_manager.get("messages.answers.ok"))
+                    toast_type="error")
 
 
 def fun_install_loaders():
@@ -101,7 +101,7 @@ def fun_install_loaders():
     install_loader.configure(state="normal", text=language_manager.get("settings.4_page.install_loader"),
                              command=lambda: threading.Thread(target=fun_install_loaders).start())
     launch_button.configure(state="normal")
-    progress_loader.configure()
+    progress_loader.set(0)
 
 
 def get_loaders_versions():

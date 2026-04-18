@@ -121,6 +121,7 @@ for i, name in enumerate(tabs):
 
 indicator = ctk.CTkFrame(button_frame, fg_color="red", height=3)
 indicator.place(relx=0, rely=1, anchor='sw', relwidth=1/len(tabs))
+tab_buttons[tabs[3]].configure(state="disabled")
 tab_buttons[tabs[4]].configure(state="disabled")
 content_frames = {}
 for name in tabs:
@@ -741,12 +742,12 @@ root.bind("<Configure>", lambda event: relative_center(), add="+")
 
 root.after(0, lambda: show_tab(tabs[0]))
 
-log(f"Done! ({perf_counter() - start_time:.2f} s)", source="gui")
+log(f"Done! ({time.perf_counter() - start_time:.2f} s)", source="gui")
 
 if not IS_INTERNET:
-    new_message(title=language_manager.get("messages.titles.warning"),
+    ToastNotification(title=language_manager.get("messages.titles.warning"),
                 message=language_manager.get("messages.texts.warning.no_internet"),
-                icon="warning", option_1=language_manager.get("messages.answers.ok"))
+                toast_type="warning")
     for c in (release_checkbox, snapshot_checkbox, old_alpha_check, old_beta_check, skins_ely_by_checkbox,
               install_loader):
         c.configure(state="disabled")

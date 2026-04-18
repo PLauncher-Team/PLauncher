@@ -85,11 +85,10 @@ def save_add_profile():
     except Exception as e:
         log(f"Failed to create profile {name}: {e}", level="ERROR", source="profiles")
         excepthook(*sys.exc_info())
-        new_message(
+        ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_add") + str(e),
-            icon="cancel",
-            option_1=language_manager.get("messages.answers.ok")
+            toast_type="error",
         )
     else:
         if list_profiles.cget("values") == (no,):
@@ -163,11 +162,10 @@ def rename_profile(old_name: str):
     except Exception as e:
         log(f"Failed to rename profile:", level="ERROR", source="profiles")
         excepthook(*sys.exc_info())
-        new_message(
+        ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_rename") + str(e),
-            icon="cancel",
-            option_1=language_manager.get("messages.answers.ok")
+            toast_type="cancel"
         )
     else:
         if version["profile"] == old_name:
