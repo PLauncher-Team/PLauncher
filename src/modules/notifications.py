@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from context import *
 
 class ToastNotification(ctk.CTkFrame):
-    active_toasts: Dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
+    active_toasts: dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
 
     def __init__(
             self,

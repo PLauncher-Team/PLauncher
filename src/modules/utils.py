@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 def check_internet_connection() -> bool:
     """Check internet connection by attempting to connect to Cloudflare DNS server."""
     try:
-        create_connection(("1.1.1.1", 53), timeout=1)
+        create_connection(("1.1.1.1", 53))
         return True
     except Exception:
         return False
