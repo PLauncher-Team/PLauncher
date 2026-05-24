@@ -13,7 +13,7 @@ class FeedbackApp(ctk.CTkToplevel):
         self.withdraw()
 
         self.title(language_manager.get("feedback.title"))
-        self.geometry(f"{feedback_x}x{feedback_y}")
+        self.geometry(f"{500}x{400}")
         self.resizable(False, False)
         self.grab_set()
         self.bind("<Map>", self._restore_titlebar_color)
@@ -24,13 +24,13 @@ class FeedbackApp(ctk.CTkToplevel):
         self.email_label = ctk.CTkLabel(
             self,
             text=language_manager.get("feedback.email"),
-            font=get_dynamic_font("Segoe UI", 13)
+            font=("Segoe UI", 13)
         )
         self.email_label.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.05)
 
         self.email_entry = ctk.CTkEntry(
             self,
-            font=get_dynamic_font("Segoe UI", 13),
+            font=("Segoe UI", 13),
             border_width=0
         )
         self.email_entry.place(relx=0.02, rely=0.07, relwidth=0.96, relheight=0.07)
@@ -38,13 +38,13 @@ class FeedbackApp(ctk.CTkToplevel):
         self.subject_label = ctk.CTkLabel(
             self,
             text=language_manager.get("feedback.subject"),
-            font=get_dynamic_font("Segoe UI", 13)
+            font=("Segoe UI", 13)
         )
         self.subject_label.place(relx=0.02, rely=0.16, relwidth=0.96, relheight=0.05)
 
         self.subject_entry = ctk.CTkEntry(
             self,
-            font=get_dynamic_font("Segoe UI", 13),
+            font=("Segoe UI", 13),
             border_width=0
         )
         self.subject_entry.place(relx=0.02, rely=0.21, relwidth=0.96, relheight=0.07)
@@ -52,7 +52,7 @@ class FeedbackApp(ctk.CTkToplevel):
         self.desc_label = ctk.CTkLabel(
             self,
             text=language_manager.get("feedback.description"),
-            font=get_dynamic_font("Segoe UI", 13)
+            font=("Segoe UI", 13)
         )
         self.desc_label.place(relx=0.02, rely=0.30, relwidth=0.96, relheight=0.05)
 
@@ -63,7 +63,7 @@ class FeedbackApp(ctk.CTkToplevel):
             self,
             text=language_manager.get("feedback.send"),
             command=self.on_send_click,
-            font=get_dynamic_font("Segoe UI", 13, "bold")
+            font=("Segoe UI", 13, "bold")
         )
         self.send_button.place(relx=0.40, rely=0.82, relwidth=0.20, relheight=0.06)
 
@@ -117,7 +117,7 @@ class FeedbackApp(ctk.CTkToplevel):
                 field_ids[TARGET_FIELD_CONFIG["Subject"]["label_in_form_data"]]: subject,
                 field_ids[TARGET_FIELD_CONFIG["Description"]["label_in_form_data"]]: description,
             }
-            response = requests.post(FORM_SUBMIT_URL, data=payload, timeout=5)
+            response = requests.post(FORM_SUBMIT_URL, data=payload, timeout=5, headers={"User-Agent": USER_AGENT})
             response.raise_for_status()
             log("Feedback sent successfully", source="feedback")
             return True, ""

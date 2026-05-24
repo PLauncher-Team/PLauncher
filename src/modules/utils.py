@@ -3,13 +3,22 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from context import *
 
-def check_internet_connection() -> bool:
-    """Check internet connection by attempting to connect to Cloudflare DNS server."""
+def check_internet_connection() -> float | None:
+    """
+    Check internet connection by attempting to connect to Cloudflare DNS server.
+    Returns ping in milliseconds if successful, or None if failed.
+    """
+    start_time = time.perf_counter()
+
     try:
-        create_connection(("1.1.1.1", 53))
-        return True
+        with create_connection(("1.1.1.1", 53), timeout=3.0):
+            end_time = time.perf_counter()
+
+        ping_ms = (end_time - start_time) * 1000
+        return round(ping_ms, 2)
+
     except Exception:
-        return False
+        return 0
 
 
 def save_config_menu():

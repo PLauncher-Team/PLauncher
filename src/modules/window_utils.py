@@ -37,12 +37,6 @@ def ex():
         msg.grab_release()
 
 
-def get_dynamic_font(font_name: str, base_size: int, weight: str = "normal") -> tuple:
-    # Return dynamically scaled font based on screen resolution
-    scale = ((screen_width / 1920) + (screen_height / 1080)) / 2
-    return (font_name, max(8, int(base_size * scale)), weight)
-
-
 def get_refresh_rate() -> int:
     # Detect current monitor refresh rate
     monitors = win32api.EnumDisplayMonitors()
@@ -63,8 +57,8 @@ def new_tooltip(**kwargs):
     # Create and display a tooltip with default styling
     CTkToolTip(
         **kwargs,
-        x_offset=int(20 * width_factor),
-        y_offset=int(10 * height_factor),
+        x_offset=20,
+        y_offset=10,
         bg_color=dominant_color,
         border_color=lighten_dominant_15
     )
@@ -85,7 +79,7 @@ class VersionFrame(ctk.CTkFrame):
         self.version_label = ctk.CTkLabel(
             self,
             text=CURRENT_VERSION,
-            font=get_dynamic_font("Segoe UI", 24, "bold"),
+            font=("Segoe UI", 24, "bold"),
             text_color="white"
         )
         self.version_label.place(relx=0.5, rely=0.5, anchor="center")
@@ -94,7 +88,7 @@ class VersionFrame(ctk.CTkFrame):
 
     def get_latest_version_by_redirect(self) -> str | None:
         # Follow GitHub redirect and extract latest version tag
-        headers = {"User-Agent": "Mozilla/5.0"}
+        headers = {"User-Agent": USER_AGENT}
         try:
             resp = requests.head(self.url, headers=headers, allow_redirects=True, timeout=10)
             resp.raise_for_status()
@@ -135,7 +129,7 @@ class VersionFrame(ctk.CTkFrame):
         self.new_label = ctk.CTkLabel(
             self,
             text="new version",
-            font=get_dynamic_font("Segoe UI", 14, "bold"),
+            font=("Segoe UI", 14, "bold"),
             text_color="#FFD700"
         )
         self.new_label.place(relx=0.5, rely=0.8, anchor="s")

@@ -1,7 +1,5 @@
 import os
 import sys
-import hashlib
-import re
 import subprocess
 import venv
 import shutil
@@ -24,7 +22,6 @@ BASE_DIR = Path(__file__).parent.resolve()
 VENV_DIR = BASE_DIR / ".venv"
 PY_EXE = VENV_DIR / "Scripts" / "python.exe"
 
-MODULES_DIR = BASE_DIR / 'src' / 'modules'
 MAIN_PY = BASE_DIR / 'src' / 'main.py'
 RESOURCES_DIR = BASE_DIR / 'src'
 DIST_DIR = BASE_DIR / 'dist' / 'main.dist'
@@ -51,9 +48,6 @@ NUITKA_CMD = [
     '--include-package=ratelimit',
     str(MAIN_PY)
 ]
-
-# Expected hash placeholder (will be updated dynamically)
-EXPECTED_HASHES = {}
 
 
 def check_windows():
@@ -89,44 +83,6 @@ def install_dependencies():
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Dependency installation failed: {e}")
         sys.exit(e.returncode)
-
-
-def compute_sha256(path: Path) -> str:
-    """Compute SHA256 hash of a file."""
-    sha = hashlib.sha256()
-    with path.open('rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
-            sha.update(chunk)
-    return sha.hexdigest()
-
-
-def collect_hashes() -> dict:
-    """Collect SHA256 hashes of all Python files in the modules directory."""
-    if not MODULES_DIR.is_dir():
-        print(f"[ERROR] Modules directory not found: {MODULES_DIR}")
-        sys.exit(1)
-    hashes = {}
-    for file in sorted(MODULES_DIR.glob('*.py')):
-        hashes[file.stem] = compute_sha256(file)
-    return hashes
-
-
-def update_expected_hashes(hashes: dict):
-    """Update the EXPECTED_HASHES dictionary in main.py with computed hashes."""
-    new_block = ["EXPECTED_HASHES = {"]
-    for name, h in hashes.items():
-        new_block.append(f'    "{name}": "{h}",')
-    new_block.append('}')
-    block_text = "\n".join(new_block)
-
-    content = MAIN_PY.read_text(encoding='utf-8')
-    pattern = re.compile(r'EXPECTED_HASHES\s*=\s*\{[^}]*\}', re.DOTALL)
-    if not pattern.search(content):
-        print("[ERROR] EXPECTED_HASHES block not found in main.py.")
-        sys.exit(1)
-    updated = pattern.sub(block_text, content)
-    MAIN_PY.write_text(updated, encoding='utf-8')
-    print("✅ EXPECTED_HASHES updated.")
 
 
 def run_command(cmd: list) -> int:
@@ -167,41 +123,12 @@ def copy_resources():
             print(f"  [WARN] File not found: {src}")
 
 
-def clear_expected_hashes():
-    """Clear the EXPECTED_HASHES dictionary in main.py (set to empty)."""
-    content = MAIN_PY.read_text(encoding='utf-8')
-    cleared = re.sub(r'EXPECTED_HASHES\s*=\s*\{[^}]*\}', 'EXPECTED_HASHES = {}', content, flags=re.DOTALL)
-    MAIN_PY.write_text(cleared, encoding='utf-8')
-    print("🔄 EXPECTED_HASHES cleared.")
-
-
-def ask_insert_hashes() -> bool:
-    """Ask user whether to insert hashes into main.py (or auto in CI)."""
-    if os.environ.get('CI') == 'true':
-        print("[CI] Running in non-interactive mode → automatically inserting hashes")
-        return True
-    while True:
-        response = input("Insert hashes into main.py? [Y/n]: ").strip().upper()
-        if response == '' or response in ['Y', 'YES']:
-            return True
-        if response in ['N', 'NO']:
-            return False
-        print("Please enter Y or N")
-
-
 if __name__ == '__main__':
     check_windows()
     check_python_version()
 
     create_virtualenv()
     install_dependencies()
-
-    # Ask user whether to insert hashes
-    hashes = collect_hashes()
-    if ask_insert_hashes():
-        update_expected_hashes(hashes)
-    else:
-        print("⏭ Skipping hash insertion...")
 
     print("🛠 Starting compilation...")
     ret = run_command(NUITKA_CMD)
@@ -211,11 +138,5 @@ if __name__ == '__main__':
     print("✅ Compilation finished.")
 
     copy_resources()
-
-    # Only clear hashes if they were inserted
-    if hashes:
-        clear_expected_hashes()
-    else:
-        print("⏭ Skipping hash cleanup...")
 
     print("🎉 Build complete! Check dist/main.dist/main.exe")

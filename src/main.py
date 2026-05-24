@@ -12,7 +12,6 @@ import os
 import re
 import ctypes
 import traceback
-import hashlib
 import sys
 import shutil
 import random
@@ -42,7 +41,7 @@ from CTkScrollableDropdownPP import CTkScrollableDropdown
 from psutil import virtual_memory
 from pywinstyles import set_opacity
 from ratelimit import rate_limited
-
+ctk.deactivate_automatic_dpi_awareness()
 
 def log(message: str, level: str = 'INFO', source: str = 'main') -> None:
     """Log messages with timestamp, level, source, and thread information.
@@ -65,25 +64,6 @@ def log(message: str, level: str = 'INFO', source: str = 'main') -> None:
             f.write(output + "\n")
 
 
-# Dictionary to store expected file hashes for verification
-EXPECTED_HASHES = {}
-
-def compute_sha256(path: str) -> str:
-    """Compute SHA256 hash of a file.
-    
-    Args:
-        path: Path to the file to hash
-        
-    Returns:
-        Hexadecimal string representation of the SHA256 hash
-    """
-    array = hashlib.sha256()
-    with open(path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
-            array.update(chunk)
-    return array.hexdigest()
-
-
 def execute_module(module_name: str) -> None:
     """Execute a Python module with hash verification using a single file read.
     
@@ -96,17 +76,6 @@ def execute_module(module_name: str) -> None:
         # Read file
         with open(module_path, "rb") as f:
             code_bytes = f.read()
-
-        # Verify hash
-        if EXPECTED_HASHES:
-            expected = EXPECTED_HASHES.get(module_name)
-            actual = hashlib.sha256(code_bytes).hexdigest()
-
-            if actual != expected:
-                log(f"Hash mismatch for module '{module_name}'.", level="ERROR")
-                sys.exit(1)
-
-        # Compile and execute
         exec(compile(code_bytes, module_path, "exec"), globals())
 
     except Exception:
@@ -136,8 +105,6 @@ if __name__ == "__main__":
     if os.path.isfile("launcher.log"):
         os.remove("launcher.log")
 
-    minecraft_log_file = None  # Will store path to Minecraft log file
-
     # Set custom exception handler
     sys.excepthook = excepthook
     log("Welcome to debug...")
@@ -149,10 +116,6 @@ if __name__ == "__main__":
     log("Module import completed")
     
     # Configuration constants
-    IS_INTERNET = check_internet_connection()
-    CURRENT_VERSION = "v1.0.1"
-    FPS = get_refresh_rate()
-    MAX_MEMORY_GB = get_available_memory()
     FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform"
     FORM_SUBMIT_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/formResponse"
 
@@ -166,21 +129,10 @@ if __name__ == "__main__":
     # Regular expression for email validation
     EMAIL_REGEX = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 
-    # Runtime state variables
-    is_running = False
-    minecraft_process = None
-    loader_process = None
-    step = None
-    progress = None
-    total_files = 0
-    select_page = None
-    versions = []
-    old_types_versions = []
-
     # Log initial configuration
     log(f"Version: {CURRENT_VERSION}")
     log(f"Monitor refresh rate: {FPS} Hz")
-    log(f"Internet status: {IS_INTERNET}")
+    log(f"Internet status: {IS_INTERNET}, Ping: {ping}")
     log(f"RAM size: {MAX_MEMORY_GB} GB")
 
     # Default configuration values

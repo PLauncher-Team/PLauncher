@@ -15,7 +15,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         # Override window close to just hide the window
         self.protocol("WM_DELETE_WINDOW", self.withdraw)
         self.title(language_manager.get("crash_log.title"))
-        self.geometry(f"{crash_x}x{crash_y}")
+        self.geometry(f"{600}x{700}")
         self.resizable(False, False)
         self.thread = None
         self.message = None
@@ -37,7 +37,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         title_label = ctk.CTkLabel(
             top_frame,
             text=language_manager.get("crash_log.error_log"),
-            font=get_dynamic_font("Segoe UI", 25, "bold"),
+            font=("Segoe UI", 25, "bold"),
             fg_color="transparent",
             anchor="w",
         )
@@ -50,7 +50,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         # Textbox to display the crash log content (readonly)
         self.log_textbox = ctk.CTkTextbox(
             self,
-            font=get_dynamic_font("Segoe UI", 13),
+            font=("Segoe UI", 13),
             state="disabled",
             wrap="word",
         )
@@ -65,7 +65,7 @@ class CrashLogWindow(ctk.CTkToplevel):
             button_frame,
             text=language_manager.get("crash_log.ai_analysis"),
             command=lambda: threading.Thread(target=self.analyze_with_ai).start(),
-            font=get_dynamic_font("Segoe UI", 20, "bold"),
+            font=("Segoe UI", 20, "bold"),
         )
         self.ai_button.place(relx=0.32145, rely=0.15, relwidth=0.3571, relheight=0.7)
         if not IS_INTERNET:
@@ -146,7 +146,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         Show the crash log window and center it on the screen.
         """
         self.deiconify()
-        self.geometry(f"+{center(self, crash_x, crash_y)}")
+        self.geometry(f"+{center(self, 600, 700)}")
 
 
 class FreeGPTClient:
@@ -154,7 +154,6 @@ class FreeGPTClient:
         """
         Initialize the FreeGPTClient with user agent and API endpoint URLs.
         """
-        self.USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
         self.TEACH_ANYTHING_URL = "https://www.teach-anything.com/api/generate"
 
     def _try_teach_anything(self, messages: list, timeout: int) -> str | list:
@@ -169,7 +168,7 @@ class FreeGPTClient:
             str | list: The AI response string or a list with exception name on failure.
         """
         headers = {
-            "User-Agent": self.USER_AGENT,
+            "User-Agent": USER_AGENT,
             "Content-Type": "application/json",
             "Origin": "https://www.teach-anything.com",
             "Referer": "https://www.teach-anything.com/"
