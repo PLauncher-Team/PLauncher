@@ -1,18 +1,18 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 def get_java_path() -> str | bool:
     """
     Retrieves the path to the installed Java runtime within the Minecraft directory.
     Returns False if no JVM runtime is installed.
     """
-    jvm_installed = mcl.runtime.get_installed_jvm_runtimes(minecraft_path)
+    jvm_installed = mcl.runtime.get_installed_jvm_runtimes(LaunchOptions.minecraft_path)
     if not jvm_installed:
         return False
     jvm_installed = jvm_installed[0]
-    java_path = os.path.join(minecraft_path, "runtime", jvm_installed, "windows-x64", jvm_installed, "bin", "java.exe")
+    java_path = os.path.join(LaunchOptions.minecraft_path, "runtime", jvm_installed, "windows-x64", jvm_installed, "bin", "java.exe")
     return java_path
 
 
@@ -128,9 +128,9 @@ def add_java():
     info = get_formatted_java_info(path)
     if info:
         log(f"Adding Java installation: {info} at {path}", source="java")
-        config["java_paths"][info] = path
-        save_config(config)
-        java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
+        LauncherConfig.config["java_paths"][info] = path
+        save_config()
+        java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(LauncherConfig.config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
     elif path:
         log(f"Failed to add Java installation: {path}", level="ERROR", source="java")
         ToastNotification(
@@ -147,14 +147,14 @@ def on_select_java(name: str):
     Otherwise, updates config with selected Java path.
     """
     if name == language_manager.get("settings.2_page.add"):
-        java_combobox.set(config["java"] or language_manager.get("settings.2_page.recommended_java"))
+        java_combobox.set(LauncherConfig.config["java"] or language_manager.get("settings.2_page.recommended_java"))
         add_java()
         return
     elif name == language_manager.get("settings.2_page.recommended_java"):
-        config["java"] = default_config["java"]
+        LauncherConfig.config["java"] = default_config["java"]
     else:
-        config["java"] = name
-    save_config(config)
+        LauncherConfig.config["java"] = name
+    save_config()
 
 
 def del_java():
@@ -172,10 +172,10 @@ def del_java():
         option_1=language_manager.get("messages.answers.no"),
         option_2=language_manager.get("messages.answers.yes")
     )
-    if msg.get() == language_manager.get("messages.answers.yes"):
+    if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
         log(f"Deleting Java installation: {current}", source="java")
-        config["java"] = default_config["java"]
-        config["java_paths"].pop(current)
-        save_config(config)
+        LauncherConfig.config["java"] = default_config["java"]
+        LauncherConfig.config["java_paths"].pop(current)
+        save_config()
         java_combobox.set(language_manager.get("settings.2_page.recommended_java"))
-        java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])
+        java_combobox.configure(values=[language_manager.get("settings.2_page.recommended_java")] + list(LauncherConfig.config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")])

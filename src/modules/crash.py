@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 class CrashLogWindow(ctk.CTkToplevel):
     def __init__(self):
@@ -24,7 +24,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         hPyT.maximize_minimize_button.hide(self)
 
         # Top frame containing the logo and title
-        top_frame = ctk.CTkFrame(self, fg_color="transparent")
+        top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
         top_frame.place(relx=0.0333, rely=0.0286, relwidth=0.9333, relheight=0.1143)
 
         # Load and display the bug icon logo
@@ -44,7 +44,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         title_label.place(relx=0.0714, relwidth=0.9286, relheight=0.60)
 
         # Separator line below the title
-        separator = ctk.CTkFrame(self, height=2, fg_color="white")
+        separator = ctk.CTkFrame(self, height=2, fg_color="white", border_width=0)
         separator.place(relx=0.0333, rely=0.1143, relwidth=0.9333, relheight=0.0029)
 
         # Textbox to display the crash log content (readonly)
@@ -57,7 +57,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.log_textbox.place(relx=0.0333, rely=0.1286, relwidth=0.9333, relheight=0.7143)
 
         # Frame holding buttons at the bottom
-        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
         button_frame.place(relx=0.0333, rely=0.8714, relwidth=0.9333, relheight=0.0857)
 
         # AI analysis button starts a background thread to analyze the log
@@ -68,14 +68,14 @@ class CrashLogWindow(ctk.CTkToplevel):
             font=("Segoe UI", 20, "bold"),
         )
         self.ai_button.place(relx=0.32145, rely=0.15, relwidth=0.3571, relheight=0.7)
-        if not IS_INTERNET:
+        if not LauncherConfig.IS_INTERNET:
             self.ai_button.configure(state="disabled")
 
     def _restore_titlebar_color(self, event=None):
         """
         Restore custom title bar color on window map event
         """
-        hPyT.title_bar_color.set(self, color_name_to_hex(hover_color))
+        hPyT.title_bar_color.set(self, GuiOptions.hover_color)
     
     def cancel_analyze(self):
         """
@@ -168,7 +168,7 @@ class FreeGPTClient:
             str | list: The AI response string or a list with exception name on failure.
         """
         headers = {
-            "User-Agent": USER_AGENT,
+            "User-Agent": LauncherConfig.USER_AGENT,
             "Content-Type": "application/json",
             "Origin": "https://www.teach-anything.com",
             "Referer": "https://www.teach-anything.com/"

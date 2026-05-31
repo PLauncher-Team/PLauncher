@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 class Translator:
     def __init__(self, language: str = None):
@@ -17,8 +17,8 @@ class Translator:
                 self.language = lang_code if lang_code in supported_languages else "en"
             else:
                 self.language = "ru"
-            config["language"] = self.language
-            save_config(config)
+            LauncherConfig.config["language"] = self.language
+            save_config()
         else:
             self.language = language
 
@@ -84,12 +84,12 @@ def select_language(selected_value: str):
     """
     Change the application language and prompt for restart if a new language is selected.
     """
-    if config["language"] == selected_value:
+    if LauncherConfig.config["language"] == selected_value:
         return
 
     new_lang = texts_language_reverse[selected_value]
-    config["language"] = new_lang
-    save_config(config)
+    LauncherConfig.config["language"] = new_lang
+    save_config()
 
     new_message(
         title=language_manager.get("messages.titles.warning"),
@@ -99,7 +99,7 @@ def select_language(selected_value: str):
         option_2=language_manager.get("messages.answers.yes")
     )
 
-    if msg.get() == language_manager.get("messages.answers.yes"):
+    if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
         log("Restarting application for language change", source="translator")
         root.destroy()
         kernel32.ReleaseMutex(mutex)

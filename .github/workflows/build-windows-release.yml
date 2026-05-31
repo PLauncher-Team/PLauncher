@@ -21,6 +21,9 @@ jobs:
   build-windows:
     runs-on: windows-latest
 
+    env:
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.test_version || github.event.release.tag_name }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,23 +44,23 @@ jobs:
         run: python build.py
 
       - name: Prepare release asset
+        shell: pwsh
         run: |
-          cd dist
-          ren main.dist PLauncher
-          Compress-Archive -Path PLauncher -DestinationPath "../PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows.zip" -Force
+          Set-Location dist
+          Rename-Item main.dist PLauncher
+          Compress-Archive -Path PLauncher -DestinationPath "$env:GITHUB_WORKSPACE\PLauncher-$env:VERSION-windows.zip" -Force
 
       - name: Upload ZIP as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows
-          path: PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows.zip
+          name: PLauncher-${{ env.VERSION }}-windows
+          path: PLauncher-${{ env.VERSION }}-windows.zip
           retention-days: 3
-      
+
       - name: Upload ZIP to GitHub Release
-        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.upload_to_release == 'true') }}
+        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.upload_to_release) }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.test_version || github.event.release.tag_name }}
+          tag_name: ${{ env.VERSION }}
           files: |
-            PLauncher-${{ inputs.test_version || github.event.release.tag_name }}-windows.zip
-            checksum.txt
+            PLauncher-${{ env.VERSION }}-windows.zip

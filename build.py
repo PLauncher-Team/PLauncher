@@ -51,7 +51,6 @@ NUITKA_CMD = [
 
 
 def check_windows():
-    """Check if the script is running on Windows."""
     if os.name != 'nt':
         print("[ERROR] This build script runs only on Windows.")
         sys.exit(1)

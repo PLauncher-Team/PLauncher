@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 
 def center(work, x: int, y: int) -> str:
@@ -16,8 +16,8 @@ def relative_center():
     # Center message box relative to main window
     if version_combobox.state() == "normal":
         version_combobox._withdraw()
-    if msg and msg.winfo_exists() and msg.state() != 'withdrawn':
-        hPyT.window_frame.center_relative(root, msg)
+    if GuiOptions.msg and GuiOptions.msg.winfo_exists() and GuiOptions.msg.state() != 'withdrawn':
+        hPyT.window_frame.center_relative(root, GuiOptions.msg)
 
 
 def ex():
@@ -29,12 +29,12 @@ def ex():
         option_1=language_manager.get("messages.answers.no"),
         option_2=language_manager.get("messages.answers.yes")
     )
-    if msg.get() == language_manager.get("messages.answers.yes"):
+    if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
         root.destroy()
         kernel32.ReleaseMutex(mutex)
         os._exit(0)
     else:
-        msg.grab_release()
+        GuiOptions.msg.grab_release()
 
 
 def get_refresh_rate() -> int:
@@ -78,7 +78,7 @@ class VersionFrame(ctk.CTkFrame):
         self.url = "https://github.com/PLauncher-Team/PLauncher/releases/latest"
         self.version_label = ctk.CTkLabel(
             self,
-            text=CURRENT_VERSION,
+            text=LauncherConfig.CURRENT_VERSION,
             font=("Segoe UI", 24, "bold"),
             text_color="white"
         )
@@ -88,7 +88,7 @@ class VersionFrame(ctk.CTkFrame):
 
     def get_latest_version_by_redirect(self) -> str | None:
         # Follow GitHub redirect and extract latest version tag
-        headers = {"User-Agent": USER_AGENT}
+        headers = {"User-Agent": LauncherConfig.USER_AGENT}
         try:
             resp = requests.head(self.url, headers=headers, allow_redirects=True, timeout=10)
             resp.raise_for_status()
@@ -118,7 +118,7 @@ class VersionFrame(ctk.CTkFrame):
 
     def _update_check(self):
         # Background thread: check for new version and update label if needed
-        new_tag = self.check_update(CURRENT_VERSION)
+        new_tag = self.check_update(LauncherConfig.CURRENT_VERSION)
         if new_tag:
             self.after(0, lambda: self._display_new_version(new_tag))
 
@@ -147,17 +147,3 @@ class VersionFrame(ctk.CTkFrame):
         widget.configure(cursor="hand2")
         widget.bind("<Enter>", lambda e: self.configure(fg_color="#111111"))
         widget.bind("<Leave>", lambda e: self.configure(fg_color="#000001"))
-
-
-def color_name_to_hex(color: str) -> str:
-    if re.fullmatch(r'#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})', color):
-        return color.lower()
-
-    rgb_tuple = root.winfo_rgb(color)
-    root.destroy()
-
-    r = rgb_tuple[0] // 256
-    g = rgb_tuple[1] // 256
-    b = rgb_tuple[2] // 256
-
-    return f'#{r:02x}{g:02x}{b:02x}'

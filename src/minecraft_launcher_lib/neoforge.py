@@ -3,6 +3,7 @@ import os
 import subprocess
 from typing import Dict
 from ._helper import get_requests_response_cache
+from packaging.version import Version
 
 base_url = "https://maven.neoforged.net/releases/net/neoforged/neoforge/"
 
@@ -36,9 +37,8 @@ def get_versions() -> Dict[str, str]:
 
         if mc_version_key not in latest_versions or latest_versions[mc_version_key][1] < loader_version_num:
             latest_versions[mc_version_key] = (version, loader_version_num)
-
     return {
-        f"1.{mc_version}": full_version
+        f"1.{mc_version}" if Version(mc_version) < Version("26.1") else mc_version: full_version
         for mc_version, (full_version, _) in latest_versions.items()
     }
 

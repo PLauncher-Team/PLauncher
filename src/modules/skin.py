@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 # Class responsible for rendering Minecraft skins into front-facing images
 class MinecraftSkinRenderer:
@@ -19,7 +19,7 @@ class MinecraftSkinRenderer:
                 message=language_manager.get("messages.texts.error.skin_load"),
                 toast_type="error"
             )
-            config["custom_skin"] = default_config["custom_skin"]
+            LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
             label_skin.configure(image=None)
             return None
         return self.skin.convert("RGBA")
@@ -110,34 +110,33 @@ def get_skin_png(nickname: str) -> PIL.Image.Image:
 
 # Sets the current skin based on user settings
 def set_skin():
-    global label_skin
-    if config["default_skin"]:
+    if LauncherConfig.config["default_skin"]:
         log("Using default skin", source="skin")
         label_skin.configure(image=None)
     else:
         update_skin_button.configure(state="disabled")
         skins_ely_by_checkbox.configure(state="disabled")
         image_skin = None
-        if IS_INTERNET and config["ely_by"]:
+        if LauncherConfig.IS_INTERNET and LauncherConfig.config["ely_by"]:
             log(f"Loading skin from Ely.by for user: {username_entry.get()}", source="skin")
             image_skin = get_skin_png(username_entry.get())
-        elif config["custom_skin"]:
-            if os.path.isfile(config["custom_skin"]):
-                log(f"Loading custom skin from: {config['custom_skin']}", source="skin")
-                image_skin = PIL.Image.open(config["custom_skin"])
+        elif LauncherConfig.config["custom_skin"]:
+            if os.path.isfile(LauncherConfig.config["custom_skin"]):
+                log(f"Loading custom skin from: {LauncherConfig.config['custom_skin']}", source="skin")
+                image_skin = PIL.Image.open(LauncherConfig.config["custom_skin"])
             else:
-                log(f"Custom skin file not found: {config['custom_skin']}", level="WARNING", source="skin")
-                config["custom_skin"] = default_config["custom_skin"]
+                log(f"Custom skin file not found: {LauncherConfig.config['custom_skin']}", level="WARNING", source="skin")
+                LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
                 label_skin.configure(image=None)
         else:
             label_skin.configure(image=None)
 
         if image_skin:
-            ctk_image_skin = MinecraftSkinRenderer(image_skin, 393 * 0.6).run()
+            ctk_image_skin = MinecraftSkinRenderer(image_skin, 360 * 0.6).run()
             root.after(0, lambda: label_skin.configure(image=ctk_image_skin))
             label_skin.update_idletasks()
         update_skin_button.configure(state="normal")
-        if IS_INTERNET:
+        if LauncherConfig.IS_INTERNET:
             skins_ely_by_checkbox.configure(state="normal")
 
 
@@ -149,15 +148,15 @@ def select_png_file():
     )
     if not file_path:
         return
-    old_path = config["custom_skin"]
+    old_path = LauncherConfig.config["custom_skin"]
     try:
-        config["custom_skin"] = file_path
+        LauncherConfig.config["custom_skin"] = file_path
         set_skin()
-        save_config(config)
+        save_config()
     except Exception as e:
         log(f"Failed to load skin file {file_path}: {e}", level="ERROR", source="skin")
         excepthook(*sys.exc_info())
-        config["custom_skin"] = old_path
+        LauncherConfig.config["custom_skin"] = old_path
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.skin_select") + str(e),
@@ -172,11 +171,11 @@ def update_controls():
         select_skin_button.configure(state="disabled")
         skins_ely_by_checkbox.configure(state="disabled")
     else:
-        if IS_INTERNET:
+        if LauncherConfig.IS_INTERNET:
             update_skin_button.configure(state="normal")
             skins_ely_by_checkbox.configure(state="normal")
 
-        if ely_by_var.get() and IS_INTERNET:
+        if ely_by_var.get() and LauncherConfig.IS_INTERNET:
             select_skin_button.configure(state="disabled")
         else:
             select_skin_button.configure(state="normal")

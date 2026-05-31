@@ -12,3 +12,4 @@ from modules.feedback import *
 from modules.settings_gui import *
 from modules.gui import *
 from modules.notifications import *
+from modules.definitions import *

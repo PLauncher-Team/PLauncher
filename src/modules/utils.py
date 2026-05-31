@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 def check_internet_connection() -> float | None:
     """
@@ -11,7 +11,7 @@ def check_internet_connection() -> float | None:
     start_time = time.perf_counter()
 
     try:
-        with create_connection(("1.1.1.1", 53), timeout=3.0):
+        with create_connection(("1.1.1.1", 80), timeout=1.0):
             end_time = time.perf_counter()
 
         ping_ms = (end_time - start_time) * 1000
@@ -26,8 +26,8 @@ def save_config_menu():
     username = username_entry.get()
     if not username:
         username = "Steve"
-    config["name"] = username
-    save_config(config)
+    LauncherConfig.config["name"] = username
+    save_config()
 
 
 def get_available_memory() -> int:
@@ -47,38 +47,37 @@ def open_logs():
         os.startfile("minecraft.log")
 
 
-def save_version(val: dict):
+def save_version():
     """Save version configuration to version.json file."""
-    with open(os.path.join(minecraft_path, "version.json"), "w") as ver:
-        json.dump(val, ver, indent=4)
+    with open(os.path.join(LaunchOptions.minecraft_path, "version.json"), "w") as ver:
+        json.dump(LauncherConfig.version, ver, indent=4)
 
 
-def save_config(val):
+def save_config():
     """Save main configuration to data.json file."""
     with open("data.json", "w") as con:
-        json.dump(val, con, indent=4)
+        json.dump(LauncherConfig.config, con, indent=4)
 
 
 def set_version(e: str = None):
     # Set selected version from combobox and save it
     if e:
         version_combobox_ctk.set(e)
-        version["version"] = version_combobox_ctk.get() \
+        LauncherConfig.version["version"] = version_combobox_ctk.get() \
             .replace(language_manager.get("main.types_versions.not_completed"), "") \
             .replace(language_manager.get("main.types_versions.installed"), "")
-        save_version(version)
+        save_version()
 
 
-def create_minecraft_environment(minecraft_path):
+def create_minecraft_environment():
     """Create required Minecraft directories and files."""
-    global version
     # List of required Minecraft directories
     dirs = ["assets", "bin", "libraries", "logs", "resourcepacks", "saves",
             "screenshots", "shaderpacks", "versions", "profiles", "mods"]
 
     # Create directories if they don't exist
     for directory in dirs:
-        os.makedirs(os.path.join(minecraft_path, directory), exist_ok=True)
+        os.makedirs(os.path.join(LaunchOptions.minecraft_path, directory), exist_ok=True)
 
     # Default launcher profiles data
     data_profile = {
@@ -92,51 +91,50 @@ def create_minecraft_environment(minecraft_path):
     }
 
     # Create launcher_profiles.json if doesn't exist
-    with open(os.path.join(minecraft_path, "launcher_profiles.json"), "w") as k:
+    with open(os.path.join(LaunchOptions.minecraft_path, "launcher_profiles.json"), "w") as k:
         json.dump(data_profile, k, indent=4)
 
     # Handle version.json file
-    if os.path.isfile(os.path.join(minecraft_path, "version.json")):
-        with open(os.path.join(minecraft_path, "version.json")) as d:
-            version = json.load(d)
+    if os.path.isfile(os.path.join(LaunchOptions.minecraft_path, "version.json")):
+        with open(os.path.join(LaunchOptions.minecraft_path, "version.json")) as d:
+            LauncherConfig.version = json.load(d)
         # Add any missing default values
         for a in default_version:
-            if a not in version:
-                version[a] = default_version[a]
-            with open(os.path.join(minecraft_path, "version.json"), "w") as x:
-                json.dump(version, x, indent=4)
+            if a not in LauncherConfig.version:
+                LauncherConfig.version[a] = default_version[a]
+            with open(os.path.join(LaunchOptions.minecraft_path, "version.json"), "w") as x:
+                json.dump(LauncherConfig.version, x, indent=4)
     else:
         # Create new version.json with defaults
-        with open(os.path.join(minecraft_path, "version.json"), "w") as v:
-            version = default_version
-            json.dump(version, v, indent=4)
+        with open(os.path.join(LaunchOptions.minecraft_path, "version.json"), "w") as v:
+            LauncherConfig.version = default_version
+            json.dump(LauncherConfig.version, v, indent=4)
 
 
 def correct_value(event):
     """Validate memory selection input and update configuration."""
-    global previous_value
     value = selected_memory.get()
 
     # Only allow digits
     if value and not value.isdigit():
-        selected_memory.set(previous_value)
+        selected_memory.set(GuiOptions.previous_value)
     elif value and value[0] == "0":
         selected_memory.set(value[1:])
 
-    previous_value = selected_memory.get()
+    GuiOptions.previous_value = selected_memory.get()
     on_select()
 
 
 def save_set(var, value):
     """Save a specific setting to configuration."""
-    config[var] = value
-    save_config(config)
+    LauncherConfig.config[var] = value
+    save_config()
 
 
 def create_memory_options() -> list:
     """Create list of memory options based on available system memory."""
     memory_options = []
-    for gb in range(1, MAX_MEMORY_GB + 1):
+    for gb in range(1, LauncherConfig.MAX_MEMORY_GB + 1):
         mb = gb * 1024
         memory_options.append(str(mb))
     return memory_options
@@ -144,22 +142,19 @@ def create_memory_options() -> list:
 
 def on_select():
     """Handle memory selection change event."""
-    global config, previous_value
-    previous_value = selected_memory.get()
-    config["memory_args"] = previous_value
-    save_config(config)
+    GuiOptions.previous_value = selected_memory.get()
+    LauncherConfig.config["memory_args"] = GuiOptions.previous_value
+    save_config()
 
 
 def entry_input():
     """Handle custom JVM arguments input."""
-    global config
-    config["custom_args"] = args_entry.get()
-    save_config(config)
+    LauncherConfig.config["custom_args"] = args_entry.get()
+    save_config()
 
 
 def change_mine(selection: bool=True):
     """Change Minecraft directory path."""
-    global minecraft_path, version
     if selection:
         # Show directory selection dialog
         folder = filedialog.askdirectory(
@@ -176,35 +171,35 @@ def change_mine(selection: bool=True):
             # Use default directory
             change_folder.configure(state="disabled")
             folder = os.path.join(os.getenv('APPDATA'), ".minecraft")
-            config["default_path"] = True
-            save_config(config)
+            LauncherConfig.config["default_path"] = True
+            save_config()
         else:
             # Use custom directory
             change_folder.configure(state="normal")
-            folder = config["mine_path"]
-            config["default_path"] = False
-            save_config(config)
+            folder = LauncherConfig.config["mine_path"]
+            LauncherConfig.config["default_path"] = False
+            save_config()
 
     if folder:
-        minecraft_path = folder
+        LaunchOptions.minecraft_path = folder
         current_folder.configure(
-            text=language_manager.get('settings.2_page.current_path') + minecraft_path)
+            text=language_manager.get('settings.2_page.current_path') + LaunchOptions.minecraft_path)
 
         # Recreate environment in new location
-        create_minecraft_environment(minecraft_path)
+        create_minecraft_environment()
 
         if not default_var.get():
-            config["mine_path"] = minecraft_path
-            save_config(config)
+            LauncherConfig.config["mine_path"] = LaunchOptions.minecraft_path
+            save_config()
 
         # Refresh UI elements
         root.after(0, load_versions)
         list_profiles.configure(values=list_dir())
-        if version["profile"]:
-            list_profiles.set(version["profile"])
+        if LauncherConfig.version["profile"]:
+            list_profiles.set(LauncherConfig.version["profile"])
         else:
             list_profiles.set(language_manager.get("settings.4_page.no"))
-        log(f"Minecraft directory changed to: {minecraft_path}", source="utils")
+        log(f"Minecraft directory changed to: {LaunchOptions.minecraft_path}", source="utils")
 
 
 def del_installed_version():
@@ -222,15 +217,15 @@ def del_installed_version():
         option_2=language_manager.get("messages.answers.yes")
     )
 
-    if msg.get() == language_manager.get("messages.answers.yes"):
+    if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
         log(f"Deleting version: {currents}", source="utils")
         # Remove version directory and update configuration
         for current in currents.split():
-            shutil.rmtree(os.path.join(minecraft_path, "versions", current))
+            shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "versions", current))
             for i in ("download", "not_comp"):
-                if current in version[i]:
-                    version[i].remove(current)
-        save_version(version)
+                if current in LauncherConfig.version[i]:
+                    LauncherConfig.version[i].remove(current)
+        save_version()
         root.after(0, load_versions)
 
 

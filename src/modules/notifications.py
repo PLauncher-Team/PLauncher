@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 class ToastNotification(ctk.CTkFrame):
     active_toasts: dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
@@ -23,7 +23,7 @@ class ToastNotification(ctk.CTkFrame):
             master = root
         
         if fps is None:
-            fps = FPS
+            fps = LauncherConfig.FPS
         
         master.update_idletasks()
 
@@ -64,10 +64,10 @@ class ToastNotification(ctk.CTkFrame):
 
         self.pack_propagate(False)
 
-        self.accent_bar = ctk.CTkFrame(self, fg_color=self.accent_color, width=6, corner_radius=0)
-        self.accent_bar.pack(side="left", fill="y", padx=(3, 3), pady=10)
+        self.accent_bar = ctk.CTkFrame(self, fg_color=self.accent_color, width=6, corner_radius=15)
+        self.accent_bar.pack(side="left", fill="y", padx=(5, 3), pady=10)
 
-        self.content = ctk.CTkFrame(self, fg_color="transparent")
+        self.content = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
         self.content.pack(side="left", fill="both", expand=True, padx=16, pady=12)
 
         self.icon_label = ctk.CTkLabel(
@@ -76,7 +76,7 @@ class ToastNotification(ctk.CTkFrame):
         )
         self.icon_label.pack(side="left", padx=(0, 14))
 
-        self.text_area = ctk.CTkFrame(self.content, fg_color="transparent")
+        self.text_area = ctk.CTkFrame(self.content, fg_color="transparent", border_width=0)
         self.text_area.pack(side="left", fill="both", expand=True)
 
         self.title_label = ctk.CTkLabel(
@@ -103,10 +103,6 @@ class ToastNotification(ctk.CTkFrame):
         self.close_label.bind("<Button-1>", lambda e: self.dismiss())
         self.close_label.bind("<Enter>", lambda e: self.close_label.configure(text_color=self.accent_color))
         self.close_label.bind("<Leave>", lambda e: self.close_label.configure(text_color=self.text_color))
-
-        for widget in (self, self.content, self.text_area, self.icon_label,
-                       self.title_label, self.message_label, self.accent_bar):
-            widget.bind("<Button-1>", lambda e: self.dismiss())
 
         self._calculate_final_position()
         self._set_initial_position()
@@ -219,21 +215,20 @@ class ToastNotification(ctk.CTkFrame):
 
 def new_message(**kwargs):
     # Show a custom message box with logging support for cancel icon
-    global msg
-    if msg:
-        msg.get()
+    if GuiOptions.msg:
+        GuiOptions.msg.get()
 
     if kwargs["icon"] == "cancel":
         log(kwargs["message"].replace("\n", " "), "ERROR", "window_utils")
 
-    msg = CTkMessagebox(
+    GuiOptions.msg = CTkMessagebox(
         **kwargs,
         font=("Segoe UI", 13),
         master=root,
-        fps=FPS
+        fps=LauncherConfig.FPS
     )
-    msg.lift()
-    msg.get()
+    GuiOptions.msg.lift()
+    GuiOptions.msg.get()
 
 
 class CTkMessagebox(ctk.CTkToplevel):
@@ -284,7 +279,9 @@ class CTkMessagebox(ctk.CTkToplevel):
                  factor_width: float = 1.0,
                  factor_height: float = 1.0):
         super().__init__(master)
-
+        
+        if not message:
+            message = "None"
         if options is None:
             options = []
         self.master_window = master
@@ -411,7 +408,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             self.dot_color = self.bg_color
 
         if fg_color == "default":
-            self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"])
+            self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
         else:
             self.fg_color = fg_color
 
@@ -529,6 +526,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             self.frame_top,
             width=1,
             height=self.height / 2,
+            border_width=0,
             corner_radius=0,
             text=self.message,
             font=self.font,

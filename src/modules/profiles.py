@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 def profile_select(*args):
     """
@@ -9,8 +9,8 @@ def profile_select(*args):
     Updates the version dict depending on the selected profile.
     """
     current = list_profiles.get()
-    version["profile"] = False if current == language_manager.get("settings.4_page.no") else current
-    save_version(version)
+    LauncherConfig.version["profile"] = False if current == language_manager.get("settings.4_page.no") else current
+    save_version()
     log(f"Selected profile: {current}", source="profiles")
 
 
@@ -28,16 +28,16 @@ def del_profile():
             option_1=language_manager.get("messages.answers.no"),
             option_2=language_manager.get("messages.answers.yes")
         )
-        if msg.get() == language_manager.get("messages.answers.yes"):
+        if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
             log(f"Deleting profile: {current}", source="profiles")
-            if os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + current)):
-                shutil.rmtree(os.path.join(minecraft_path, "profiles", "profile_" + current))
+            if os.path.isdir(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current)):
+                shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current))
 
             list_profiles.configure(values=list_dir())
             first = list_profiles.cget("values")[0] if list_profiles.cget("values")[0] != "" else language_manager.get("settings.4_page.no")
             list_profiles.set(first)
-            version["profile"] = False if first == language_manager.get("settings.4_page.no") else first
-            save_version(version)
+            LauncherConfig.version["profile"] = False if first == language_manager.get("settings.4_page.no") else first
+            save_version()
             log(f"Profile {current} deleted successfully", source="profiles")
 
 
@@ -72,7 +72,7 @@ def save_add_profile():
 
     log(f"Creating new profile: {name}", source="profiles")
     try:
-        profile_path = os.path.join(minecraft_path, "profiles", "profile_" + name)
+        profile_path = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + name)
         os.makedirs(profile_path)
         # List of required Minecraft directories
         dirs = ["assets", "bin", "libraries", "logs", "resourcepacks", "saves",
@@ -92,11 +92,11 @@ def save_add_profile():
         )
     else:
         if list_profiles.cget("values") == (no,):
-            version["profile"] = name
+            LauncherConfig.version["profile"] = name
             list_profiles.set(name)
-            save_version(version)
+            save_version()
         list_profiles.configure(state="readonly")
-        save_version(version)
+        save_version()
         list_profiles.configure(values=list_dir())
         add_profile_Entry.delete(0, ctk.END)
         add_profile_Entry.lower()
@@ -136,7 +136,7 @@ def list_dir() -> list:
     Returns a list of existing profile names.
     Adds a "no profile" option as the first element.
     """
-    profiles_dir = os.path.join(minecraft_path, "profiles")
+    profiles_dir = os.path.join(LaunchOptions.minecraft_path, "profiles")
     return [language_manager.get("settings.4_page.no")] + [
         g[8:] for g in os.listdir(profiles_dir) if len(g) >= 9 and os.path.isdir(os.path.join(profiles_dir, g))
     ]
@@ -155,8 +155,8 @@ def rename_profile(old_name: str):
 
     try:
         os.rename(
-            os.path.join(minecraft_path, "profiles", "profile_" + old_name),
-            os.path.join(minecraft_path, "profiles", "profile_" + new_name)
+            os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + old_name),
+            os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + new_name)
         )
         log(f"Profile renamed successfully", source="profiles")
     except Exception as e:
@@ -168,10 +168,10 @@ def rename_profile(old_name: str):
             toast_type="cancel"
         )
     else:
-        if version["profile"] == old_name:
+        if LauncherConfig.version["profile"] == old_name:
             list_profiles.set(new_name)
-            version["profile"] = new_name
-            save_version(version)
+            LauncherConfig.version["profile"] = new_name
+            save_version()
         list_profiles.configure(values=list_dir())
         add_profile_Entry.delete(0, ctk.END)
         add_profile_Entry.lower()
@@ -216,6 +216,6 @@ def open_folder_profile():
     """
     current = list_profiles.get()
     if current != language_manager.get("settings.4_page.no"):
-        path = os.path.join(minecraft_path, "profiles", "profile_" + current)
+        path = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current)
         log(f"Opening profile folder: {path}", source="profiles")
         os.startfile(path)

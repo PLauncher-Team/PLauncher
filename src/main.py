@@ -1,8 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Literal
 
 if TYPE_CHECKING:
     from context import *
-
 # Import standard library modules
 import time
 start_time = time.perf_counter()  # Start performance counter for measuring initialization time
@@ -31,7 +30,6 @@ import customtkinter as ctk
 import requests
 import packaging
 import hPyT
-import bs4
 import win32job
 import win32con
 import win32api
@@ -41,16 +39,11 @@ from CTkScrollableDropdownPP import CTkScrollableDropdown
 from psutil import virtual_memory
 from pywinstyles import set_opacity
 from ratelimit import rate_limited
+
 ctk.deactivate_automatic_dpi_awareness()
 
 def log(message: str, level: str = 'INFO', source: str = 'main') -> None:
-    """Log messages with timestamp, level, source, and thread information.
     
-    Args:
-        message: The message to log
-        level: Log level (INFO, ERROR, etc.)
-        source: Source module of the log message
-    """
     caller_name = sys._getframe(1).f_code.co_name  # Get calling function name
 
     # Format timestamp with milliseconds
@@ -110,14 +103,11 @@ if __name__ == "__main__":
     log("Welcome to debug...")
 
     # Load all required modules
-    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui", "notifications"]:
+    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui",
+                   "notifications", "definitions"]:
         execute_module(module)
 
     log("Module import completed")
-    
-    # Configuration constants
-    FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform"
-    FORM_SUBMIT_URL = "https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/formResponse"
 
     # Form field configuration
     TARGET_FIELD_CONFIG = {
@@ -130,10 +120,10 @@ if __name__ == "__main__":
     EMAIL_REGEX = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 
     # Log initial configuration
-    log(f"Version: {CURRENT_VERSION}")
-    log(f"Monitor refresh rate: {FPS} Hz")
-    log(f"Internet status: {IS_INTERNET}, Ping: {ping}")
-    log(f"RAM size: {MAX_MEMORY_GB} GB")
+    log(f"Version: {LauncherConfig.CURRENT_VERSION}")
+    log(f"Monitor refresh rate: {LauncherConfig.FPS} Hz")
+    log(f"Internet status: {LauncherConfig.IS_INTERNET}, Ping: {LauncherConfig.ping}")
+    log(f"RAM size: {LauncherConfig.MAX_MEMORY_GB} GB")
 
     # Default configuration values
     default_config = {
@@ -151,7 +141,7 @@ if __name__ == "__main__":
         "hide": False,
         "mine_path": "",
         "default": True,
-        "memory_args": str(min(max(MAX_MEMORY_GB * 1024 // 2, 512), 4096)),
+        "memory_args": str(min(max(LauncherConfig.MAX_MEMORY_GB * 1024 // 2, 512), 4096)),
         "custom_args": "",
         "ely_by": False,
         "custom_skin": "",
@@ -165,45 +155,45 @@ if __name__ == "__main__":
     # Load or create configuration file
     if os.path.isfile("data.json"):
         with open("data.json") as f:
-            config = json.load(f)
+            LauncherConfig.config = json.load(f)
         # Add any missing default values
         for t in default_config:
-            if t not in config:
+            if t not in LauncherConfig.config:
                 log(f"New settings parameter: {t}={default_config[t]}")
-                config[t] = default_config[t]
+                LauncherConfig.config[t] = default_config[t]
         
         # Validate image file path
-        if config["custom_image"] and not os.path.isfile(config["custom_image"]):
+        if LauncherConfig.config["custom_image"] and not os.path.isfile(LauncherConfig.config["custom_image"]):
             log("Image file not found", "ERROR")
-            config["custom_image"] = default_config["custom_image"]
+            LauncherConfig.config["custom_image"] = default_config["custom_image"]
         
         # Validate skin file path
-        if config["custom_skin"] and not os.path.isfile(config["custom_skin"]):
+        if LauncherConfig.config["custom_skin"] and not os.path.isfile(LauncherConfig.config["custom_skin"]):
             log("Skin file not found", "ERROR")
-            config["custom_skin"] = default_config["custom_skin"]
-        config = dict(sorted(config.items()))
-        save_config(config)
+            LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
+        LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))
+        save_config()
         log("data.json file found, settings loaded")
     else:
-        config = default_config
-        save_config(config)
+        LauncherConfig.config = default_config
+        save_config()
         log("data.json file not found, a new one has been created")
-
+    
     # Set up Minecraft directory path
-    if not config["mine_path"] or config["default_path"] or not os.path.isdir(config["mine_path"]):
-        minecraft_path = os.path.join(os.getenv('APPDATA'), ".minecraft")
-        config["mine_path"] = ""
-        save_config(config)
-        if not os.path.isdir(minecraft_path):
-            os.makedirs(minecraft_path)
+    if not LauncherConfig.config["mine_path"] or LauncherConfig.config["default_path"] or not os.path.isdir(LauncherConfig.config["mine_path"]):
+        LaunchOptions.minecraft_path = os.path.join(os.getenv('APPDATA'), ".minecraft")
+        LauncherConfig.config["mine_path"] = ""
+        save_config()
+        if not os.path.isdir(LaunchOptions.minecraft_path):
+            os.makedirs(LaunchOptions.minecraft_path)
     else:
-        minecraft_path = config["mine_path"]
+        LaunchOptions.minecraft_path = LauncherConfig.config["mine_path"]
 
     # Validate Java paths in configuration
-    if config["java_paths"]:
-        for key, value in list(config["java_paths"].items()):
+    if LauncherConfig.config["java_paths"]:
+        for key, value in list(LauncherConfig.config["java_paths"].items()):
             if not os.path.isfile(value):
-                config["java_paths"].pop(key)
+                LauncherConfig.config["java_paths"].pop(key)
                 log(f"{key} not found", "ERROR")
 
     # Default version configuration
@@ -215,30 +205,32 @@ if __name__ == "__main__":
     }
 
     # Load or create version file
-    version_file = os.path.join(minecraft_path, "version.json")
+    version_file = os.path.join(LaunchOptions.minecraft_path, "version.json")
     if os.path.isfile(version_file):
         with open(version_file) as f:
-            version = json.load(f)
+            LauncherConfig.version = json.load(f)
         # Add any missing default values
         for t in default_version:
-            if t not in version:
-                log(f"New settings parameter: {t}={default_config[t]}")
-                version[t] = default_version[t]
-        save_version(version)
+            if t not in LauncherConfig.version:
+                log(f"New settings parameter: {t}={default_version[t]}")
+                LauncherConfig.version[t] = default_version[t]
+        save_version()
         log("version.json file found, settings loaded")
     else:
-        version = default_version
-        save_version(version)
+        LauncherConfig.version = default_version
+        save_version()
         log("version.json file not found, a new one has been created")
-
+    
+    LaunchOptions.latest_version = LauncherConfig.version["version"]
+     
     # Initialize language manager
-    language_manager = Translator(config["language"])
+    language_manager = Translator(LauncherConfig.config["language"])
     language = language_manager.language
     log(f"Launcher language: {language}")
 
     # Set up language for AI responses
     ai_language = "ru" if language == "be" else language
-    SYSTEM_PROMPT = (f"You are an expert assistant in analyzing Minecraft log files who responds in this language: {ai_language}\n"
+    SYSTEM_PROMPT = (f"You are an expert assistant in analyzing Minecraft log files who responds only in this language: {ai_language}\n"
                      "Your task is:\n"
                      "1) Briefly (in one sentence) describe the cause of the crash\n"
                      "2) Suggest only those solutions that are directly related to the identified cause\n\n"
@@ -251,14 +243,14 @@ if __name__ == "__main__":
                      "If the logs do not contain enough information to clearly determine the cause, respond exactly with `None` (without any additional text).")
 
     # Check the existence of profile
-    if version["profile"]:
-        if not os.path.isdir(os.path.join(minecraft_path, "profiles", "profile_" + version["profile"])):
+    if LauncherConfig.version["profile"]:
+        if not os.path.isdir(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"])):
             log("Profile folder not found", "ERROR")
-            version["profile"] = False
-            save_version(version)
+            LauncherConfig.version["profile"] = False
+            save_version()
 
     # Create required Minecraft directories
-    create_minecraft_environment(minecraft_path)
+    create_minecraft_environment()
 
     # Initialize GUI
     log(f"Starting interface initialization...")

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
 class FeedbackApp(ctk.CTkToplevel):
     def __init__(self):
@@ -62,7 +62,7 @@ class FeedbackApp(ctk.CTkToplevel):
         self.send_button = ctk.CTkButton(
             self,
             text=language_manager.get("feedback.send"),
-            command=self.on_send_click,
+            command=lambda: threading.Thread(target=self.on_send_click).start(),
             font=("Segoe UI", 13, "bold")
         )
         self.send_button.place(relx=0.40, rely=0.82, relwidth=0.20, relheight=0.06)
@@ -73,32 +73,38 @@ class FeedbackApp(ctk.CTkToplevel):
         """
         Restore custom title bar color on window map event
         """
-        hPyT.title_bar_color.set(self, color_name_to_hex(hover_color))
-    
-    def fetch_dynamic_field_ids(self, form_view_url: str) -> dict[str, str]:
-        """
-        Fetch dynamic Google Form field IDs from the HTML content
+        hPyT.title_bar_color.set(self, GuiOptions.hover_color)
 
-        :param form_view_url: URL to Google Form view page
+
+    def fetch_dynamic_field_ids(self) -> dict[str, str]:
+        """Fetch dynamic Google Form field IDs directly from the HTML text using regex.
+    
         :return: Dictionary mapping labels to field entry IDs
         """
-        response = requests.get(form_view_url, timeout=5)
+        response = requests.get("https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform", timeout=5)
         response.raise_for_status()
-        soup = bs4.BeautifulSoup(response.text, 'html.parser')
-
-        script_content = next(
-            (script.string for script in soup.find_all('script') if script.string and 'FB_PUBLIC_LOAD_DATA_' in script.string),
-            None
+    
+        match = re.search(
+            r"var FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;",
+            response.text,
+            re.DOTALL,
         )
-        match = re.search(r"var FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;", script_content, re.DOTALL)
+        if not match:
+            raise ValueError("Could not find FB_PUBLIC_LOAD_DATA_ in the page source.")
+    
         form_data = json.loads(match.group(1))
-        questions = form_data[1][1]
-
+    
+        try:
+            questions = form_data[1][1]
+        except (IndexError, TypeError):
+            return {}
+    
         return {
             question[1]: f"entry.{question[4][0][0]}"
             for question in questions
             if len(question) > 4 and question[4] and question[4][0]
         }
+
 
     def send_feedback(self, subject: str, description: str, email: str = "") -> tuple[bool, str]:
         """
@@ -111,13 +117,13 @@ class FeedbackApp(ctk.CTkToplevel):
         """
         try:
             log(f"Sending feedback: subject='{subject}', email='{email}'", source="feedback")
-            field_ids = self.fetch_dynamic_field_ids(FORM_VIEW_URL)
+            field_ids = self.fetch_dynamic_field_ids()
             payload = {
-                field_ids[TARGET_FIELD_CONFIG["Email"]["label_in_form_data"]]: email,
-                field_ids[TARGET_FIELD_CONFIG["Subject"]["label_in_form_data"]]: subject,
-                field_ids[TARGET_FIELD_CONFIG["Description"]["label_in_form_data"]]: description,
+                field_ids["Email"]: email,
+                field_ids["Тема "]: subject,
+                field_ids["Описание проблемы / предложения"]: description,
             }
-            response = requests.post(FORM_SUBMIT_URL, data=payload, timeout=5, headers={"User-Agent": USER_AGENT})
+            response = requests.post("https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/formResponse", data=payload, timeout=5, headers={"User-Agent": LauncherConfig.USER_AGENT})
             response.raise_for_status()
             log("Feedback sent successfully", source="feedback")
             return True, ""
