@@ -3,11 +3,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..context import *
 
+
 class FeedbackApp(ctk.CTkToplevel):
     def __init__(self):
-        """
-        Initialize feedback window UI and components
-        """
         super().__init__(root)
 
         self.withdraw()
@@ -70,20 +68,12 @@ class FeedbackApp(ctk.CTkToplevel):
         self.deiconify()
 
     def _restore_titlebar_color(self, event=None):
-        """
-        Restore custom title bar color on window map event
-        """
         hPyT.title_bar_color.set(self, GuiOptions.hover_color)
 
-
     def fetch_dynamic_field_ids(self) -> dict[str, str]:
-        """Fetch dynamic Google Form field IDs directly from the HTML text using regex.
-    
-        :return: Dictionary mapping labels to field entry IDs
-        """
         response = requests.get("https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform", timeout=5)
         response.raise_for_status()
-    
+
         match = re.search(
             r"var FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;",
             response.text,
@@ -91,32 +81,23 @@ class FeedbackApp(ctk.CTkToplevel):
         )
         if not match:
             raise ValueError("Could not find FB_PUBLIC_LOAD_DATA_ in the page source.")
-    
+
         form_data = json.loads(match.group(1))
-    
+
         try:
             questions = form_data[1][1]
         except (IndexError, TypeError):
             return {}
-    
+
         return {
             question[1]: f"entry.{question[4][0][0]}"
             for question in questions
             if len(question) > 4 and question[4] and question[4][0]
         }
 
-
     def send_feedback(self, subject: str, description: str, email: str = "") -> tuple[bool, str]:
-        """
-        Send feedback form data via HTTP POST to Google Form
-
-        :param subject: Feedback subject
-        :param description: Feedback message content
-        :param email: Optional user email
-        :return: Tuple of success status and error message (if any)
-        """
         try:
-            log(f"Sending feedback: subject='{subject}', email='{email}'", source="feedback")
+            log(f"Отправка отзыва: тема='{subject}', email='{email}'", source="feedback")
             field_ids = self.fetch_dynamic_field_ids()
             payload = {
                 field_ids["Email"]: email,
@@ -125,17 +106,14 @@ class FeedbackApp(ctk.CTkToplevel):
             }
             response = requests.post("https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/formResponse", data=payload, timeout=5, headers={"User-Agent": LauncherConfig.USER_AGENT})
             response.raise_for_status()
-            log("Feedback sent successfully", source="feedback")
+            log("Отзыв успешно отправлен", source="feedback")
             return True, ""
         except Exception as e:
-            log(f"Failed to send feedback: {e}", level="ERROR", source="feedback")
+            log(f"Не удалось отправить отзыв: {e}", level="ERROR", source="feedback")
             excepthook(*sys.exc_info())
             return False, str(e)
 
     def on_send_click(self):
-        """
-        Handle 'Send' button click event. Validate input and send feedback
-        """
         email = self.email_entry.get().strip()
         subject = self.subject_entry.get().strip()
         description = self.desc_text.get("0.0", "end").strip()
@@ -144,7 +122,7 @@ class FeedbackApp(ctk.CTkToplevel):
             return
 
         if email and not EMAIL_REGEX.match(email):
-            log(f"Invalid email format: {email}", level="WARNING", source="feedback")
+            log(f"Неверный формат email: {email}", level="WARNING", source="feedback")
             ToastNotification(
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.feedback_send"),

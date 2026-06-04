@@ -5,7 +5,6 @@ if TYPE_CHECKING:
 
 
 def center(work, x: int, y: int) -> str:
-    # Calculate centered screen coordinates for a window of size x by y
     POS_X = work.winfo_screenwidth() // 2 - x // 2
     POS_Y = work.winfo_screenheight() // 2 - y // 2
     CORD = f"{POS_X}+{POS_Y}"
@@ -13,7 +12,6 @@ def center(work, x: int, y: int) -> str:
 
 
 def relative_center():
-    # Center message box relative to main window
     if version_combobox.state() == "normal":
         version_combobox._withdraw()
     if GuiOptions.msg and GuiOptions.msg.winfo_exists() and GuiOptions.msg.state() != 'withdrawn':
@@ -21,7 +19,6 @@ def relative_center():
 
 
 def ex():
-    # Show exit confirmation and terminate app if confirmed
     new_message(
         title=language_manager.get("messages.titles.warning"),
         message=language_manager.get("messages.texts.warning.exit"),
@@ -38,7 +35,6 @@ def ex():
 
 
 def get_refresh_rate() -> int:
-    # Detect current monitor refresh rate
     monitors = win32api.EnumDisplayMonitors()
     max_refresh = 0
 
@@ -54,7 +50,6 @@ def get_refresh_rate() -> int:
 
 
 def new_tooltip(**kwargs):
-    # Create and display a tooltip with default styling
     CTkToolTip(
         **kwargs,
         x_offset=20,
@@ -66,7 +61,6 @@ def new_tooltip(**kwargs):
 
 class VersionFrame(ctk.CTkFrame):
     def __init__(self, master):
-        # Initialize frame with version info and updater
         super().__init__(
             master,
             fg_color="#111111",
@@ -87,7 +81,6 @@ class VersionFrame(ctk.CTkFrame):
         threading.Thread(target=self._update_check, daemon=True).start()
 
     def get_latest_version_by_redirect(self) -> str | None:
-        # Follow GitHub redirect and extract latest version tag
         headers = {"User-Agent": LauncherConfig.USER_AGENT}
         try:
             resp = requests.head(self.url, headers=headers, allow_redirects=True, timeout=10)
@@ -97,33 +90,28 @@ class VersionFrame(ctk.CTkFrame):
             return None
 
     def is_newer_version(self, latest_tag: str, current_tag: str) -> bool:
-        # Compare semantic versions to check for update
         try:
             return packaging.version.Version(latest_tag.lstrip('v')) > packaging.version.Version(current_tag.lstrip('v'))
         except Exception:
             return False
 
     def check_update(self, current_version: str) -> str | bool:
-        # Return latest tag if it is newer than current version
         latest_tag = self.get_latest_version_by_redirect()
         if latest_tag and self.is_newer_version(latest_tag, current_version):
-            log(f"Update available: {current_version} -> {latest_tag}", source="window_utils")
+            log(f"Доступно обновление: {current_version} -> {latest_tag}", source="window_utils")
             return latest_tag
         else:
             return False
 
-    def open_download(self, event: object=None):
-        # Open browser to download latest release
+    def open_download(self, event: object = None):
         webbrowser.open(self.url)
 
     def _update_check(self):
-        # Background thread: check for new version and update label if needed
         new_tag = self.check_update(LauncherConfig.CURRENT_VERSION)
         if new_tag:
             self.after(0, lambda: self._display_new_version(new_tag))
 
     def _display_new_version(self, new_tag: str):
-        # Visually display new version and enable clickable area
         self.version_label.configure(text=new_tag)
         self.version_label.place_configure(rely=0.2, anchor="n")
         self.new_label = ctk.CTkLabel(
@@ -136,13 +124,11 @@ class VersionFrame(ctk.CTkFrame):
         self._bind_click_area()
 
     def _bind_click_area(self):
-        # Bind click events to version label and all children
         self._set_bind(self)
         for child in self.winfo_children():
             self._set_bind(child)
 
     def _set_bind(self, widget):
-        # Set mouse bindings and cursor change
         widget.bind("<Button-1>", self.open_download)
         widget.configure(cursor="hand2")
         widget.bind("<Enter>", lambda e: self.configure(fg_color="#111111"))

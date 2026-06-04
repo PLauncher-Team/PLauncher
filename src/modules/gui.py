@@ -19,6 +19,10 @@ ctk.set_default_color_theme(f"themes/{theme_path}.json")
 
 root = ctk.CTk(fg_color="#242424")
 
+log("Запускаем сетевые потоки...", source="gui")
+threading.Thread(target=JavaRuntimeManager.get_available_major_versions).start()
+threading.Thread(target=thread_load_versions).start()
+
 root.resizable(False, False)
 root.geometry(f"{1000}x{562}+{center(root, 1000, 562)}")
 root.protocol("WM_DELETE_WINDOW", ex)
@@ -214,13 +218,6 @@ texts_language = {
     "es": "Español"
 }
 
-texts_language_reverse = {
-    "Русский": "ru",
-    "Українська": "uk",
-    "Беларуский": "be",
-    "English": "en",
-    "Español": "es"
-}
 language_choice = ctk.CTkSegmentedButton(content_frames[tabs[0]],
                                          values=list(texts_language.values()),
                                          command=select_language,
@@ -261,7 +258,7 @@ ctk.CTkLabel(
 
 java_combobox = ctk.CTkComboBox(
     content_frames[tabs[1]],
-    values=[language_manager.get("settings.2_page.recommended_java")] + list(LauncherConfig.config["java_paths"].keys()) + [language_manager.get("settings.2_page.add")],
+    values=[language_manager.get("settings.2_page.latest_java")] + [language_manager.get("settings.2_page.recommended_java")] + LauncherConfig.config["java_paths"] + [language_manager.get("settings.2_page.add")],
     border_width=0,
     state="readonly",
     command=on_select_java,
@@ -269,8 +266,10 @@ java_combobox = ctk.CTkComboBox(
     height=0.083 * 393
 )
 java_combobox.place(relwidth=0.82, relx=0.05, rely=0.124)
-if not LauncherConfig.config["java"]:
+if LauncherConfig.config["java"] == "Stable":
     java_combobox.set(language_manager.get("settings.2_page.recommended_java"))
+elif LauncherConfig.config["java"] == "Latest":
+    java_combobox.set(language_manager.get("settings.2_page.latest_java"))
 else:
     java_combobox.set(LauncherConfig.config["java"])
 
@@ -293,18 +292,27 @@ ctk.CTkLabel(
 memory_options = create_memory_options()
 selected_memory = ctk.StringVar(root)
 selected_memory.set(LauncherConfig.config["memory_args"])
-GuiOptions.previous_value = LauncherConfig.config["memory_args"]
+
 memory_combobox = ctk.CTkComboBox(
     content_frames[tabs[1]],
     variable=selected_memory,
     values=memory_options,
-    command=lambda h: on_select(),
     border_width=0,
+    command= lambda value: on_select(value),
     font=("Segoe UI", 13),
     height=0.083 * 393
 )
-memory_combobox.bind("<KeyRelease>", correct_value)
-memory_combobox.bind("<Key>", correct_value)
+
+vcmd = (
+    memory_combobox.register(validate_memory),
+    "%P",
+)
+
+memory_combobox._entry.configure(
+    validate="all",
+    validatecommand=vcmd
+)
+
 memory_combobox.place(relwidth=0.9, relx=0.05, rely=0.268)
 
 ctk.CTkLabel(
@@ -604,12 +612,9 @@ version_combobox_ctk = ctk.CTkComboBox(
     border_width=0,
     height=562 * 0.124
 )
-version_combobox_ctk.set(LauncherConfig.version["version"])
 version_combobox_ctk.place(relx=0.343, rely=0.848, relwidth=0.313)
 set_opacity(version_combobox_ctk, color="#242424", value=0.9)
 
-installed_text = language_manager.get("main.types_versions.installed")
-not_complete_text = language_manager.get("main.types_versions.not_completed")
 version_combobox = CTkScrollableDropdown(
     version_combobox_ctk,
     values=[],
@@ -625,8 +630,8 @@ version_combobox = CTkScrollableDropdown(
         ["NeoForge", r"(?i).*neoforge.*"],
         ["Quilt",    r"(?i).*quilt.*"],
         ["Minecraft", "__OTHERS__"],
-        [installed_text.replace("(", "").replace(")", ""), rf"{re.escape(installed_text)}\s*$"],
-        [not_complete_text.replace("(", "").replace(")", ""), rf"{re.escape(not_complete_text)}\s*$"]
+        [language_manager.get("main.types_versions.installed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get("main.types_versions.installed"))}\s*$"],
+        [language_manager.get("main.types_versions.not_completed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get("main.types_versions.not_completed"))}\s*$"]
     ],
     fps=LauncherConfig.FPS
 )
@@ -646,8 +651,7 @@ set_opacity(launch_button, color="#242424", value=0.9)
 
 hPyT.title_bar_color.set(root, GuiOptions.fg_color)
 
-root.after(0, set_skin)
-root.after(0, thread_load_versions)
+threading.Thread(target=set_skin).start()
 
 blackout_frame.lift()
 settings_frame.lift()

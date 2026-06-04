@@ -5,19 +5,19 @@ import venv
 import shutil
 from pathlib import Path
 
-# Build script for Windows (build.py)
-# Usage: python build.py
 
-# Fix Unicode output in GitHub Actions Windows (cp1252 → utf-8)
+
+
+
 if os.environ.get('CI') == 'true' or sys.platform.startswith('win'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
     os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
 
-# Minimum supported Python version
+
 MIN_PY_VERSION = (3, 10)
 
-# --- Paths ---
+
 BASE_DIR = Path(__file__).parent.resolve()
 VENV_DIR = BASE_DIR / ".venv"
 PY_EXE = VENV_DIR / "Scripts" / "python.exe"
@@ -26,7 +26,7 @@ MAIN_PY = BASE_DIR / 'src' / 'main.py'
 RESOURCES_DIR = BASE_DIR / 'src'
 DIST_DIR = BASE_DIR / 'dist' / 'main.dist'
 
-# Nuitka command
+
 NUITKA_CMD = [
     str(PY_EXE), '-m', 'nuitka',
     '--standalone',

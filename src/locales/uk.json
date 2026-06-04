@@ -50,6 +50,7 @@
     "2_page": {
       "java_settings": "Налаштування Java",
       "java_used": "Використовувана версія Java:",
+      "latest_java": "Остання Java",
       "recommended_java": "Рекомендована Java",
       "add": "Додати…",
       "java_exe": "Виконуваний файл Java",

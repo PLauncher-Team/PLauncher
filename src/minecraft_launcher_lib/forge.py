@@ -106,7 +106,7 @@ def install_forge_version(versionid: str, path: str | os.PathLike, callback: Cal
             version_content = f.read()
 
         version_data: ForgeInstallProfile = json.loads(version_content)
-        forge_version_id = version_data["version"] if "version" in version_data else version_data["install"]["version"]
+        forge_version_id = version_data["version"] if "version" in version_data else version_data["install"].get("target") or version_data["install"]["version"]
         minecraft_version = version_data["minecraft"] if "minecraft" in version_data else version_data["install"]["minecraft"]
 
         # Make sure, the base version is installed

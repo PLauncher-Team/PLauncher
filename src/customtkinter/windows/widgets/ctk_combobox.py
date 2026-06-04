@@ -50,6 +50,8 @@ class CTkComboBox(CTkBaseClass):
         # transfer basic functionality (_bg_color, size, __appearance_mode, scaling) to CTkBaseClass
         super().__init__(master=master, bg_color=bg_color, width=width, height=height, **kwargs)
 
+        self._programmatic_insert = False
+        
         # shape
         self._corner_radius = ThemeManager.theme["CTkComboBox"]["corner_radius"] if corner_radius is None else corner_radius
         self._border_width = ThemeManager.theme["CTkComboBox"]["border_width"] if border_width is None else border_width
@@ -401,6 +403,8 @@ class CTkComboBox(CTkBaseClass):
                                 fill=self._apply_appearance_mode(self._button_color))
 
     def _dropdown_callback(self, value: str):
+        self._programmatic_insert = True
+    
         if self._state == "readonly":
             self._entry.configure(state="normal")
             self._entry.delete(0, tkinter.END)
@@ -409,11 +413,14 @@ class CTkComboBox(CTkBaseClass):
         else:
             self._entry.delete(0, tkinter.END)
             self._entry.insert(0, value)
-
+    
+        self._programmatic_insert = False
+    
         if self._command is not None:
             self._command(value)
-
+    
     def set(self, value: str):
+        self._programmatic_insert = True
         if self._state == "readonly":
             self._entry.configure(state="normal")
             self._entry.delete(0, tkinter.END)
@@ -422,6 +429,7 @@ class CTkComboBox(CTkBaseClass):
         else:
             self._entry.delete(0, tkinter.END)
             self._entry.insert(0, value)
+        self._programmatic_insert = False
 
     def get(self) -> str:
         return self._entry.get()

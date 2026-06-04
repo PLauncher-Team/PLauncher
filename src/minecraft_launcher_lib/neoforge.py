@@ -13,7 +13,7 @@ def get_versions() -> Dict[str, str]:
     
     :return: Dictionary in the format {MC version: Full version}.
     """
-    response = get_requests_response_cache(f"{base_url}maven-metadata.xml", timeout=5)
+    response = get_requests_response_cache(f"{base_url}maven-metadata.xml")
 
     versions = re.findall(r"<version>(.*?)</version>", response.text)
 
@@ -46,13 +46,12 @@ def download_and_run(version: str, path: str = "neoforge-installer.jar", path_mi
     """
     Download the JAR file of the specified version and run it.
     
-    :param version: Full version to download.
+    :param version: version to download.
     :param path: Output file path.
     :param path_minecraft: Minecraft path
     :param java: Java path
     """
-    response = get_requests_response_cache(f"{base_url}{version}/neoforge-{version}-installer.jar")
-
+    response = get_requests_response_cache(f"{base_url}{version}/neoforge-{version}-installer.jar", timeout=60)
     with open(path, "wb") as file:
         file.write(response.content)
 

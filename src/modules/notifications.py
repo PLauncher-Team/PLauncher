@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..context import *
 
+
 class ToastNotification(ctk.CTkFrame):
     active_toasts: dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
 
@@ -21,10 +22,10 @@ class ToastNotification(ctk.CTkFrame):
     ):
         if master is None:
             master = root
-        
+
         if fps is None:
             fps = LauncherConfig.FPS
-        
+
         master.update_idletasks()
 
         self.fps_delay = int(1000 / fps)
@@ -33,8 +34,8 @@ class ToastNotification(ctk.CTkFrame):
 
         schemes = {
             "success": {"accent": "#10b981", "bg": "#052e16", "text": "#ecfdf5", "icon": "✅"},
-            "error":   {"accent": "#ef4444", "bg": "#450a0a",  "text": "#fef2f2", "icon": "❌"},
-            "warning": {"accent": "#f59e0b", "bg": "#451a03",  "text": "#fefce8", "icon": "⚠️"}
+            "error": {"accent": "#ef4444", "bg": "#450a0a", "text": "#fef2f2", "icon": "❌"},
+            "warning": {"accent": "#f59e0b", "bg": "#451a03", "text": "#fefce8", "icon": "⚠️"}
         }
         scheme = schemes[toast_type]
 
@@ -54,9 +55,9 @@ class ToastNotification(ctk.CTkFrame):
             width=self.w,
             height=self.h,
         )
-        
+
         set_opacity(self, color="#242424")
-        
+
         self.master_window = master
         self.duration = duration
         self.slide_from = slide_from
@@ -122,17 +123,16 @@ class ToastNotification(ctk.CTkFrame):
         self.final_x = mw - self.w - padding
 
         base_y = padding
-    
+
         active_for_master = ToastNotification.active_toasts.get(self.master_window, [])
         occupied_slots = {t.slot for t in active_for_master if hasattr(t, 'slot')}
-    
+
         self.slot = 0
         while self.slot in occupied_slots:
             self.slot += 1
 
         offset = self.slot * (self.h + 12)
         self.final_y = base_y + offset
-
 
     def _set_initial_position(self):
         offset = 60
@@ -214,7 +214,6 @@ class ToastNotification(ctk.CTkFrame):
 
 
 def new_message(**kwargs):
-    # Show a custom message box with logging support for cancel icon
     if GuiOptions.msg:
         GuiOptions.msg.get()
 
@@ -279,7 +278,7 @@ class CTkMessagebox(ctk.CTkToplevel):
                  factor_width: float = 1.0,
                  factor_height: float = 1.0):
         super().__init__(master)
-        
+
         if not message:
             message = "None"
         if options is None:
@@ -749,7 +748,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             opacity = (i + 1) / steps
             if self.blackout_frames:
                 for frame in self.blackout_frames:
-                    set_opacity(frame, value=opacity/2)
+                    set_opacity(frame, value=opacity / 2)
             self.attributes("-alpha", opacity)
             self.update()
             time.sleep(0.25 / steps)
@@ -763,7 +762,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             opacity = 1.0 - (i + 1) / steps
             if self.blackout_frames:
                 for frame in self.blackout_frames:
-                    set_opacity(frame, value=opacity/2)
+                    set_opacity(frame, value=opacity / 2)
             self.attributes("-alpha", opacity)
             self.update()
             time.sleep(0.25 / steps)

@@ -4,10 +4,10 @@ import subprocess
 import venv
 from pathlib import Path
 
-# Minimum supported Python version
+
 MIN_PY = (3, 10)
 
-# Paths
+
 BASE_DIR = Path(__file__).parent.resolve()
 VENV_DIR = BASE_DIR / ".venv"
 REQUIREMENTS = BASE_DIR / "requirements.txt"

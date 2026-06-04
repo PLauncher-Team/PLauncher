@@ -272,14 +272,14 @@ def get_classpath_separator() -> Literal[":", ";"]:
 _requests_response_cache: dict[str, RequestsResponseCache] = {}
 
 
-def get_requests_response_cache(url: str, timeout: int = None) -> requests.models.Response:
+def get_requests_response_cache(url: str, timeout: int = 10) -> requests.models.Response:
     """
     Caches the result of request.get(). If a request was made to the same URL within the last hour, the cache will be used, so you don't need to make a request to a URl each timje you call a function.
     """
     global _requests_response_cache
     if url not in _requests_response_cache or (datetime.datetime.now() - _requests_response_cache[url]["datetime"]).total_seconds() / 60 / 60 >= 1:
         if timeout:
-            r = requests.get(url, timeout=timeout)
+            r = requests.get(url, timeout=timeout, headers={"User-Agent": f"PLauncher-Team/PLauncher/1.1"})
         else:
             r = requests.get(url)
         if r.status_code == 200:
@@ -338,10 +338,8 @@ def get_client_json(version: str, minecraft_directory: str | os.PathLike) -> Cli
     if os.path.isfile(local_path):
         with open(local_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-
         if "inheritsFrom" in data:
             data = inherit_json(data, minecraft_directory)
-
         return data
 
     version_list = get_requests_response_cache("https://launchermeta.mojang.com/mc/game/version_manifest_v2.json").json()

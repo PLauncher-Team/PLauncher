@@ -3,11 +3,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..context import *
 
+
 class Translator:
     def __init__(self, language: str = None):
-        """
-        Initialize the Translator with a specified language or detect system locale.
-        """
         supported_languages = {"ru", "en"}
 
         if not language:
@@ -26,22 +24,15 @@ class Translator:
         self._load_translations()
 
     def _load_translations(self):
-        """
-        Load translation JSON file based on selected language.
-        """
         try:
             path = os.path.join("locales", f"{self.language}.json")
             with open(path, encoding="utf-8") as f:
                 self.translations = json.load(f)
         except FileNotFoundError:
-            log(f"Translation file not found: {path}", level="ERROR", source="translator")
+            log(f"Файл перевода не найден: {path}", level="ERROR", source="translator")
             self.translations = {}
 
     def get(self, key: str, default: str = None) -> str:
-        """
-        Retrieve a translated value by a dot-separated key.
-        If not found, return the default value or the key itself.
-        """
         keys = key.split(".")
         result = self.translations
         try:
@@ -53,10 +44,6 @@ class Translator:
 
 
 def restart_app_with_bat():
-    """
-    Create and execute a temporary batch file to restart the application.
-    The script will delete itself after execution.
-    """
     script_path = os.path.abspath(sys.argv[0])
     _, ext = os.path.splitext(script_path.lower())
 
@@ -81,9 +68,14 @@ del "%~f0"
 
 
 def select_language(selected_value: str):
-    """
-    Change the application language and prompt for restart if a new language is selected.
-    """
+    texts_language_reverse = {
+        "Русский": "ru",
+        "Українська": "uk",
+        "Беларуский": "be",
+        "English": "en",
+        "Español": "es"
+    }
+
     if LauncherConfig.config["language"] == selected_value:
         return
 
@@ -100,7 +92,7 @@ def select_language(selected_value: str):
     )
 
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log("Restarting application for language change", source="translator")
+        log("Перезапуск приложения для смены языка", source="translator")
         root.destroy()
         kernel32.ReleaseMutex(mutex)
         restart_app_with_bat()
