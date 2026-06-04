@@ -38,7 +38,6 @@ NUITKA_CMD = [
     '--include-package=hPyT',
     '--include-package=minecraft_launcher_lib',
     '--include-package=requests',
-    '--include-package=CTkMessagebox',
     '--include-package=CTkScrollableDropdownPP',
     '--include-package=PIL',
     '--include-package=optipy',
