@@ -45,7 +45,7 @@ class CTkSegmentedButton(CTkFrame):
 
         super().__init__(master=master, bg_color=bg_color, width=width, height=height)
 
-        self._sb_fg_color = ThemeManager.theme["CTkSegmentedButton"]["fg_color"] if fg_color is None else self._check_color_type(fg_color)
+        self._sb_fg_color = ThemeManager.theme["CTkSegmentedButton"]["fg_color"] if fg_color is None else self._check_color_type(fg_color, True)
 
         self._sb_selected_color = ThemeManager.theme["CTkSegmentedButton"]["selected_color"] if selected_color is None else self._check_color_type(selected_color)
         self._sb_selected_hover_color = ThemeManager.theme["CTkSegmentedButton"]["selected_hover_color"] if selected_hover_color is None else self._check_color_type(selected_hover_color)

@@ -1,16 +1,15 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
 
-# Class responsible for rendering Minecraft skins into front-facing images
+
 class MinecraftSkinRenderer:
     def __init__(self, skin: PIL.Image.Image, height: float, slim: bool = False):
         self.skin = skin
         self.force_slim = slim
         self.height = height
 
-    # Validates skin size and converts to RGBA
     def _load_skin(self):
         width, height = self.skin.size
         if (width, height) not in [(64, 64), (64, 32)]:
@@ -19,18 +18,16 @@ class MinecraftSkinRenderer:
                 message=language_manager.get("messages.texts.error.skin_load"),
                 toast_type="error"
             )
-            config["custom_skin"] = default_config["custom_skin"]
+            LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
             label_skin.configure(image=None)
             return None
         return self.skin.convert("RGBA")
 
-    # Combines overlay layer with base layer using alpha compositing
     def _composite_layer(self, base: PIL.Image.Image, overlay: PIL.Image.Image) -> PIL.Image.Image:
         result = base.copy()
         result.paste(overlay, (0, 0), overlay)
         return result
 
-    # Detects whether the skin is a slim model based on transparency
     def _detect_slim(self, skin: PIL.Image.Image) -> bool:
         width, height = skin.size
         if width != 64 or height != 64:
@@ -40,7 +37,6 @@ class MinecraftSkinRenderer:
                 return False
         return True
 
-    # Extracts face regions from the skin depending on format and model type
     def _extract_faces(self, skin: PIL.Image.Image, is_slim: bool = False) -> dict[str, PIL.Image.Image]:
         faces = {}
         width, height = skin.size
@@ -65,7 +61,6 @@ class MinecraftSkinRenderer:
             faces['leg_front_left'] = self._composite_layer(skin.crop((20, 52, 24, 64)), skin.crop((4, 52, 8, 64)))
         return faces
 
-    # Renders a full front view from extracted face parts
     def _render_front(self, faces: dict[str, PIL.Image.Image]) -> PIL.Image.Image:
         canvas = PIL.Image.new("RGBA", (16, 32), (0, 0, 0, 0))
         canvas.paste(faces['head_front'], (4, 0))
@@ -76,12 +71,10 @@ class MinecraftSkinRenderer:
         canvas.paste(faces['leg_front_left'], (8, 20))
         return canvas
 
-    # Combines extraction and rendering steps
     def create_view(self, skin: PIL.Image.Image, is_slim: bool = False) -> PIL.Image.Image:
         faces = self._extract_faces(skin, is_slim)
         return self._render_front(faces)
 
-    # Main method to generate CTkImage from skin
     def run(self):
         skin = self._load_skin()
         if not skin:
@@ -97,51 +90,46 @@ class MinecraftSkinRenderer:
         return ctk.CTkImage(light_image=resized_image, dark_image=resized_image, size=(new_width, new_height))
 
 
-# Downloads skin PNG from ely.by
-def get_skin_png(nickname: str) -> PIL.Image.Image:
+def get_skin_png() -> PIL.Image.Image:
     try:
-        url = f'https://skinsystem.ely.by/skins/{nickname}.png'
+        log(f"Загрузка скина с Ely.by для пользователя: {username_entry.get()}", source="skin")
+        url = f'https://skinsystem.ely.by/skins/{username_entry.get()}.png'
         response = requests.get(url)
         response.raise_for_status()
         return PIL.Image.open(BytesIO(response.content))
     except Exception:
-        label_skin.configure(image=None)
+        return None
 
 
-# Sets the current skin based on user settings
 def set_skin():
-    global label_skin
-    if config["default_skin"]:
-        log("Using default skin", source="skin")
-        label_skin.configure(image=None)
+    image_skin = None
+    if LauncherConfig.config["default_skin"]:
+        log("Использование стандартного скина", source="skin")
     else:
         update_skin_button.configure(state="disabled")
         skins_ely_by_checkbox.configure(state="disabled")
-        image_skin = None
-        if IS_INTERNET and config["ely_by"]:
-            log(f"Loading skin from Ely.by for user: {username_entry.get()}", source="skin")
-            image_skin = get_skin_png(username_entry.get())
-        elif config["custom_skin"]:
-            if os.path.isfile(config["custom_skin"]):
-                log(f"Loading custom skin from: {config['custom_skin']}", source="skin")
-                image_skin = PIL.Image.open(config["custom_skin"])
+        if LauncherConfig.IS_INTERNET and LauncherConfig.config["ely_by"]:
+            image_skin = get_skin_png()
+        elif LauncherConfig.config["custom_skin"]:
+            if os.path.isfile(LauncherConfig.config["custom_skin"]):
+                log(f"Загрузка пользовательского скина из: {LauncherConfig.config['custom_skin']}", source="skin")
+                image_skin = PIL.Image.open(LauncherConfig.config["custom_skin"])
             else:
-                log(f"Custom skin file not found: {config['custom_skin']}", level="WARNING", source="skin")
-                config["custom_skin"] = default_config["custom_skin"]
-                label_skin.configure(image=None)
+                log(f"Файл пользовательского скина не найден: {LauncherConfig.config['custom_skin']}", level="WARNING", source="skin")
+                LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
+
+        if image_skin:
+            ctk_image_skin = MinecraftSkinRenderer(image_skin, 360 * 0.6).run()
+            label_skin.configure(image=ctk_image_skin)
+            label_skin.update_idletasks()
         else:
             label_skin.configure(image=None)
 
-        if image_skin:
-            ctk_image_skin = MinecraftSkinRenderer(image_skin, settings_y * 0.6).run()
-            root.after(0, lambda: label_skin.configure(image=ctk_image_skin))
-            label_skin.update_idletasks()
         update_skin_button.configure(state="normal")
-        if IS_INTERNET:
+        if LauncherConfig.IS_INTERNET:
             skins_ely_by_checkbox.configure(state="normal")
 
 
-# Opens file dialog to select PNG skin file
 def select_png_file():
     file_path = filedialog.askopenfilename(
         title=language_manager.get("settings.3_page.choice_png_file"),
@@ -149,15 +137,15 @@ def select_png_file():
     )
     if not file_path:
         return
-    old_path = config["custom_skin"]
+    old_path = LauncherConfig.config["custom_skin"]
     try:
-        config["custom_skin"] = file_path
+        LauncherConfig.config["custom_skin"] = file_path
         set_skin()
-        save_config(config)
+        save_config()
     except Exception as e:
-        log(f"Failed to load skin file {file_path}: {e}", level="ERROR", source="skin")
+        log(f"Не удалось загрузить файл скина {file_path}: {e}", level="ERROR", source="skin")
         excepthook(*sys.exc_info())
-        config["custom_skin"] = old_path
+        LauncherConfig.config["custom_skin"] = old_path
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.skin_select") + str(e),
@@ -165,24 +153,22 @@ def select_png_file():
         )
 
 
-# Updates UI controls based on skin settings and internet state
 def update_controls():
     if default_skin_var.get():
         update_skin_button.configure(state="disabled")
         select_skin_button.configure(state="disabled")
         skins_ely_by_checkbox.configure(state="disabled")
     else:
-        if IS_INTERNET:
+        if LauncherConfig.IS_INTERNET:
             update_skin_button.configure(state="normal")
             skins_ely_by_checkbox.configure(state="normal")
 
-        if ely_by_var.get() and IS_INTERNET:
+        if ely_by_var.get() and LauncherConfig.IS_INTERNET:
             select_skin_button.configure(state="disabled")
         else:
             select_skin_button.configure(state="normal")
 
 
-# Class that creates a resource pack from a skin
 class MinecraftTexturePackCreator:
     def __init__(self, mc_folder: str, skin_path: str, pack_name: str = "PLauncher skins"):
         self.mc_folder = mc_folder
@@ -190,7 +176,6 @@ class MinecraftTexturePackCreator:
         self.pack_name = pack_name
         self.models = ["alex.png", "ari.png", "efe.png", "kai.png", "makena.png", "noor.png", "steve.png", "sunny.png", "zuri.png"]
 
-    # Creates the resource pack structure and copies skin files
     def create_texture_pack(self) -> str:
         res_packs_dir = os.path.join(self.mc_folder, "resourcepacks")
         os.makedirs(res_packs_dir, exist_ok=True)
@@ -227,7 +212,6 @@ class MinecraftTexturePackCreator:
 
         return res_pack_folder
 
-    # Adds the resource pack to options.txt
     def modify_options(self):
         options_path = os.path.join(self.mc_folder, "options.txt")
         if not os.path.exists(options_path):
@@ -243,7 +227,6 @@ class MinecraftTexturePackCreator:
         with open(options_path, "w", encoding="utf-8") as f:
             f.writelines(lines)
 
-    # Updates specific key-value entries in options.txt
     def _update_option_line(self, lines: list[str], key: str, new_pack: str) -> list[str]:
         for i, line in enumerate(lines):
             if line.startswith(key):
@@ -259,9 +242,8 @@ class MinecraftTexturePackCreator:
         lines.append(f'{key}{json.dumps([new_pack], ensure_ascii=False)}\n')
         return lines
 
-    # Runs full resource pack creation and configuration
     def run(self):
-        log("Starting texture pack creation", source="skin")
+        log("Запуск создания текстурпака", source="skin")
         self.create_texture_pack()
         self.modify_options()
-        log("Texture pack creation completed", source="skin")
+        log("Создание текстурпака завершено", source="skin")

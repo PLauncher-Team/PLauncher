@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from context import *
+    from ..context import *
+
 
 class ToastNotification(ctk.CTkFrame):
     active_toasts: dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
@@ -21,21 +22,20 @@ class ToastNotification(ctk.CTkFrame):
     ):
         if master is None:
             master = root
-        
+
         if fps is None:
-            fps = FPS
-        
+            fps = LauncherConfig.FPS
+
         master.update_idletasks()
 
         self.fps_delay = int(1000 / fps)
-        self.w = int(width * width_factor)
-        self.h = int(height * height_factor)
-        self.radius = int(corner_radius * scale)
+        self.w = width
+        self.h = height
 
         schemes = {
             "success": {"accent": "#10b981", "bg": "#052e16", "text": "#ecfdf5", "icon": "✅"},
-            "error":   {"accent": "#ef4444", "bg": "#450a0a",  "text": "#fef2f2", "icon": "❌"},
-            "warning": {"accent": "#f59e0b", "bg": "#451a03",  "text": "#fefce8", "icon": "⚠️"}
+            "error": {"accent": "#ef4444", "bg": "#450a0a", "text": "#fef2f2", "icon": "❌"},
+            "warning": {"accent": "#f59e0b", "bg": "#451a03", "text": "#fefce8", "icon": "⚠️"}
         }
         scheme = schemes[toast_type]
 
@@ -51,13 +51,13 @@ class ToastNotification(ctk.CTkFrame):
         super().__init__(
             master=master,
             fg_color=self.bg_color,
-            corner_radius=self.radius,
+            corner_radius=corner_radius,
             width=self.w,
             height=self.h,
         )
-        
+
         set_opacity(self, color="#242424")
-        
+
         self.master_window = master
         self.duration = duration
         self.slide_from = slide_from
@@ -65,49 +65,45 @@ class ToastNotification(ctk.CTkFrame):
 
         self.pack_propagate(False)
 
-        self.accent_bar = ctk.CTkFrame(self, fg_color=self.accent_color, width=int(6 * scale), corner_radius=0)
-        self.accent_bar.pack(side="left", fill="y", padx=(3, 3), pady=int(10 * scale))
+        self.accent_bar = ctk.CTkFrame(self, fg_color=self.accent_color, width=6, corner_radius=15)
+        self.accent_bar.pack(side="left", fill="y", padx=(5, 3), pady=10)
 
-        self.content = ctk.CTkFrame(self, fg_color="transparent")
-        self.content.pack(side="left", fill="both", expand=True, padx=int(16 * scale), pady=int(12 * scale))
+        self.content = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
+        self.content.pack(side="left", fill="both", expand=True, padx=16, pady=12)
 
         self.icon_label = ctk.CTkLabel(
-            self.content, text=self.icon_text, font=ctk.CTkFont(size=int(34 * scale)),
-            text_color=self.accent_color, width=int(44 * scale)
+            self.content, text=self.icon_text, font=ctk.CTkFont(size=34),
+            text_color=self.accent_color, width=44
         )
-        self.icon_label.pack(side="left", padx=(0, int(14 * scale)))
+        self.icon_label.pack(side="left", padx=(0, 14))
 
-        self.text_area = ctk.CTkFrame(self.content, fg_color="transparent")
+        self.text_area = ctk.CTkFrame(self.content, fg_color="transparent", border_width=0)
         self.text_area.pack(side="left", fill="both", expand=True)
 
         self.title_label = ctk.CTkLabel(
             self.text_area, text=title,
-            font=ctk.CTkFont(size=int(16 * scale), weight="bold"),
+            font=ctk.CTkFont(size=16, weight="bold"),
             text_color=self.text_color, anchor="w"
         )
         self.title_label.pack(anchor="w", fill="x")
 
         self.message_label = ctk.CTkLabel(
             self.text_area, text=message,
-            font=ctk.CTkFont(size=int(13 * scale)), text_color=self.text_color,
-            anchor="w", justify="left", wraplength=self.w - int(150 * scale)
+            font=ctk.CTkFont(size=13), text_color=self.text_color,
+            anchor="w", justify="left", wraplength=self.w - 150
         )
-        self.message_label.pack(anchor="w", fill="x", pady=(int(3 * scale), 0))
+        self.message_label.pack(anchor="w", fill="x", pady=(3, 0))
 
         self.close_label = ctk.CTkLabel(
-            self, text="✕", font=ctk.CTkFont(size=int(20 * scale), weight="bold"),
+            self, text="✕", font=ctk.CTkFont(size=20, weight="bold"),
             text_color=self.text_color, fg_color="transparent",
-            width=int(32 * scale), height=int(32 * scale), cursor="hand2"
+            width=32, height=32, cursor="hand2"
         )
-        self.close_label.pack(side="right", padx=int(12 * scale), pady=int(12 * scale))
+        self.close_label.pack(side="right", padx=12, pady=12)
 
         self.close_label.bind("<Button-1>", lambda e: self.dismiss())
         self.close_label.bind("<Enter>", lambda e: self.close_label.configure(text_color=self.accent_color))
         self.close_label.bind("<Leave>", lambda e: self.close_label.configure(text_color=self.text_color))
-
-        for widget in (self, self.content, self.text_area, self.icon_label,
-                       self.title_label, self.message_label, self.accent_bar):
-            widget.bind("<Button-1>", lambda e: self.dismiss())
 
         self._calculate_final_position()
         self._set_initial_position()
@@ -127,17 +123,16 @@ class ToastNotification(ctk.CTkFrame):
         self.final_x = mw - self.w - padding
 
         base_y = padding
-    
+
         active_for_master = ToastNotification.active_toasts.get(self.master_window, [])
         occupied_slots = {t.slot for t in active_for_master if hasattr(t, 'slot')}
-    
+
         self.slot = 0
         while self.slot in occupied_slots:
             self.slot += 1
 
         offset = self.slot * (self.h + 12)
         self.final_y = base_y + offset
-
 
     def _set_initial_position(self):
         offset = 60
@@ -219,22 +214,20 @@ class ToastNotification(ctk.CTkFrame):
 
 
 def new_message(**kwargs):
-    # Show a custom message box with logging support for cancel icon
-    global msg
-    if msg:
-        msg.get()
+    if GuiOptions.msg:
+        GuiOptions.msg.get()
 
     if kwargs["icon"] == "cancel":
         log(kwargs["message"].replace("\n", " "), "ERROR", "window_utils")
 
-    msg = CTkMessagebox(
+    GuiOptions.msg = CTkMessagebox(
         **kwargs,
-        font=get_dynamic_font("Segoe UI", 13),
+        font=("Segoe UI", 13),
         master=root,
-        fps=FPS
+        fps=LauncherConfig.FPS
     )
-    msg.lift()
-    msg.get()
+    GuiOptions.msg.lift()
+    GuiOptions.msg.get()
 
 
 class CTkMessagebox(ctk.CTkToplevel):
@@ -286,6 +279,8 @@ class CTkMessagebox(ctk.CTkToplevel):
                  factor_height: float = 1.0):
         super().__init__(master)
 
+        if not message:
+            message = "None"
         if options is None:
             options = []
         self.master_window = master
@@ -412,7 +407,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             self.dot_color = self.bg_color
 
         if fg_color == "default":
-            self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["top_fg_color"])
+            self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
         else:
             self.fg_color = fg_color
 
@@ -530,6 +525,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             self.frame_top,
             width=1,
             height=self.height / 2,
+            border_width=0,
             corner_radius=0,
             text=self.message,
             font=self.font,
@@ -752,7 +748,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             opacity = (i + 1) / steps
             if self.blackout_frames:
                 for frame in self.blackout_frames:
-                    set_opacity(frame, value=opacity/2)
+                    set_opacity(frame, value=opacity / 2)
             self.attributes("-alpha", opacity)
             self.update()
             time.sleep(0.25 / steps)
@@ -766,7 +762,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             opacity = 1.0 - (i + 1) / steps
             if self.blackout_frames:
                 for frame in self.blackout_frames:
-                    set_opacity(frame, value=opacity/2)
+                    set_opacity(frame, value=opacity / 2)
             self.attributes("-alpha", opacity)
             self.update()
             time.sleep(0.25 / steps)

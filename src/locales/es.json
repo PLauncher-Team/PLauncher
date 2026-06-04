@@ -50,6 +50,7 @@
     "2_page": {
       "java_settings": "Configuración de Java",
       "java_used": "Versión de Java utilizada:",
+      "latest_java": "Última Java",
       "recommended_java": "Java recomendada",
       "add": "Añadir…",
       "java_exe": "Ejecutable de Java",
