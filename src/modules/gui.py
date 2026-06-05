@@ -630,8 +630,8 @@ version_combobox = CTkScrollableDropdown(
         ["NeoForge", r"(?i).*neoforge.*"],
         ["Quilt",    r"(?i).*quilt.*"],
         ["Minecraft", "__OTHERS__"],
-        [language_manager.get("main.types_versions.installed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get("main.types_versions.installed"))}\s*$"],
-        [language_manager.get("main.types_versions.not_completed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get("main.types_versions.not_completed"))}\s*$"]
+        [language_manager.get("main.types_versions.installed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get('main.types_versions.installed'))}\s*$"],
+        [language_manager.get("main.types_versions.not_completed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get('main.types_versions.not_completed'))}\s*$"]
     ],
     fps=LauncherConfig.FPS
 )

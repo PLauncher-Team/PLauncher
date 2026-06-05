@@ -75,7 +75,7 @@ class FeedbackApp(ctk.CTkToplevel):
         response.raise_for_status()
 
         match = re.search(
-            r"var FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;",
+            r"var FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?])\s*;",
             response.text,
             re.DOTALL,
         )

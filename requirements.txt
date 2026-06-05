@@ -1,10 +1,6 @@
-requests[socks]
 hPyT
 pywin32
-beautifulsoup4
 optipy
-packaging
-pillow
 psutil
 pywinstyles
 ratelimit

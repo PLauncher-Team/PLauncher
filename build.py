@@ -77,7 +77,7 @@ def install_dependencies():
     try:
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '-r', 'requirements.txt'])
-        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', 'nuitka==2.7.16'])
+        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'nuitka'])
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Dependency installation failed: {e}")
         sys.exit(e.returncode)
@@ -100,7 +100,7 @@ def copy_resources():
     """Copy required resource files and directories to the distribution folder."""
     print("📁 Copying resources...")
     targets = [
-        'modules', 'locales', 'ofb', 'png', os.path.join('files', 'CTkMessagebox'), "themes"
+        'modules', 'locales', 'ofb', 'png', os.path.join('files', 'icons'), "themes"
     ]
     for t in targets:
         src = RESOURCES_DIR / t
