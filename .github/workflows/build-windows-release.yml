@@ -66,5 +66,5 @@ jobs:
             PLauncher-${{ env.VERSION }}-windows.zip
           fail_on_unmatched_files: true
           draft: false
-          prerelease: ${{ github.event_name == 'workflow_dispatch' }}
+          prerelease: false
           make_latest: true
