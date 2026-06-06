@@ -1,5 +1,3 @@
-#define MyAppVersion "1.1"
-
 [Setup]
 AppId=PLauncher
 AppName=PLauncher
