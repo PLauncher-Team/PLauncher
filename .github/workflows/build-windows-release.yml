@@ -37,10 +37,21 @@ jobs:
           architecture: 'x64'
           cache: 'pip'
 
+      - name: Cache .venv and Nuitka compiler cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .venv
+            ${{ env.LOCALAPPDATA }}\Nuitka\Nuitka
+          key: ${{ runner.os }}-nuitka-${{ hashFiles('**/requirements.txt', 'build.py') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nuitka-${{ hashFiles('**/requirements.txt', 'build.py') }}-
+            ${{ runner.os }}-nuitka-
+
       - name: Build with Nuitka (CI mode)
         env:
           CI: "true"
-          PYTHON UNBUFFERED: "1"
+          PYTHONUNBUFFERED: "1"
         run: python build.py
 
       - name: Build Inno Setup Installer

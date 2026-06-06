@@ -86,11 +86,10 @@ def install_dependencies():
 def run_command(cmd: list) -> int:
     """Run a shell command and print its output in real-time."""
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-        for line in proc.stdout:
-            print(line, end='')
-        proc.wait()
-        return proc.returncode
+        sys.stdout.flush()
+        
+        result = subprocess.run(cmd, check=False)
+        return result.returncode
     except Exception as e:
         print(f"[ERROR] Command execution failed: {e}")
         return 1
