@@ -99,7 +99,7 @@ def copy_resources():
     """Copy required resource files and directories to the distribution folder."""
     print("📁 Copying resources...")
     targets = [
-        'modules', 'locales', 'ofb', 'png', os.path.join('files', 'icons'), "themes"
+        'modules', 'locales', 'ofb', 'png', "icons", "themes"
     ]
     for t in targets:
         src = RESOURCES_DIR / t
@@ -110,7 +110,7 @@ def copy_resources():
         else:
             print(f"  [WARN] Resource not found: {src}")
 
-    for fname in ('bridge.jar', 'injector.jar'):
+    for fname in ('bridge.jar', 'injector.jar', "log4jshell.xml"):
         src = RESOURCES_DIR / fname
         dst = DIST_DIR / fname
         if src.exists():
