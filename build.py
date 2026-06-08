@@ -5,10 +5,6 @@ import venv
 import shutil
 from pathlib import Path
 
-
-
-
-
 if os.environ.get('CI') == 'true' or sys.platform.startswith('win'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     sys.stderr.reconfigure(encoding='utf-8', errors='replace')
@@ -40,53 +36,48 @@ NUITKA_CMD = [
 
 def check_windows():
     if os.name != 'nt':
-        print("[ERROR] This build script runs only on Windows.")
+        print("[ОШИБКА] Этот скрипт сборки работает только на Windows.")
         sys.exit(1)
 
 
 def check_python_version():
-    """Check if the Python version meets the minimum requirement."""
     if sys.version_info < MIN_PY_VERSION:
-        print(f"[ERROR] Python {MIN_PY_VERSION[0]}.{MIN_PY_VERSION[1]}+ is required.")
+        print(f"[ОШИБКА] Требуется Python {MIN_PY_VERSION[0]}.{MIN_PY_VERSION[1]}+.")
         sys.exit(1)
 
 
 def create_virtualenv():
-    """Create a virtual environment if it doesn't exist."""
     if not VENV_DIR.exists():
-        print("🔧 Creating virtual environment...")
+        print("🔧 Создание виртуального окружения...")
         venv.create(VENV_DIR, with_pip=True)
     else:
-        print("✅ Virtual environment already exists.")
+        print("✅ Виртуальное окружение уже существует.")
 
 
 def install_dependencies():
-    """Install required dependencies from requirements.txt."""
-    print("📦 Installing dependencies...")
+    print("📦 Установка зависимостей...")
     try:
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'pip'])
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '-r', 'requirements.txt'])
         subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'nuitka'])
     except subprocess.CalledProcessError as e:
-        print(f"[ERROR] Dependency installation failed: {e}")
+        print(f"[ОШИБКА] Ошибка установки зависимостей: {e}")
         sys.exit(e.returncode)
 
 
 def run_command(cmd: list) -> int:
-    """Run a shell command and print its output in real-time."""
     try:
         sys.stdout.flush()
-        
+
         result = subprocess.run(cmd, check=False)
         return result.returncode
     except Exception as e:
-        print(f"[ERROR] Command execution failed: {e}")
+        print(f"[ОШИБКА] Ошибка выполнения команды: {e}")
         return 1
 
 
 def copy_resources():
-    """Copy required resource files and directories to the distribution folder."""
-    print("📁 Copying resources...")
+    print("📁 Копирование ресурсов...")
     targets = [
         'modules', 'locales', 'ofb', 'png', "icons", "themes"
     ]
@@ -97,7 +88,7 @@ def copy_resources():
             shutil.copytree(src, dst, dirs_exist_ok=True)
             print(f"  → {dst.relative_to(DIST_DIR)}")
         else:
-            print(f"  [WARN] Resource not found: {src}")
+            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Ресурс не найден: {src}")
 
     for fname in ('bridge.jar', 'injector.jar', "log4jshell.xml"):
         src = RESOURCES_DIR / fname
@@ -106,7 +97,7 @@ def copy_resources():
             shutil.copy2(src, dst)
             print(f"  → {fname}")
         else:
-            print(f"  [WARN] File not found: {src}")
+            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Файл не найден: {src}")
 
 
 if __name__ == '__main__':
@@ -116,13 +107,13 @@ if __name__ == '__main__':
     create_virtualenv()
     install_dependencies()
 
-    print("🛠 Starting compilation...")
+    print("🛠 Начало компиляции...")
     ret = run_command(NUITKA_CMD)
     if ret != 0:
-        print(f"[ERROR] Compilation failed with code {ret}")
+        print(f"[ОШИБКА] Компиляция завершилась с ошибкой, код {ret}")
         sys.exit(ret)
-    print("✅ Compilation finished.")
+    print("✅ Компиляция завершена.")
 
     copy_resources()
 
-    print("🎉 Build complete! Check dist/main.dist/main.exe")
+    print("🎉 Сборка завершена! Проверьте dist/main.dist/main.exe")

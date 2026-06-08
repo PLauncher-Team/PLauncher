@@ -13,67 +13,51 @@ VENV_DIR = BASE_DIR / ".venv"
 REQUIREMENTS = BASE_DIR / "requirements.txt"
 MAIN_PY = BASE_DIR / "src" / "main.py"
 
+
 def check_python_version():
-    """
-    Ensure the current Python interpreter meets the minimum version requirement.
-    """
     if sys.version_info < MIN_PY:
-        sys.exit(f"[ERROR] Python {MIN_PY[0]}.{MIN_PY[1]}+ is required, found {sys.version_info.major}.{sys.version_info.minor}")
+        sys.exit(f"[ОШИБКА] Требуется Python {MIN_PY[0]}.{MIN_PY[1]}+, обнаружен {sys.version_info.major}.{sys.version_info.minor}")
+
 
 def get_python_executable():
-    """
-    Return the path to the Python executable inside the virtual environment.
-    """
     bin_dir = "Scripts" if os.name == "nt" else "bin"
     exe_name = "python.exe" if os.name == "nt" else "python3"
     return VENV_DIR / bin_dir / exe_name
 
+
 def create_env():
-    """
-    Create a virtual environment in .venv/ if it doesn't exist.
-    """
     if VENV_DIR.exists():
-        print("✅ Virtual environment already exists at")
+        print("✅ Виртуальное окружение уже существует")
     else:
-        print("🔧 Creating virtual environment...")
+        print("🔧 Создание виртуального окружения...")
         venv.create(VENV_DIR, with_pip=True)
-        print("✅ Virtual environment created.")
+        print("✅ Виртуальное окружение создано.")
+
 
 def install_deps():
-    """
-    Upgrade pip and install dependencies from requirements.txt into the venv.
-    """
     py = get_python_executable()
     if not py.exists():
-        sys.exit("[ERROR] Virtualenv python not found.")
+        sys.exit("[ОШИБКА] Python из виртуального окружения не найден.")
     if not REQUIREMENTS.exists():
-        sys.exit(f"[ERROR] requirements.txt not found at {REQUIREMENTS}")
-    print("📦 Upgrading pip...")
+        sys.exit(f"[ОШИБКА] requirements.txt не найден: {REQUIREMENTS}")
+    print("📦 Обновление pip...")
     subprocess.check_call([str(py), "-m", "pip", "install", "--upgrade", "pip"])
-    print("📥 Installing requirements...")
+    print("📥 Установка зависимостей...")
     subprocess.check_call([str(py), "-m", "pip", "install", "-r", str(REQUIREMENTS)])
-    print("✅ Dependencies installed.")
+    print("✅ Зависимости установлены.")
+
 
 def run_main():
-    """
-    Execute main.py using the Python interpreter from the venv.
-    """
     py = get_python_executable()
     if not py.exists():
-        sys.exit("[ERROR] Virtualenv python not found.")
+        sys.exit("[ОШИБКА] Python из виртуального окружения не найден.")
     if not MAIN_PY.exists():
-        sys.exit(f"[ERROR] main.py not found at {MAIN_PY}")
-    print("▶️ Running main.py...")
+        sys.exit(f"[ОШИБКА] main.py не найден: {MAIN_PY}")
+    print("▶️ Запуск main.py...")
     subprocess.check_call([str(py), str(MAIN_PY)], cwd="src")
 
+
 def main():
-    """
-    Full bootstrap process:
-      1. Check Python version
-      2. Create virtual environment
-      3. Install dependencies
-      4. Run main.py
-    """
     check_python_version()
     create_env()
     install_deps()
