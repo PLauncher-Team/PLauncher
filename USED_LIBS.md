@@ -3,7 +3,9 @@
 
 
 - **OptifineInstallerBridge** (MIT License © zabi94)
+
   License text: [licenses/LICENSE-optifinebridge.txt](licenses/LICENSE-optifinebridge.txt)
+
 
 - **minecraft_launcher_lib** (BSD 2-Clause License © JakobDev)  
   License text: [licenses/LICENSE-mcl.txt](licenses/LICENSE-mcl.txt)
@@ -19,10 +21,6 @@
 
 - **requests** (Apache 2.0 © Kenneth Reitz et al.)  
   License text: [licenses/LICENSE-requests.txt](licenses/LICENSE-requests.txt)
-
-
-- **beautifulsoup4** (MIT License © Leonard Richardson)  
-  License text: [licenses/LICENSE-bs4.txt](licenses/LICENSE-bs4.txt)
 
 
 - **optipy** (MIT License © GoodDay360)  
@@ -45,4 +43,39 @@
   License text: [licenses/LICENSE-psutil.txt](licenses/LICENSE-psutil.txt)
 
 
-- **pywin32** and **packaging** (PSF License)
+- **packaging** (Apache 2.0)
+  License text: [licenses/LICENSE-packaging.txt](licenses/LICENSE-pywin32.txt)
+
+
+- **pywin32** (BSD-like License © Mark Hammond and others)  
+  License text: [licenses/LICENSE-pywin32.txt](licenses/LICENSE-pywin32.txt)
+
+
+- **authlib-injector** (AGPLv3 with exception © yushijinhun)  
+  License text: [licenses/LICENSE-authlib-injector.txt](licenses/LICENSE-authlib-injector.txt)
+
+
+- **Eclipse Temurin (Adoptium)** (GPL 2 with Classpath Exception)  
+  License: [https://adoptium.net/docs/faq](https://adoptium.net/docs/faq)
+
+
+- **Forge** (Minecraft Forge Public License)  
+  License text: [licenses/LICENSE-forge.txt](licenses/LICENSE-forge.txt)
+
+
+- **NeoForge** (LGPL-2.1 License)  
+  License text: [licenses/LICENSE-neoforge.txt](licenses/LICENSE-neoforge.txt)
+
+
+- **Fabric Loader** (Apache 2.0 License)  
+  License text: [licenses/LICENSE-fabric.txt](licenses/LICENSE-fabric.txt)
+
+
+- **Quilt Loader** (Apache 2.0 License)  
+  License text: [licenses/LICENSE-quilt.txt](licenses/LICENSE-quilt.txt)
+
+
+- **Vanilla Minecraft** (Proprietary © Mojang Studios / Microsoft) — [EULA](https://www.minecraft.net/ru-ru/eula)
+
+
+- **OptiFine** (Proprietary © sp614x) — [Official Website](https://optifine.net)
