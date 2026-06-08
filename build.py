@@ -34,17 +34,6 @@ NUITKA_CMD = [
     '--windows-console-mode=disable',
     f'--output-dir={DIST_DIR.parent}',
     '--enable-plugin=tk-inter',
-    '--include-package=customtkinter',
-    '--include-package=hPyT',
-    '--include-package=minecraft_launcher_lib',
-    '--include-package=requests',
-    '--include-package=CTkScrollableDropdownPP',
-    '--include-package=PIL',
-    '--include-package=optipy',
-    '--include-package=packaging',
-    '--include-module=psutil._psutil_windows',
-    '--include-package=pywinstyles',
-    '--include-package=ratelimit',
     str(MAIN_PY)
 ]
 
