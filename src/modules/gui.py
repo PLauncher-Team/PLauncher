@@ -14,14 +14,10 @@ else:
             name_without_ext = os.path.splitext(filename)[0]
             themes.append(name_without_ext)
     theme_path = random.choice(themes)
-log(f"Launcher theme: {theme_path}", source="gui")
+log(f"Тема лаунчера: {theme_path}", source="gui")
 ctk.set_default_color_theme(f"themes/{theme_path}.json")
 
 root = ctk.CTk(fg_color="#242424")
-
-log("Запускаем сетевые потоки...", source="gui")
-threading.Thread(target=JavaRuntimeManager.get_available_major_versions).start()
-threading.Thread(target=thread_load_versions).start()
 
 root.resizable(False, False)
 root.geometry(f"{1000}x{562}+{center(root, 1000, 562)}")
@@ -41,9 +37,9 @@ if LauncherConfig.config["custom_image"]:
 else:
     image_path = os.path.join("png", "dark", f"{selected_theme}.png")
 
-GuiOptions = GuiOptions()
+GuiOptions = GuiOption()
 
-log(f"Launcher image: {image_path}", source="gui")
+log(f"Изображение лаунчера: {image_path}", source="gui")
 
 pil_image = PIL.Image.open(image_path)
 ctk_image = ctk.CTkImage(pil_image, size=(1000, 562))
@@ -51,6 +47,8 @@ label = ctk.CTkLabel(root, image=ctk_image)
 label.place(relheight=1, relwidth=1)
 
 crash_window = CrashLogWindow()
+mod_viewer_window = ModViewer()
+feedback_window = FeedbackApp()
 
 release_var = ctk.BooleanVar(value=LauncherConfig.config["release"])
 snapshot_var = ctk.BooleanVar(value=LauncherConfig.config["snapshot"])
@@ -72,7 +70,7 @@ blackout_frame.bind("<Button-1>", lambda a: close_settings())
 
 settings_frame = ctk.CTkFrame(root, fg_color=GuiOptions.fg_color)
 settings_frame.place(relwidth=0.45, relheight=1, relx=1)
-set_opacity(settings_frame, value=0.95)
+set_opacity(settings_frame, value=0.9)
 
 header_frame = ctk.CTkFrame(settings_frame, corner_radius=0)
 header_frame.place(relx=0, rely=0, relwidth=1, relheight=0.1)
@@ -82,14 +80,14 @@ back_btn = ctk.CTkButton(
     command=close_settings,
     font=("Segoe UI", 13)
 )
-back_btn.place(relx=0.02, rely=0.5, relwidth=0.066, relheight=0.533, anchor="w")
+back_btn.place(relx=0.914, rely=0.5, relwidth=0.066, relheight=0.533, anchor="w")
 
 title_label = ctk.CTkLabel(
     header_frame,
     text=language_manager.get("settings.title"),
     font=("Segoe UI", 23, "bold")
 )
-title_label.place(relx=0.1, rely=0.5, anchor="w")
+title_label.place(relx=0.05, rely=0.5, anchor="w")
 
 
 tabs = language_manager.get("settings.pages")
@@ -100,7 +98,7 @@ tab_switch = ctk.CTkSegmentedButton(
     command=show_tab,
     border_width=0,
     corner_radius=0
-    
+
 )
 tab_switch.place(relx=0.005, rely=0.1, relwidth=0.99, relheight=0.1)
 
@@ -177,7 +175,6 @@ ctk.CTkLabel(
 
 installed_versions_combobox_ctk = ctk.CTkComboBox(
     content_frames[tabs[0]],
-    border_width=0,
     state="readonly",
     font=("Segoe UI", 13),
     height=0.083 * 393
@@ -259,7 +256,6 @@ ctk.CTkLabel(
 java_combobox = ctk.CTkComboBox(
     content_frames[tabs[1]],
     values=[language_manager.get("settings.2_page.latest_java")] + [language_manager.get("settings.2_page.recommended_java")] + LauncherConfig.config["java_paths"] + [language_manager.get("settings.2_page.add")],
-    border_width=0,
     state="readonly",
     command=on_select_java,
     font=("Segoe UI", 13),
@@ -297,7 +293,6 @@ memory_combobox = ctk.CTkComboBox(
     content_frames[tabs[1]],
     variable=selected_memory,
     values=memory_options,
-    border_width=0,
     command= lambda value: on_select(value),
     font=("Segoe UI", 13),
     height=0.083 * 393
@@ -324,7 +319,6 @@ ctk.CTkLabel(
 
 args_entry = ctk.CTkEntry(
     content_frames[tabs[1]],
-    border_width=0,
     font=("Segoe UI", 13),
 )
 args_entry.insert(0, LauncherConfig.config["custom_args"])
@@ -428,7 +422,6 @@ chapter5.place(relwidth=0.9, relx=0.05, rely=0.005, relheight=0.086)
 choice_version_ctk = ctk.CTkComboBox(
     content_frames[tabs[3]],
     state="readonly",
-    border_width=0,
     font=("Segoe UI", 13),
     height=393 * 0.083
 )
@@ -441,7 +434,7 @@ choice_version = CTkScrollableDropdown(
     scrollbar_button_hover_color=GuiOptions.hover_color,
     height=562,
 )
-choice_version.search_entry.configure(corner_radius=20, border_width=0, 
+choice_version.search_entry.configure(corner_radius=20, border_width=0,
                                       font=("Segoe UI", 13),)
 choice_version.button_container.configure(border_width=0)
 choice_version.pagination_frame.configure(border_width=0)
@@ -450,7 +443,6 @@ choice_loader = ctk.CTkComboBox(
     content_frames[tabs[3]],
     state="readonly",
     command=lambda y: choice_version.configure(values=list_ver(y)),
-    border_width=0,
     values=[],
     font=("Segoe UI", 13),
     height=393 * 0.083
@@ -470,8 +462,6 @@ install_loader = ctk.CTkButton(
     command=lambda: threading.Thread(target=fun_install_loaders).start(),
 )
 install_loader.place(relwidth=0.9, relx=0.05, relheight=0.206, rely=0.285)
-
-threading.Thread(target=get_loaders_versions).start()
 
 chapter4 = ctk.CTkLabel(
     content_frames[tabs[3]],
@@ -497,7 +487,6 @@ list_profiles.place(relwidth=0.9, relx=0.05, rely=0.626)
 
 add_profile_Entry = ctk.CTkEntry(
     content_frames[tabs[3]],
-    border_width=0,
     font=("Segoe UI", 13),
 )
 add_profile_Entry.place(relwidth=0.9, relx=0.05, relheight=0.083, rely=0.626)
@@ -559,7 +548,6 @@ username_entry = ctk.CTkEntry(
     root,
     placeholder_text="Steve",
     font=("Segoe UI", 23),
-    border_width=0,
 )
 username_entry.bind("<KeyRelease>", lambda h: save_config_menu())
 username_entry.insert(0, LauncherConfig.config["name"])
@@ -571,12 +559,12 @@ ctk_image_about_us = ctk.CTkImage(pil_image_about_us, size=(30, 30))
 feedback_button = ctk.CTkButton(
     root,
     width=language_manager.get("main.width_buttons"),
-    command=FeedbackApp,  
+    command=feedback_window.show,
     image=ctk_image_about_us,
     text=language_manager.get("main.buttons.feedback"),
     font=("Segoe UI", 15, "bold"),
 )
-feedback_button.place(relx=0.02, rely=0.51, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+feedback_button.place(relx=0.02, rely=0.403, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
 set_opacity(feedback_button, color="#242424", value=0.8)
 if not LauncherConfig.IS_INTERNET:
     feedback_button.configure(state="disabled")
@@ -590,8 +578,14 @@ logs_button = ctk.CTkButton(
     font=("Segoe UI", 15, "bold"),
     command=open_logs,
 )
-logs_button.place(relx=0.02, rely=0.617, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+logs_button.place(relx=0.02, rely=0.51, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
 set_opacity(logs_button, color="#242424", value=0.8)
+
+pil_image_instances = PIL.Image.open("png/GUI/instances.png")
+ctk_image_instances = ctk.CTkImage(pil_image_instances, size=(30, 30))
+mods_button = ctk.CTkButton(root, text="Моды", image=ctk_image_instances, font=("Segoe UI", 15, "bold"), command=mod_viewer_window.deiconify)
+mods_button.place(relx=0.02, rely=0.617, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+set_opacity(mods_button, color="#242424", value=0.8)
 
 pil_image_settings = PIL.Image.open("png/GUI/settings.png")
 ctk_image_settings = ctk.CTkImage(pil_image_settings, size=(30, 30))
@@ -609,7 +603,6 @@ version_combobox_ctk = ctk.CTkComboBox(
     root,
     state="readonly",
     font=("Segoe UI", 20),
-    border_width=0,
     height=562 * 0.124
 )
 version_combobox_ctk.place(relx=0.343, rely=0.848, relwidth=0.313)
@@ -635,8 +628,7 @@ version_combobox = CTkScrollableDropdown(
     ],
     fps=LauncherConfig.FPS
 )
-version_combobox.search_entry.configure(font=("Segoe UI", 23),
-                                        border_width=0)
+version_combobox.search_entry.configure(font=("Segoe UI", 23))
 version_combobox.button_container.configure(border_width=0)
 version_combobox.pagination_frame.configure(border_width=0)
 
@@ -651,12 +643,17 @@ set_opacity(launch_button, color="#242424", value=0.9)
 
 hPyT.title_bar_color.set(root, GuiOptions.fg_color)
 
+log("Запускаем сетевые потоки...", source="gui")
+threading.Thread(target=JavaRuntimeManager.get_available_major_versions).start()
+threading.Thread(target=thread_load_versions).start()
 threading.Thread(target=set_skin).start()
+threading.Thread(target=get_loaders_versions).start()
 
+
+apply_hover_border()
 blackout_frame.lift()
 settings_frame.lift()
 
-root.bind("<Configure>", lambda event: relative_center(), add="+")
 log(f"Done! ({time.perf_counter() - start_time:.2f} s)", source="gui")
 
 hPyT.window_dwm.toggle_cloak(root, enabled=False)

@@ -26,7 +26,7 @@ class LauncherConfig:
     version = {}
     config = {}
 
-class GuiOptions:
+class GuiOption:
     def __init__(self):
         self.msg = None
         self.hover_color = ctk.ThemeManager.theme["CTkButton"]["hover_color"][1]

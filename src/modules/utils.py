@@ -176,6 +176,7 @@ def change_mine(selection: bool = True):
             list_profiles.set(LauncherConfig.version["profile"])
         else:
             list_profiles.set(language_manager.get("settings.4_page.no"))
+        mod_viewer_window._first_load_done = False
         log(f"Директория Minecraft изменена на: {LaunchOptions.minecraft_path}", source="utils")
 
 

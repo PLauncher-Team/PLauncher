@@ -62,7 +62,7 @@ class CrashLogWindow(ctk.CTkToplevel):
             self.ai_button.configure(state="disabled")
 
     def _restore_titlebar_color(self, event=None):
-        hPyT.title_bar_color.set(self, GuiOptions.hover_color)
+        hPyT.title_bar_color.set(self, GuiOptions.fg_color)
 
     def cancel_analyze(self):
         self.ai_button.configure(state="disabled", text=language_manager.get("main.status.finalizing"))
@@ -96,8 +96,19 @@ class CrashLogWindow(ctk.CTkToplevel):
 
     def analyze(self) -> str:
         try:
+            system_prompt = (f"You are an expert assistant in analyzing Minecraft log files who responds only in this language: {'ru' if language == 'be' else language}\n"
+                             "Your task is:\n"
+                             "1) Briefly (in one sentence) describe the cause of the crash\n"
+                             "2) Suggest only those solutions that are directly related to the identified cause\n\n"
+                             "Response format:\n"
+                             "Cause in one sentence\n"
+                             "Solutions numbered, each on a new line starting with >\n"
+                             "Solutions should be written for an average Minecraft launcher user\n"
+                             "Do not include general or universal advice unless it is directly related to the identified cause.\n\n"
+                             "If the input is not a Minecraft log, respond exactly with `None` (without any additional text).\n"
+                             "If the logs do not contain enough information to clearly determine the cause, respond exactly with `None` (without any additional text).")
             self.message = FreeGPTClient().get_response([
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": self.log_textbox.get("0.0", "end")}
             ])
             if self.message == "None":

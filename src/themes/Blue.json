@@ -29,7 +29,7 @@
   },
   "CTkButton": {
     "corner_radius": 6,
-    "border_width": 0,
+    "border_width": 2,
     "fg_color": [
       "#2E7ABF",
       "#1A5A8F"
@@ -306,7 +306,7 @@
   },
   "CTkTextbox": {
     "corner_radius": 6,
-    "border_width": 0,
+    "border_width": 1,
     "fg_color": [
       "#E9E9EA",
       "#151616"

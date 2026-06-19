@@ -290,8 +290,6 @@ def launch_game():
 
             normal_state()
             set_status(language_manager.get("main.status.game_completed"))
-            LaunchOptions.is_running = False
-            LaunchOptions.minecraft_log_file.close()
         except Exception as e:
             excepthook(*sys.exc_info())
             ToastNotification(
@@ -308,8 +306,9 @@ def launch_game():
                 LaunchOptions.minecraft_log_file.seek(0)
                 crash_window.set_log_text(LaunchOptions.minecraft_log_file.read()[-50000:])
                 root.after_idle(crash_window.open)
+        finally:
             LaunchOptions.is_running = False
-            if "log_file" in locals():
+            if hasattr(LaunchOptions, 'minecraft_log_file') and LaunchOptions.minecraft_log_file:
                 LaunchOptions.minecraft_log_file.close()
 
     def download_and_run():

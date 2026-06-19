@@ -253,7 +253,7 @@
   },
   "CTkTextbox": {
     "corner_radius": 6,
-    "border_width": 2,
+    "border_width": 1,
     "fg_color": [
       "#a9b8c4",
       "#1c253a"

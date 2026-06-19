@@ -222,15 +222,13 @@ def new_message(**kwargs):
 
     GuiOptions.msg = CTkMessagebox(
         **kwargs,
-        font=("Segoe UI", 13),
-        master=root,
-        fps=LauncherConfig.FPS
+        master=root
     )
     GuiOptions.msg.lift()
     GuiOptions.msg.get()
 
 
-class CTkMessagebox(ctk.CTkToplevel):
+class CTkMessagebox(ctk.CTkFrame):
     ICONS = {
         "check": None,
         "cancel": None,
@@ -250,34 +248,14 @@ class CTkMessagebox(ctk.CTkToplevel):
                  option_2: str = None,
                  option_3: str = None,
                  options=None,
-                 border_width: int = 1,
-                 border_color: str = "default",
-                 button_color: str = "default",
-                 bg_color: str = "default",
-                 fg_color: str = "default",
-                 text_color: str = "default",
-                 title_color: str = "default",
-                 button_text_color: str = "default",
-                 button_width: int = None,
-                 button_height: int = None,
-                 cancel_button_color: str = None,
-                 cancel_button: str = None,
-                 button_hover_color: str = "default",
                  icon: str = "info",
                  icon_size: tuple = None,
-                 corner_radius: int = 15,
-                 justify: str = "right",
-                 font: tuple = None,
-                 header: bool = False,
-                 topmost: bool = False,
-                 fade_in_duration: bool = True,
-                 fps: int = 60,
-                 sound: bool = False,
-                 wraplength: int = 0,
-                 option_focus: Literal[1, 2, 3] = None,
-                 factor_width: float = 1.0,
-                 factor_height: float = 1.0):
+                 option_focus: Literal[1, 2, 3] = None):
         super().__init__(master)
+        self.configure(fg_color="#242424")
+        set_opacity(self, color="#242424")
+
+        self.fps = LauncherConfig.FPS
 
         if not message:
             message = "None"
@@ -285,110 +263,63 @@ class CTkMessagebox(ctk.CTkToplevel):
             options = []
         self.master_window = master
         self.animation_complete = False
-        font_factor = (factor_width + factor_height) / 2
-        width = int(width * factor_width)
-        height = int(height * factor_height)
-        border_width = int(border_width * font_factor)
-        corner_radius = int(corner_radius * font_factor)
-        if button_height is None:
-            button_height = int(28 * factor_height)
-        else:
-            button_height = int(button_height * factor_height)
-        if icon_size:
-            icon_size = (int(icon_size[0] * factor_width), int(icon_size[1] * factor_height))
-        if font and isinstance(font, tuple) and len(font) >= 2 and isinstance(font[1], (int, float)):
-            font = (font[0], max(8, int(font[1] * font_factor))) + font[2:]
-        self.withdraw()
+        self.destroyed = False
+
         self.blackout_frames = []
         if self.master_window:
-            frame = ctk.CTkFrame(self.master_window, fg_color="black")
-            set_opacity(frame, 0)
+            frame = ctk.CTkFrame(self.master_window, fg_color="black", border_width=0)
+            if frame.winfo_exists():
+                set_opacity(frame.winfo_id(), color="#242424", value=0)
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
             self.blackout_frames.append(frame)
             for widget in self.master_window.winfo_children():
-                if isinstance(widget, ctk.CTkToplevel) and widget is not self:
-                    frame_child = ctk.CTkFrame(widget, fg_color="black")
-                    set_opacity(frame_child, 0)
+                if isinstance(widget, ctk.CTkFrame) and widget is not self:
+                    frame_child = ctk.CTkFrame(widget, fg_color="black", border_width=0)
+                    if frame_child.winfo_exists():
+                        set_opacity(frame_child.winfo_id(), color="#242424", value=0)
                     frame_child.place(relx=0, rely=0, relwidth=1, relheight=1)
                     self.blackout_frames.append(frame_child)
 
-        self.attributes("-alpha", 0)
+        if self.winfo_exists():
+            set_opacity(self.winfo_id(), color="#242424", value=0)
 
         self.width = 250 if width < 250 else width
         self.height = 150 if height < 150 else height
-        if self.master_window is None:
-            self.spawn_x = int((self.winfo_screenwidth() - self.width) / 2)
-            self.spawn_y = int((self.winfo_screenheight() - self.height) / 2)
-        else:
-            self.master_window.update_idletasks()
-            self.spawn_x = int(self.master_window.winfo_width() * 0.5
-                               + self.master_window.winfo_x()
-                               - 0.5 * self.width
-                               + (7 * factor_width))
-            self.spawn_y = int(self.master_window.winfo_height() * 0.5
-                               + self.master_window.winfo_y()
-                               - 0.5 * self.height
-                               + (20 * factor_height))
-        self.geometry(f"{self.width}x{self.height}+{self.spawn_x}+{self.spawn_y}")
-        self.title(title)
-        self.resizable(width=False, height=False)
-        self.fade = fade_in_duration
+        self.place(relx=0.5, rely=0.5, relwidth=self.width/1000, relheight=self.height/562, anchor="center")
 
+        self.fade = True
         if self.fade:
             self.fade = 20 if self.fade < 20 else self.fade
-            self.attributes("-alpha", 0)
-
-        if not header:
-            self.overrideredirect(1)
-
-        if topmost:
-            self.attributes("-topmost", True)
-        else:
-            self.transient(self.master_window)
 
         if sys.platform.startswith("win"):
-            self.transparent_color = self._apply_appearance_mode(self.cget("fg_color"))
-            self.attributes("-transparentcolor", self.transparent_color)
             default_cancel_button = "cross"
         elif sys.platform.startswith("darwin"):
-            self.transparent_color = 'systemTransparent'
-            self.attributes("-transparent", True)
             default_cancel_button = "circle"
         else:
-            self.transparent_color = '#000001'
             self.round_corners = 0
             default_cancel_button = "cross"
 
         self.lift()
 
-        self.config(background=self.transparent_color)
-        self.protocol("WM_DELETE_WINDOW", self.button_event)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.x = self.winfo_x()
         self.y = self.winfo_y()
         self._title = title
-        self.fps = fps
         if message is None:
             message = "None"
         else:
             self.message = message
-        self.font = font
-        self.justify = justify
-        self.sound = sound
-        self.cancel_button = cancel_button if cancel_button else default_cancel_button
-        self.round_corners = corner_radius if corner_radius <= 30 else 30
-        self.button_width = button_width if button_width else self.width / 4
-        self.button_height = button_height
 
-        if self.fade:
-            self.attributes("-alpha", 0)
+        self.cancel_button = default_cancel_button
+        self.round_corners = 15
+        self.button_width = self.width / 4
+        self.button_height = 28
 
         if self.button_height > self.height / 4:
             self.button_height = self.height / 4 - 20
-        self.dot_color = cancel_button_color
 
-        self.border_width = border_width if border_width < 6 else 5
+        self.border_width = 1
 
         if type(options) is list and len(options) > 0:
             try:
@@ -398,64 +329,17 @@ class CTkMessagebox(ctk.CTkToplevel):
             except IndexError:
                 pass
 
-        if bg_color == "default":
-            self.bg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
-        else:
-            self.bg_color = bg_color
-
-        if self.dot_color == "transparent":
-            self.dot_color = self.bg_color
-
-        if fg_color == "default":
-            self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
-        else:
-            self.fg_color = fg_color
+        self.bg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
+        self.fg_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
 
         default_button_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["fg_color"])
-
-        if sys.platform.startswith("win"):
-            if self.bg_color == self.transparent_color or self.fg_color == self.transparent_color:
-                self.configure(fg_color="#000001")
-                self.transparent_color = "#000001"
-                self.attributes("-transparentcolor", self.transparent_color)
-
-        if button_color == "default":
-            self.button_color = (default_button_color, default_button_color, default_button_color)
-        else:
-            if type(button_color) is tuple:
-                if len(button_color) == 2:
-                    self.button_color = (button_color[0], button_color[1], default_button_color)
-                elif len(button_color) == 1:
-                    self.button_color = (button_color[0], default_button_color, default_button_color)
-                else:
-                    self.button_color = button_color
-            else:
-                self.button_color = (button_color, button_color, button_color)
-
-        if text_color == "default":
-            self.text_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
-        else:
-            self.text_color = text_color
-
-        if title_color == "default":
-            self.title_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
-        else:
-            self.title_color = title_color
-
-        if button_text_color == "default":
-            self.bt_text_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["text_color"])
-        else:
-            self.bt_text_color = button_text_color
-
-        if button_hover_color == "default":
-            self.bt_hv_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["hover_color"])
-        else:
-            self.bt_hv_color = button_hover_color
-
-        if border_color == "default":
-            self.border_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["border_color"])
-        else:
-            self.border_color = border_color
+        self.button_color = (default_button_color, default_button_color, default_button_color)
+        self.text_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
+        self.title_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkLabel"]["text_color"])
+        self.bt_text_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["text_color"])
+        self.bt_hv_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkButton"]["hover_color"])
+        self.border_color = self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["border_color"])
+        self.dot_color = self.title_color
 
         if icon_size:
             self.size_height = icon_size[1] if icon_size[1] <= self.height - 100 else self.height - 100
@@ -470,21 +354,13 @@ class CTkMessagebox(ctk.CTkToplevel):
             corner_radius=self.round_corners,
             width=self.width,
             border_width=self.border_width,
-            bg_color=self.transparent_color,
             fg_color=self.bg_color,
-            border_color=self.border_color
+            border_color=self.border_color,
         )
         self.frame_top.grid(sticky="nswe")
 
-        if button_width:
-            self.frame_top.grid_columnconfigure(0, weight=1)
-        else:
-            self.frame_top.grid_columnconfigure((1, 2, 3), weight=1)
-
-        if button_height:
-            self.frame_top.grid_rowconfigure((0, 1, 3), weight=1)
-        else:
-            self.frame_top.grid_rowconfigure((0, 1, 2), weight=1)
+        self.frame_top.grid_columnconfigure(0, weight=1)
+        self.frame_top.grid_rowconfigure((0, 1, 2), weight=1)
 
         if self.cancel_button == "cross":
             self.button_close = ctk.CTkButton(
@@ -494,9 +370,10 @@ class CTkMessagebox(ctk.CTkToplevel):
                 height=0,
                 hover=False,
                 border_width=0,
-                text_color=self.dot_color if self.dot_color else self.title_color,
+                text_color=self.dot_color,
                 text="✕",
-                fg_color="transparent"
+                fg_color="transparent",
+                font=("Segoe UI", 13)
             )
             self.button_close.grid(row=0, column=5, sticky="ne", padx=5 + self.border_width, pady=5 + self.border_width)
         elif self.cancel_button == "circle":
@@ -508,7 +385,8 @@ class CTkMessagebox(ctk.CTkToplevel):
                 hover=False,
                 border_width=0,
                 text="",
-                fg_color=self.dot_color if self.dot_color else "#c42b1c"
+                fg_color=self.dot_color,
+                font=("Segoe UI", 13)
             )
             self.button_close.grid(row=0, column=5, sticky="ne", padx=10, pady=10)
 
@@ -517,7 +395,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             width=1,
             text=self._title,
             text_color=self.title_color,
-            font=self.font
+            font=("Segoe UI", 13)
         )
         self.title_label.grid(row=0, column=0, columnspan=6, sticky="nw", padx=(15, 30), pady=5)
 
@@ -528,22 +406,15 @@ class CTkMessagebox(ctk.CTkToplevel):
             border_width=0,
             corner_radius=0,
             text=self.message,
-            font=self.font,
             fg_color=self.fg_color,
             hover=False,
             text_color=self.text_color,
             image=self.icon,
-            image_near_text=True
+            image_near_text=True,
+            font=("Segoe UI", 13)
         )
-        self.info._text_label.configure(wraplength=self.width / 2, justify="left")
+        self.info._text_label.configure(wraplength=self.width / 1.3, justify="left", font=("Segoe UI", 11))
         self.info.grid(row=1, column=0, columnspan=6, sticky="nwes", padx=self.border_width)
-
-        if wraplength > 0:
-            self.info._text_label.configure(wraplength=wraplength)
-
-        if self.info._text_label.winfo_reqheight() > self.height / 2:
-            height_offset = int((self.info._text_label.winfo_reqheight()) - (self.height / 2) + self.height)
-            self.geometry(f"{self.width}x{height_offset}")
 
         self.option_text_1 = option_1
 
@@ -552,10 +423,10 @@ class CTkMessagebox(ctk.CTkToplevel):
             text=self.option_text_1,
             fg_color=self.button_color[0],
             width=self.button_width,
-            font=self.font,
             text_color=self.bt_text_color,
             hover_color=self.bt_hv_color,
-            height=self.button_height
+            height=self.button_height,
+            font=("Segoe UI", 13)
         )
 
         self.option_text_2 = option_2
@@ -565,10 +436,10 @@ class CTkMessagebox(ctk.CTkToplevel):
                 text=self.option_text_2,
                 fg_color=self.button_color[1],
                 width=self.button_width,
-                font=self.font,
                 text_color=self.bt_text_color,
                 hover_color=self.bt_hv_color,
-                height=self.button_height
+                height=self.button_height,
+                font=("Segoe UI", 13)
             )
 
         self.option_text_3 = option_3
@@ -578,75 +449,23 @@ class CTkMessagebox(ctk.CTkToplevel):
                 text=self.option_text_3,
                 fg_color=self.button_color[2],
                 width=self.button_width,
-                font=self.font,
                 text_color=self.bt_text_color,
                 hover_color=self.bt_hv_color,
-                height=self.button_height
+                height=self.button_height,
+                font=("Segoe UI", 13)
             )
-        if self.justify == "center":
-            if button_width:
-                columns = [4, 3, 2]
-                span = 1
-            else:
-                columns = [4, 2, 0]
-                span = 2
-            if option_3:
-                self.frame_top.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-                self.button_1.grid(row=2, column=columns[0], columnspan=span, sticky="news", padx=(0, 10), pady=10)
-                self.button_2.grid(row=2, column=columns[1], columnspan=span, sticky="news", padx=10, pady=10)
-                self.button_3.grid(row=2, column=columns[2], columnspan=span, sticky="news", padx=(10, 0), pady=10)
-            elif option_2:
-                self.frame_top.columnconfigure((0, 5), weight=1)
-                columns = [2, 3]
-                self.button_1.grid(row=2, column=columns[0], sticky="news", padx=(0, 5), pady=10)
-                self.button_2.grid(row=2, column=columns[1], sticky="news", padx=(5, 0), pady=10)
-            else:
-                if button_width:
-                    self.frame_top.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-                else:
-                    self.frame_top.columnconfigure((0, 2, 4), weight=2)
-                self.button_1.grid(row=2, column=columns[1], columnspan=span, sticky="news", padx=(0, 10), pady=10)
 
-        elif self.justify == "left":
-            self.frame_top.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-            if button_width:
-                columns = [0, 1, 2]
-                span = 1
-            else:
-                columns = [0, 2, 4]
-                span = 2
-            if option_3:
-                self.button_1.grid(row=2, column=columns[2], columnspan=span, sticky="news", padx=(0, 10), pady=10)
-                self.button_2.grid(row=2, column=columns[1], columnspan=span, sticky="news", padx=10, pady=10)
-                self.button_3.grid(row=2, column=columns[0], columnspan=span, sticky="news", padx=(10, 0), pady=10)
-            elif option_2:
-                self.button_1.grid(row=2, column=columns[1], columnspan=span, sticky="news", padx=10, pady=10)
-                self.button_2.grid(row=2, column=columns[0], columnspan=span, sticky="news", padx=(10, 0), pady=10)
-            else:
-                self.button_1.grid(row=2, column=columns[0], columnspan=span, sticky="news", padx=(10, 0), pady=10)
-        else:
-            self.frame_top.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-            if button_width:
-                columns = [5, 4, 3]
-                span = 1
-            else:
-                columns = [4, 2, 0]
-                span = 2
-            self.button_1.grid(row=2, column=columns[0], columnspan=span, sticky="news", padx=(0, 10), pady=10)
-            if option_2:
-                self.button_2.grid(row=2, column=columns[1], columnspan=span, sticky="news", padx=10, pady=10)
-            if option_3:
-                self.button_3.grid(row=2, column=columns[2], columnspan=span, sticky="news", padx=(10, 0), pady=10)
+        self.frame_top.columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+        columns = [4, 2, 0]
+        span = 2
+        self.button_1.grid(row=2, column=columns[0], columnspan=span, sticky="news", padx=(0, 10), pady=10)
+        if option_2:
+            self.button_2.grid(row=2, column=columns[1], columnspan=span, sticky="news", padx=10, pady=10)
+        if option_3:
+            self.button_3.grid(row=2, column=columns[2], columnspan=span, sticky="news", padx=(10, 0), pady=10)
 
-        if header:
-            self.title_label.configure(text="")
-            self.title_label.grid_configure(pady=0)
-            self.button_close.configure(text_color=self.bg_color)
-            self.frame_top.configure(corner_radius=0)
         self.grab_set()
 
-        if self.sound:
-            self.bell()
         try:
             self.button_close.configure(command=self.button_event)
             self.button_1.configure(command=lambda: self.button_event(self.option_text_1))
@@ -656,6 +475,7 @@ class CTkMessagebox(ctk.CTkToplevel):
                 self.button_3.configure(command=lambda: self.button_event(self.option_text_3))
         except AttributeError:
             pass
+
         if option_focus:
             self.option_focus = option_focus
             self.focus_button(self.option_focus)
@@ -672,8 +492,8 @@ class CTkMessagebox(ctk.CTkToplevel):
         if self.fade:
             self.fade_in()
         else:
-            self.deiconify()
-            self.attributes("-alpha", 1)
+            if self.winfo_exists():
+                set_opacity(self.winfo_id(), color="#242424", value=1)
 
     def place_widget(self, widget, x=10, y=10, **args):
         if "master" in args:
@@ -731,25 +551,27 @@ class CTkMessagebox(ctk.CTkToplevel):
                 size = (self.height / 4, self.height / 4)
             self.ICONS[icon] = ctk.CTkImage(PIL.Image.open(image_path), size=size)
             self.ICON_BITMAP[icon] = PIL.ImageTk.PhotoImage(file=image_path)
-        if not sys.platform.startswith("darwin"):
-            self.after(200, lambda: self.iconphoto(False, self.ICON_BITMAP[icon]))
         return self.ICONS[icon]
+
+    def safe_set_opacity(self, widget, color, value):
+        if widget and widget.winfo_exists():
+            set_opacity(widget.winfo_id(), color=color, value=value)
 
     def fade_in(self):
         if self.blackout_frames:
             for frame in self.blackout_frames:
-                frame.place(relx=0, rely=0, relwidth=1, relheight=1)
+                if frame.winfo_exists():
+                    frame.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         steps = max(1, round(self.fps * 0.25))
-        self.deiconify()
         for i in range(steps):
-            if not self.winfo_exists():
+            if not self.winfo_exists() or self.destroyed:
                 break
             opacity = (i + 1) / steps
             if self.blackout_frames:
                 for frame in self.blackout_frames:
-                    set_opacity(frame, value=opacity / 2)
-            self.attributes("-alpha", opacity)
+                    self.safe_set_opacity(frame, "#242424", opacity / 2)
+            self.safe_set_opacity(self, "#242424", opacity)
             self.update()
             time.sleep(0.25 / steps)
         self.animation_complete = True
@@ -762,14 +584,15 @@ class CTkMessagebox(ctk.CTkToplevel):
             opacity = 1.0 - (i + 1) / steps
             if self.blackout_frames:
                 for frame in self.blackout_frames:
-                    set_opacity(frame, value=opacity / 2)
-            self.attributes("-alpha", opacity)
+                    self.safe_set_opacity(frame, "#242424", opacity / 2)
+            self.safe_set_opacity(self, "#242424", opacity)
             self.update()
             time.sleep(0.25 / steps)
 
         if self.blackout_frames:
             for frame in self.blackout_frames:
-                frame.place_forget()
+                if frame.winfo_exists():
+                    frame.place_forget()
 
     def get(self):
         if self.winfo_exists():
@@ -777,8 +600,9 @@ class CTkMessagebox(ctk.CTkToplevel):
         return self.event
 
     def button_event(self, event=None):
-        if not self.animation_complete:
+        if not self.animation_complete or self.destroyed:
             return
+        self.destroyed = True
         try:
             self.button_close.configure(command=object)
             self.button_1.configure(command=object)
@@ -793,6 +617,7 @@ class CTkMessagebox(ctk.CTkToplevel):
             self.fade_out()
 
         self.grab_release()
+        self.place_forget()
         self.destroy()
 
         self.event = event

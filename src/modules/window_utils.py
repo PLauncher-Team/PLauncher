@@ -11,13 +11,6 @@ def center(work, x: int, y: int) -> str:
     return CORD
 
 
-def relative_center():
-    if version_combobox.state() == "normal":
-        version_combobox._withdraw()
-    if GuiOptions.msg and GuiOptions.msg.winfo_exists() and GuiOptions.msg.state() != 'withdrawn':
-        hPyT.window_frame.center_relative(root, GuiOptions.msg)
-
-
 def ex():
     new_message(
         title=language_manager.get("messages.titles.warning"),
@@ -133,3 +126,21 @@ class VersionFrame(ctk.CTkFrame):
         widget.configure(cursor="hand2")
         widget.bind("<Enter>", lambda e: self.configure(fg_color="#111111"))
         widget.bind("<Leave>", lambda e: self.configure(fg_color="#000001"))
+
+
+def apply_hover_border():
+    widget_list = [launch_button, version_combobox_ctk, username_entry, settings_button, mods_button, logs_button,
+                   feedback_button, version_combobox.search_entry, feedback_window.email_entry, feedback_window.subject_entry,
+                   feedback_window.desc_text, mod_viewer_window.search_entry, mod_viewer_window.refresh_btn, mod_viewer_window.lock_all_btn,
+                   mod_viewer_window.unlock_all_btn, mod_viewer_window.close_btn, installed_versions_combobox_ctk, del_version, java_combobox,
+                   memory_combobox, args_entry, open_folder, change_folder, update_skin_button, select_skin_button, choice_version_ctk, choice_loader,
+                   install_loader, list_profiles, add_profile_Entry, add_profile_button, del_profile_button, rename_profile_button,
+                   open_profile, del_java_button, back_btn]
+    original_borders = {}
+
+    for widget in widget_list:
+        original_borders[widget] = widget.cget("border_width")
+        widget.configure(border_width=0)
+        widget.bind("<Enter>", lambda e, w=widget, orig=original_borders[widget]:
+        w.configure(border_width=orig) if w.cget("state") != "disabled" else None)
+        widget.bind("<Leave>", lambda e, w=widget: w.configure(border_width=0))

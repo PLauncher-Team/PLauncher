@@ -5,3 +5,5 @@ psutil
 pywinstyles
 ratelimit
 ctkscrollabledropdownpp
+requests-cache
+json-repair

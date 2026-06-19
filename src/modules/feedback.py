@@ -9,13 +9,13 @@ class FeedbackApp(ctk.CTkToplevel):
         super().__init__(root)
 
         self.withdraw()
+        self.transient(root)
 
         self.title(language_manager.get("feedback.title"))
         self.geometry(f"{500}x{400}")
         self.resizable(False, False)
-        self.grab_set()
         self.bind("<Map>", self._restore_titlebar_color)
-        self.transient(root)
+        self.protocol("WM_DELETE_WINDOW", self.hide)
 
         hPyT.window_frame.center_relative(root, self)
 
@@ -29,7 +29,6 @@ class FeedbackApp(ctk.CTkToplevel):
         self.email_entry = ctk.CTkEntry(
             self,
             font=("Segoe UI", 13),
-            border_width=0
         )
         self.email_entry.place(relx=0.02, rely=0.07, relwidth=0.96, relheight=0.07)
 
@@ -43,7 +42,6 @@ class FeedbackApp(ctk.CTkToplevel):
         self.subject_entry = ctk.CTkEntry(
             self,
             font=("Segoe UI", 13),
-            border_width=0
         )
         self.subject_entry.place(relx=0.02, rely=0.21, relwidth=0.96, relheight=0.07)
 
@@ -65,10 +63,8 @@ class FeedbackApp(ctk.CTkToplevel):
         )
         self.send_button.place(relx=0.40, rely=0.82, relwidth=0.20, relheight=0.06)
 
-        self.deiconify()
-
     def _restore_titlebar_color(self, event=None):
-        hPyT.title_bar_color.set(self, GuiOptions.hover_color)
+        hPyT.title_bar_color.set(self, GuiOptions.fg_color)
 
     def fetch_dynamic_field_ids(self) -> dict[str, str]:
         response = requests.get("https://docs.google.com/forms/d/e/1FAIpQLScHheNuuIixaus6D_2iNRMNIMrbJWmiq-Rc7XKNf5lBo0f3NA/viewform", timeout=5)
@@ -121,7 +117,7 @@ class FeedbackApp(ctk.CTkToplevel):
         if not subject or not description:
             return
 
-        if email and not EMAIL_REGEX.match(email):
+        if email and not re.compile(r"^[^@]+@[^@]+\.[^@]+$").match(email):
             log(f"Неверный формат email: {email}", level="WARNING", source="feedback")
             ToastNotification(
                 title=language_manager.get("messages.titles.error"),
@@ -149,3 +145,12 @@ class FeedbackApp(ctk.CTkToplevel):
 
         self.send_button.configure(state="normal")
         self.destroy()
+
+    def show(self):
+        self.grab_set()
+        self.geometry(f"+{center(self, 500, 400)}")
+        self.deiconify()
+
+    def hide(self):
+        self.grab_release()
+        self.withdraw()

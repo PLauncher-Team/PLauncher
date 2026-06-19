@@ -29,7 +29,7 @@
   },
   "CTkButton": {
     "corner_radius": 6,
-    "border_width": 0,
+    "border_width": 2,
     "fg_color": [
       "#086a97",
       "#005580"

@@ -13,3 +13,4 @@ from modules.settings_gui import *
 from modules.gui import *
 from modules.notifications import *
 from modules.definitions import *
+from modules.mod_viewer import *

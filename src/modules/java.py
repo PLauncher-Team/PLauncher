@@ -124,7 +124,7 @@ class JavaRuntimeManager:
         except Exception:
             LaunchOptions.available_major_versions = [8, 11, 17, 21, 25]
 
-        root.after_idle(lambda: java_combobox.configure(values=get_java_options()))
+        java_combobox.configure(values=get_java_options())
 
     @staticmethod
     def get_latest_java(version):

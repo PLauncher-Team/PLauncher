@@ -8,6 +8,7 @@ def profile_select(*args):
     current = list_profiles.get()
     LauncherConfig.version["profile"] = False if current == language_manager.get("settings.4_page.no") else current
     save_version()
+    mod_viewer_window._first_load_done = False
     log(f"Выбран профиль: {current}", source="profiles")
 
 
