@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..context import *
 
+
 class LaunchOptions:
     is_running = False
     minecraft_process = None

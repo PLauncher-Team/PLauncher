@@ -142,7 +142,7 @@ def launch_game():
         selected_memory.set(value=default_config["memory_args"])
 
     progress_bar.set(0)
-    for obj in settings_button, logs_button, feedback_button:
+    for obj in settings_button, logs_button, feedback_button, mods_button:
         obj.configure(state="disabled")
 
     def cancel():
@@ -154,7 +154,7 @@ def launch_game():
         launch_button.configure(text=language_manager.get("main.buttons.launch_game"),
                                 command=lambda: threading.Thread(target=launch_game).start(),
                                 state="normal")
-        for obj in settings_button, logs_button, feedback_button:
+        for obj in settings_button, logs_button, feedback_button, mods_button:
             obj.configure(state="normal")
         progress_bar.set(0)
 
@@ -230,7 +230,7 @@ def launch_game():
             if LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get():
                 options["jvmArguments"].append(rf"-javaagent:{os.path.abspath('injector.jar')}=ely.by")
 
-            options["jvmArguments"].extend([rf"-Dlog4j.configurationFile={os.path.abspath('log4jshell.xml')}", "-Dfile.encoding=UTF-8"])
+            options["jvmArguments"].extend(["-Dlog4j.configurationFile=file:///{}".format(os.path.abspath('log4jshell.xml').replace('\\', '/')), "-Dfile.encoding=UTF-8"])
 
             command = mcl.command.get_minecraft_command(selected_version, LaunchOptions.minecraft_path, options)
             debug_mode = debug_var.get()

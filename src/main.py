@@ -18,6 +18,7 @@ import subprocess
 import tomllib
 import zipfile
 import threading
+import hashlib
 from io import BytesIO
 from locale import getdefaultlocale
 from socket import create_connection
@@ -36,6 +37,8 @@ import win32api
 import optipy
 import PIL
 import PIL.ImageDraw
+import concurrent
+from requests_cache import CachedSession
 from CTkScrollableDropdownPP import CTkScrollableDropdown
 from psutil import virtual_memory
 from pywinstyles import set_opacity
@@ -53,7 +56,7 @@ def log(message: str, level: str = 'INFO', source: str = 'main') -> None:
         print(output)
         with open("launcher.log", "a", encoding="utf-8") as f:
             f.write(output + "\n")
-
+            
 
 def execute_module(module_name: str) -> None:
     module_path = os.path.join("modules", f"{module_name}.py")
@@ -91,7 +94,7 @@ if __name__ == "__main__":
     log("Добро пожаловать в дебаг...")
 
     for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui",
-                   "notifications", "definitions", "mod_viewer"]:
+                   "notifications", "definitions", "mod_viewer_gui", "mod_viewer"]:
         execute_module(module)
 
     log("Импортирование модулей завершено")

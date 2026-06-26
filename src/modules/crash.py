@@ -37,16 +37,44 @@ class CrashLogWindow(ctk.CTkToplevel):
         )
         title_label.place(relx=0.0714, relwidth=0.9286, relheight=0.60)
 
-        separator = ctk.CTkFrame(self, height=2, fg_color="white", border_width=0)
-        separator.place(relx=0.0333, rely=0.1143, relwidth=0.9333, relheight=0.0029)
-
         self.log_textbox = ctk.CTkTextbox(
             self,
             font=("Segoe UI", 13),
             state="disabled",
             wrap="word",
         )
-        self.log_textbox.place(relx=0.0333, rely=0.1286, relwidth=0.9333, relheight=0.7143)
+        self.log_textbox.place(relx=0.0333, rely=0.1286, relwidth=0.9333, relheight=0.35)
+
+        self.solution_frame = ctk.CTkFrame(
+            self,
+            border_width=2,
+            corner_radius=12,
+        )
+        self.solution_frame.place(relx=0.0333, rely=0.5, relwidth=0.9333, relheight=0.35)
+        
+        solution_title = ctk.CTkLabel(
+            self.solution_frame,
+            text=language_manager.get("crash_log.solution_title", "🔍 Решение проблемы"),
+            font=("Segoe UI", 18, "bold"),
+            fg_color="transparent",
+            anchor="w",
+        )
+        solution_title.place(relx=0.025, rely=0.02, relwidth=0.95, relheight=0.12)
+        
+        self.solution_textbox = ctk.CTkTextbox(
+            self.solution_frame,
+            font=("Segoe UI", 13),
+            state="disabled",
+            wrap="word",
+            corner_radius=8,
+            activate_scrollbars=True,
+        )
+        self.solution_textbox.place(
+            relx=0.025,
+            rely=0.18,
+            relwidth=0.95,
+            relheight=0.77,
+        )
 
         button_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
         button_frame.place(relx=0.0333, rely=0.8714, relwidth=0.9333, relheight=0.0857)
@@ -77,17 +105,17 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.thread.join()
         if self.thread:
             log("AI анализ завершён, показ результата", source="crash")
-            new_message(
-                title=language_manager.get("messages.titles.info"),
-                message=self.message,
-                icon="info",
-                option_1=language_manager.get("messages.answers.ok")
-            )
+            self.set_solution_text()
         self.ai_button.configure(text=language_manager.get("crash_log.ai_analysis"),
                                  command=lambda: threading.Thread(target=self.analyze_with_ai).start(),
                                  state="normal")
-        self.withdraw()
-
+    
+    def set_solution_text(self):
+        self.solution_textbox.configure(state="normal")
+        self.solution_textbox.delete("0.0", "end")
+        self.solution_textbox.insert("0.0", self.message)
+        self.solution_textbox.configure(state="disabled")
+        
     def set_log_text(self, text: str):
         self.log_textbox.configure(state="normal")
         self.log_textbox.delete("0.0", "end")
@@ -96,67 +124,89 @@ class CrashLogWindow(ctk.CTkToplevel):
 
     def analyze(self) -> str:
         try:
-            system_prompt = (f"You are an expert assistant in analyzing Minecraft log files who responds only in this language: {'ru' if language == 'be' else language}\n"
-                             "Your task is:\n"
-                             "1) Briefly (in one sentence) describe the cause of the crash\n"
-                             "2) Suggest only those solutions that are directly related to the identified cause\n\n"
-                             "Response format:\n"
-                             "Cause in one sentence\n"
-                             "Solutions numbered, each on a new line starting with >\n"
-                             "Solutions should be written for an average Minecraft launcher user\n"
-                             "Do not include general or universal advice unless it is directly related to the identified cause.\n\n"
-                             "If the input is not a Minecraft log, respond exactly with `None` (without any additional text).\n"
-                             "If the logs do not contain enough information to clearly determine the cause, respond exactly with `None` (without any additional text).")
-            self.message = FreeGPTClient().get_response([
+            system_prompt = (
+                f"Вы — эксперт-помощник по анализу логов Minecraft"
+                "Ваша задача:\n"
+                "1) Кратко (одним предложением) описать причину краша.\n"
+                "2) Предложить только те решения, которые напрямую связаны с выявленной причиной.\n\n"
+                "Формат ответа:\n"
+                "[Причина краша одним предложением]\n"
+                "1. Первое конкретное решение\n"
+                "2. Второе конкретное решение\n"
+                "Правила:\n"
+                f"- Ты отвечаешь исключительно только на языке {'ru' if language == 'be' else language}.\n"
+                "- Решения должны быть написаны для обычного пользователя Minecraft-лаунчера.\n"
+                "- Максимальное количество решений 3.\n"
+                "- Не включайте общие или универсальные советы, если они не связаны напрямую с выявленной причиной.\n"
+                "- НЕ пишите вступительные фразы, приветствия или объяснения. Начинайте сразу с причины.\n\n"
+                "Если на входе не лог Minecraft, ответьте точно словом None (без кавычек, markdown и любого дополнительного текста).\n"
+                "Если в логах недостаточно информации для чёткого определения причины, ответьте точно словом None (без кавычек, markdown и любого дополнительного текста)."
+            )
+            
+            self.message = LogAnalyzer().get_response([
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": self.log_textbox.get("0.0", "end")}
             ])
             if self.message == "None":
-                self.message = [None, ["None"]]
-            if isinstance(self.message, list):
-                raise Exception("\n".join(self.message[1]))
+                raise Exception("None")
         except Exception as e:
             excepthook(*sys.exc_info())
-            self.message = language_manager.get("messages.texts.error.failed_analyze") + str(e)
+            self.message = language_manager.get("messages.texts.error.failed_analyze")
 
     def open(self):
         self.deiconify()
         self.geometry(f"+{center(self, 600, 700)}")
 
 
-class FreeGPTClient:
+class LogAnalyzer:
     def __init__(self):
-        self.TEACH_ANYTHING_URL = "https://www.teach-anything.com/api/generate"
-
-    def _try_teach_anything(self, messages: list, timeout: int) -> str | list:
-        headers = {
+        self.POLLINATIONS_URL = "https://text.pollinations.ai/"
+        self.MCLO_URL = "https://api.mclo.gs/1/analyse"
+        self.headers = {
             "User-Agent": LauncherConfig.USER_AGENT,
-            "Content-Type": "application/json",
-            "Origin": "https://www.teach-anything.com",
-            "Referer": "https://www.teach-anything.com/"
+            "Content-Type": "application/json"
         }
 
-        def format_prompt(msgs: list) -> str:
-            parts = []
-            for m in msgs:
-                parts.append(f"[{m['role'].upper()}] {m['content']}")
-            return "\n".join(parts)
 
+    def _try_mclo(self, messages: list, timeout: int) -> str | Exception:
         payload = {
-            "prompt": format_prompt(messages)
+            "content": messages[1]["content"]
         }
         try:
-            resp = requests.post(self.TEACH_ANYTHING_URL, json=payload, headers=headers, timeout=timeout)
+            resp = requests.post(self.MCLO_URL, json=payload, headers=self.headers, timeout=timeout)
+            resp.raise_for_status()
+            return "\n".join(
+                solution["message"]
+                for problem in resp.json()["analysis"]["problems"]
+                for solution in problem["solutions"]
+            )
+        except Exception as e:
+            excepthook(*sys.exc_info())
+            return e
+        
+        
+    def _try_pollinations(self, messages: list, timeout: int) -> str | Exception:
+        payload = {
+            "messages": messages
+        }
+
+        try:
+            resp = requests.post(self.POLLINATIONS_URL, json=payload, headers=self.headers, timeout=timeout)
             resp.raise_for_status()
             return resp.text
-        except Exception:
+        except Exception as e:
             excepthook(*sys.exc_info())
-            return [Exception.__name__]
+            return e
 
-    def get_response(self, messages: list, timeout: int = 30) -> str | list:
-        response = self._try_teach_anything(messages, timeout)
-        if not isinstance(response, list):
-            log("Получен ответ от Teach Anything API", source="crash")
-            return response
-        log("Все AI API не сработали", level="ERROR", source="crash")
-        return [None, [response]]
+    def get_response(self, messages: list, timeout: int = 30) -> str | Exception:
+        response1 = self._try_pollinations(messages, timeout)
+        if not isinstance(response1, Exception) and response1 != "None":
+            log("Получен ответ от Pollinations API", source="crash")
+            return response1
+        
+        response2 = self._try_mclo(messages, timeout)
+        if not isinstance(response2, Exception) and response2:
+            log("Получен ответ от Mclo API", source="crash")
+            return response2
+        log("Все API не сработали", level="ERROR", source="crash")
+        return response2

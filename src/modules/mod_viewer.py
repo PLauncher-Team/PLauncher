@@ -4,435 +4,115 @@ if TYPE_CHECKING:
     from ..context import *
 
 
-class ModWidget(ctk.CTkFrame):
-    def __init__(self, master, toggle_callback, delete_callback, **kwargs):
-        super().__init__(master, **kwargs)
-        self.mod_path = None
-        self.mod_info = {}
-        self.toggle_callback = toggle_callback
-        self.delete_callback = delete_callback
-        self.icon_ctk_image = None
-        placeholder = PIL.Image.new("RGBA", (78, 78), (0, 0, 0, 0))
-        draw = PIL.ImageDraw.Draw(placeholder, "RGBA")
-        draw.rounded_rectangle(
-            (2, 2, 76, 76),
-            radius=18,
-            fill=(30, 30, 46, 255),
-            outline=(137, 180, 250, 255),
-            width=2
+class ModManager:
+    def __init__(self, mods_path="mods"):
+        self.mods_path = mods_path
+        self.files_name = {}
+        self.results = {}
+        self.hashes = []
+        self.session = CachedSession(
+            cache_name="modrinth-cache",
+            backend="sqlite",
+            expire_after=604800,
+            allowable_methods=('GET', 'POST')
         )
-        draw.ellipse((24, 54, 54, 64), fill=(0, 0, 0, 100))
-        center_x, center_y = 39, 37
-        s = 16
-        h = 14
+        self.session.headers.update({
+            "User-Agent": LauncherConfig.USER_AGENT
+        })
 
-        p_center = (center_x, center_y)
-        p_top = (center_x, center_y - s)
-        p_bottom = (center_x, center_y + s)
-        p_top_right = (center_x + h, center_y - s // 2)
-        p_bottom_right = (center_x + h, center_y + s // 2)
-        p_top_left = (center_x - h, center_y - s // 2)
-        p_bottom_left = (center_x - h, center_y + s // 2)
-
-        draw.polygon(
-            [p_top, p_top_right, p_center, p_top_left],
-            fill=(137, 180, 250, 255)
-        )
-        draw.polygon(
-            [p_top_left, p_center, p_bottom, p_bottom_left],
-            fill=(180, 190, 254, 255)
-        )
-        draw.polygon(
-            [p_center, p_top_right, p_bottom_right, p_bottom],
-            fill=(116, 142, 203, 255)
-        )
-
-        line_color = (30, 30, 46, 255)
-        draw.line([p_center, p_top], fill=line_color, width=2)
-        draw.line([p_center, p_bottom_left], fill=line_color, width=2)
-        draw.line([p_center, p_bottom_right], fill=line_color, width=2)
-        draw.ellipse((37, 27, 41, 31), fill=(255, 255, 255, 255))
-
-        self.empty_icon_image = ctk.CTkImage(
-            light_image=placeholder,
-            dark_image=placeholder,
-            size=(78, 78)
-        )
-
-        self.configure(corner_radius=24, fg_color="#1a1a1a", border_width=1, border_color="#333333")
-        self.grid_columnconfigure(0, weight=0)
-        self.grid_columnconfigure(1, weight=1, minsize=0)
-        self.grid_columnconfigure(2, weight=0, minsize=220)
-        self.grid_rowconfigure(0, weight=1)
-        self._card_fg = "#1a1a1a"
-        self._card_border = "#333333"
-        self._card_hover_fg = "#222222"
-        self._card_hover_border = "#555555"
-
-        self._on_enter = lambda e: self.configure(fg_color=self._card_hover_fg, border_color=self._card_hover_border)
-        self._on_leave = lambda e: self.configure(fg_color=self._card_fg, border_color=self._card_border)
-        self.icon_label = ctk.CTkLabel(self, text="", image=self.empty_icon_image)
-        self.icon_label.grid(row=0, column=0, rowspan=4, padx=(28, 20), pady=24, sticky="n")
-        self.content_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
-        self.content_frame.grid(row=0, column=1, rowspan=4, sticky="nsew", pady=24)
-        self.content_frame.grid_columnconfigure(0, weight=1)
-        self.name_frame = ctk.CTkFrame(self.content_frame, fg_color="transparent", border_width=0)
-        self.name_frame.grid(row=0, column=0, sticky="w", pady=(0, 6))
-        self.name_label = ctk.CTkLabel(
-            self.name_frame,
-            text="",
-            font=ctk.CTkFont(size=22, weight="bold")
-        )
-        self.name_label.pack(side="left")
-        self.status_label = ctk.CTkLabel(
-            self.name_frame,
-            text="",
-            font=ctk.CTkFont(size=12, weight="bold"),
-            corner_radius=12,
-            padx=14,
-            pady=4
-        )
-        self.status_label.pack(side="left", padx=(16, 0))
-        self.jar_label = ctk.CTkLabel(
-            self.content_frame,
-            text="",
-            font=ctk.CTkFont(size=12),
-            text_color="#777777"
-        )
-        self.jar_label.grid(row=1, column=0, sticky="w", pady=2)
-        self.details_label = ctk.CTkLabel(
-            self.content_frame,
-            text="",
-            font=ctk.CTkFont(size=14),
-            text_color="#aaaaaa"
-        )
-        self.details_label.grid(row=2, column=0, sticky="w", pady=4)
-        self.desc_label = ctk.CTkLabel(
-            self.content_frame,
-            text="",
-            wraplength=585,
-            justify="left",
-            anchor="w",
-            font=ctk.CTkFont(size=14),
-            text_color="#cccccc"
-        )
-        self.desc_label.grid(row=3, column=0, sticky="ew", pady=(6, 0))
-        self.btn_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
-        self.btn_frame.grid(row=0, column=2, rowspan=4, padx=(0, 28), pady=24, sticky="ne")
-        self.toggle_button = ctk.CTkButton(
-            self.btn_frame,
-            text="",
-            width=170,
-            height=42,
-            border_width=0,
-            font=ctk.CTkFont(size=15, weight="bold"),
-            corner_radius=20
-        )
-        self.toggle_button.pack(pady=(0, 10))
-        self.delete_button = ctk.CTkButton(
-            self.btn_frame,
-            text="Удалить",
-            width=170,
-            height=42,
-            border_width=0,
-            font=ctk.CTkFont(size=15, weight="bold"),
-            fg_color="#cc2222",
-            hover_color="#ee4444",
-            corner_radius=20
-        )
-        self.delete_button.pack()
-        self._bind_hover(self)
-
-    def _bind_hover(self, widget):
-        widget.bind("<Enter>", self._on_enter)
-        widget.bind("<Leave>", self._on_leave)
-        for child in widget.winfo_children():
-            self._bind_hover(child)
-
-    def update_content(self, mod_info, is_disabled, mod_path):
-        self.mod_info = mod_info
-        self.mod_path = mod_path
-
-        self.configure(
-            fg_color="#1a1a1a",
-            border_color="#333333"
-        )
-        self.name_label.configure(
-            text=mod_info.get("name", ""),
-            font=ctk.CTkFont(size=22, weight="bold")
-        )
-        status_text = "ЗАБЛОКИРОВАН" if is_disabled else "АКТИВЕН"
-        status_color = "#ff4444" if is_disabled else "#22cc66"
-        status_bg = "#3a1f1f" if is_disabled else "#1f3a2a"
-        self.status_label.configure(
-            text=status_text,
-            font=ctk.CTkFont(size=12, weight="bold"),
-            text_color=status_color,
-            fg_color=status_bg,
-            corner_radius=12
-        )
-        self.jar_label.configure(
-            text=mod_info.get("jar_name", ""),
-            font=ctk.CTkFont(size=12)
-        )
-        loaders = mod_info.get("loaders", [])
-        loaders_text = ", ".join(loaders) if loaders else "Неизвестно"
-        details = f"{loaders_text} • Версия: {mod_info.get('version', '')} • Minecraft: {mod_info.get('mc_version', '')}"
-        self.details_label.configure(
-            text=details,
-            font=ctk.CTkFont(size=14)
-        )
-        desc = mod_info.get("description", "Нет описания")
-        if len(desc) > 240:
-            desc = desc[:237] + "..."
-        self.desc_label.configure(
-            text=desc,
-            font=ctk.CTkFont(size=14)
-        )
-        if mod_info.get("icon"):
-            self.icon_ctk_image = ctk.CTkImage(
-                light_image=mod_info["icon"],
-                dark_image=mod_info["icon"],
-                size=(78, 78)
-            )
-            self.icon_label.configure(image=self.icon_ctk_image, text="")
-        else:
-            self.icon_ctk_image = None
-            self.icon_label.configure(image=self.empty_icon_image, text="")
-        toggle_text = "Разблокировать" if is_disabled else "Заблокировать"
-        toggle_color = "#ff8800" if is_disabled else "#0066ff"
-        toggle_hover = "#ffaa33" if is_disabled else "#3388ff"
-        self.toggle_button.configure(
-            text=toggle_text,
-            fg_color=toggle_color,
-            hover_color=toggle_hover,
-            corner_radius=20,
-            width=170,
-            height=42,
-            font=ctk.CTkFont(size=15, weight="bold"),
-            command=lambda: self.toggle_callback(self.mod_path)
-        )
-        self.delete_button.configure(
-            fg_color="#cc2222",
-            hover_color="#ee4444",
-            corner_radius=20,
-            width=170,
-            height=42,
-            font=ctk.CTkFont(size=15, weight="bold"),
-            command=lambda: self.delete_callback(self.mod_path)
-        )
-
-class ModViewer(ctk.CTkFrame):
-    def __init__(self):
-        super().__init__(root, border_width=0)
-        self.place_forget()
-
-        self.configure(fg_color="#0f0f0f")
-        self.items_per_page = 10
-        self.current_page = 1
-        self.search_query = ""
-        self.search_after_id = None
-        self.all_mod_files = []
-        self.filtered_mod_files = []
-        self.mod_cache = {}
-        self.fps = LauncherConfig.FPS
-        self._first_load_done = False
-
-        top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
-        top_frame.pack(fill="x", padx=25, pady=(20, 10))
-
-        toolbar = ctk.CTkFrame(top_frame, fg_color="transparent", border_width=0)
-        toolbar.pack(side="top")
-
-        self.refresh_btn = ctk.CTkButton(
-            toolbar,
-            text="Обновить",
-            width=130,
-            height=38,
-            corner_radius=18,
-            font=ctk.CTkFont(size=14, weight="bold"),
-            command=self.load_mods
-        )
-        self.refresh_btn.pack(side="left", padx=5)
-
-        self.unlock_all_btn = ctk.CTkButton(
-            toolbar,
-            text="Разблокировать",
-            width=150,
-            height=38,
-            corner_radius=18,
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="#1a8a4a",
-            hover_color="#22aa55",
-            command=self.unlock_all
-        )
-        self.unlock_all_btn.pack(side="left", padx=5)
-
-        self.lock_all_btn = ctk.CTkButton(
-            toolbar,
-            text="Заблокировать",
-            width=150,
-            height=38,
-            corner_radius=18,
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="#cc6600",
-            hover_color="#dd7700",
-            command=self.lock_all
-        )
-        self.lock_all_btn.pack(side="left", padx=5)
-
-        self.close_btn = ctk.CTkButton(
-            top_frame,
-            text="✕",
-            width=38,
-            height=38,
-            corner_radius=19,
-            fg_color="#252525",
-            hover_color="#c42b1c",
-            font=ctk.CTkFont(size=18, weight="bold"),
-            command=self.withdraw
-        )
-        self.close_btn.place(relx=1.0, x=-5, y=0, anchor="ne")
-
-        search_frame = ctk.CTkFrame(self, fg_color="transparent")
-        search_frame.pack(fill="x", padx=30, pady=(0, 12))
-
-        self.search_var = ctk.StringVar(value="")
-
-        self.search_entry = ctk.CTkEntry(
-            search_frame,
-            placeholder_text="Поиск по названию мода...",
-            height=40,
-            font=ctk.CTkFont(size=15),
-            textvariable=self.search_var
-        )
-        self.search_entry.pack(fill="x", expand=True)
-
-        self.search_var.trace_add("write", self.on_search_change)
-
-        self.scroll_frame = ctk.CTkScrollableFrame(
-            self,
-            fg_color="#0f0f0f",
-            border_width=0
-        )
-        self.scroll_frame.pack(fill="both", expand=True, padx=30, pady=8)
-
-        self.empty_label = ctk.CTkLabel(
-            self.scroll_frame,
-            text="",
-            font=ctk.CTkFont(size=18),
-            text_color="#666666"
-        )
-
-        self.mod_widgets = []
-
-        for _ in range(self.items_per_page):
-            widget = ModWidget(
-                self.scroll_frame,
-                toggle_callback=self.toggle_disable,
-                delete_callback=self.delete_mod,
-                fg_color="#1a1a1a",
-                border_color="#333333"
-            )
-            widget.pack(fill="x", padx=8, pady=12)
-            widget.pack_forget()
-            self.mod_widgets.append(widget)
-
-        self.pagination_frame = ctk.CTkFrame(
-            self,
-            fg_color="transparent",
-            border_width=0
-        )
-        self.pagination_frame.pack(fill="x", padx=30, pady=(8, 20))
-
-        self.pagination_inner = ctk.CTkFrame(
-            self.pagination_frame,
-            fg_color="transparent",
-            border_width=0
-        )
-        self.pagination_inner.pack()
-
-        self.prev_btn = ctk.CTkButton(
-            self.pagination_inner,
-            text="◀",
-            width=50,
-            state="disabled",
-            height=32,
-            border_width=0,
-            command=self.prev_page
-        )
-        self.prev_btn.pack(side="left", padx=4)
-
-        self.page_label = ctk.CTkLabel(
-            self.pagination_inner,
-            text="1 / 1",
-            font=ctk.CTkFont(size=15, weight="bold")
-        )
-        self.page_label.pack(side="left", padx=12)
-
-        self.next_btn = ctk.CTkButton(
-            self.pagination_inner,
-            text="▶",
-            state="disabled",
-            width=50,
-            border_width=0,
-            height=32,
-            command=self.next_page
-        )
-        self.next_btn.pack(side="left", padx=4)
-
-    def create_rounded_icon(self, pil_image, size=78):
-        if pil_image is None:
+    def _get_pil_image_from_url(self, url):
+        if url is None:
             return None
-        original_width, original_height = pil_image.size
-        ratio = original_width / original_height
-        if ratio > 1:
-            new_width = size
-            new_height = int(size / ratio)
-        else:
-            new_height = size
-            new_width = int(size * ratio)
-        resized = pil_image.resize((new_width, new_height), PIL.Image.Resampling.LANCZOS)
-        square = PIL.Image.new("RGBA", (size, size), (0, 0, 0, 0))
-        paste_x = (size - new_width) // 2
-        paste_y = (size - new_height) // 2
-        square.paste(resized, (paste_x, paste_y), resized if resized.mode == "RGBA" else None)
-        mask = PIL.Image.new("L", (size, size), 0)
-        draw = PIL.ImageDraw.Draw(mask)
-        draw.rounded_rectangle((0, 0, size, size), radius=18, fill=255)
-        square.putalpha(mask)
-        return square
+        try:
+            response = self.session.get(url, timeout=10)
+            response.raise_for_status()
+            return PIL.Image.open(BytesIO(response.content))
+        except:
+            return None
 
+    def get_mods_info(self):
+        self.hashes = self._get_mods_hashes()
+        self.results = self.get_info_from_modrinth()
+        projects_infos = {}
+        for sha1 in self.results:
+            mod_info = self.results[sha1]
+            projects_infos[mod_info["project_id"]] = mod_info
 
-    def get_mod_info(self, mod_path):
+        for project in self._get_projects_info(list(projects_infos.keys())):
+            mod_info = projects_infos[project["id"]]
+            mod_info["description"] = project["description"]
+            mod_info["name"] = project["title"]
+            mod_info["icon"] = self.create_rounded_icon(self._get_pil_image_from_url(project.get("icon_url")))
+            sha1_for_mod = next(sha1 for sha1, info in self.results.items() if info["project_id"] == project["id"])
+            mod_info["jar_name"] = self.files_name[sha1_for_mod]
+
+        unfound_mods = self.hashes - self.results.keys()
+        for hash in unfound_mods:
+            self.results[hash] = self.get_info_from_jar(hash)
+
+        self.results = dict(sorted(self.results.items(), key=lambda item: (item[1].get("name") or "").casefold()))
+
+        return self.results
+
+    def _get_mods_hashes(self):
+        def _get_sha1(mod_path):
+            sha1 = hashlib.sha1(open(os.path.join(self.mods_path, mod_path), "rb").read()).hexdigest()
+            self.files_name[sha1] = mod_path
+            return sha1
+
+        mods = [
+            i for i in os.listdir(self.mods_path)
+            if os.path.isfile(os.path.join(self.mods_path, i)) and (i.endswith(".jar") or i.endswith(".jar.disabled"))
+        ]
+    
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            return set(executor.map(_get_sha1, mods))
+
+    def _get_projects_info(self, ids):
+        request = self.session.get("https://api.modrinth.com/v2/projects", params={"ids": json.dumps(ids)})
+        return request.json()
+
+    def get_info_from_modrinth(self):
+        request = self.session.post("https://api.modrinth.com/v2/version_files", json={"algorithm": "sha1", "hashes": list(self.hashes)})
+        return request.json()
+
+    def get_info_from_jar(self, mod_sha1):
+        mod_path = os.path.join(self.mods_path, self.files_name[mod_sha1])
         try:
             with zipfile.ZipFile(mod_path) as zf:
                 namelist = zf.namelist()
                 mod_name = os.path.basename(mod_path)
-                info = {
+                self.results[mod_sha1] = {
                     "name": mod_name,
-                    "description": "Нет описания",
-                    "version": "Неизвестно",
+                    "description": None,
+                    "version": None,
                     "loaders": [],
-                    "mc_version": "Неизвестно",
+                    "game_versions": [],
                     "jar_name": mod_name,
                     "icon": None,
                     "dependencies": []
                 }
+                info = self.results[mod_sha1]
 
                 def load_root_png_if_needed():
                     if info["icon"]:
                         return
-                    root_pngs = [
-                        name for name in namelist
-                        if "/" not in name and "\\" not in name and name.lower().endswith(".png")
-                    ]
+                    root_pngs = [name for name in namelist if "/" not in name and "\\" not in name and name.lower().endswith(".png")]
                     if root_pngs:
                         try:
                             with zf.open(root_pngs[0]) as imgf:
                                 info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                         except:
                             pass
+
+                def add_game_versions(versions):
+                    if isinstance(versions, str):
+                        if versions:
+                            info["game_versions"].append(versions)
+                    elif isinstance(versions, list):
+                        for v in versions:
+                            if isinstance(v, str) and v:
+                                info["game_versions"].append(v)
 
                 if "fabric.mod.json" in namelist:
                     info["loaders"].append("Fabric")
@@ -444,8 +124,7 @@ class ModViewer(ctk.CTkFrame):
                         depends = data.get("depends", {})
                         if isinstance(depends, dict):
                             mc = depends.get("minecraft")
-                            if mc:
-                                info["mc_version"] = str(mc) if isinstance(mc, str) else ", ".join(mc) if isinstance(mc, list) else str(mc)
+                            add_game_versions(mc)
                             for dep_id in depends.keys():
                                 if dep_id != "minecraft" and dep_id not in info["dependencies"]:
                                     info["dependencies"].append(dep_id)
@@ -470,17 +149,22 @@ class ModViewer(ctk.CTkFrame):
 
                         quilt_deps = loader_data.get("depends", {})
                         if isinstance(quilt_deps, dict):
+                            mc = quilt_deps.get("minecraft")
+                            add_game_versions(mc)
                             for dep_id in quilt_deps.keys():
                                 if dep_id != "minecraft" and dep_id not in info["dependencies"]:
                                     info["dependencies"].append(dep_id)
                         elif isinstance(quilt_deps, list):
                             for dep in quilt_deps:
-                                if isinstance(dep, dict) and "id" in dep:
-                                    d_id = dep["id"]
-                                    if d_id != "minecraft" and d_id not in info["dependencies"]:
+                                if isinstance(dep, dict):
+                                    d_id = dep.get("id")
+                                    if d_id == "minecraft":
+                                        add_game_versions(dep.get("version"))
+                                    elif d_id and d_id not in info["dependencies"]:
                                         info["dependencies"].append(d_id)
-                                elif isinstance(dep, str) and dep != "minecraft" and dep not in info["dependencies"]:
-                                    info["dependencies"].append(dep)
+                                elif isinstance(dep, str):
+                                    if dep != "minecraft" and dep not in info["dependencies"]:
+                                        info["dependencies"].append(dep)
 
                         icon_path = metadata.get("icon")
                         if icon_path and icon_path in namelist:
@@ -513,8 +197,8 @@ class ModViewer(ctk.CTkFrame):
                                 d_id = dep.get("modId")
                                 if d_id == "minecraft":
                                     version_range = str(dep.get("versionRange", "")).strip()
-                                    if version_range and info["mc_version"] == "Неизвестно":
-                                        info["mc_version"] = version_range.lstrip("[(").split(",")[0].strip()
+                                    if version_range:
+                                        add_game_versions(version_range)
                                 elif d_id and d_id not in info["dependencies"]:
                                     info["dependencies"].append(d_id)
                     load_root_png_if_needed()
@@ -539,10 +223,15 @@ class ModViewer(ctk.CTkFrame):
                         for dep_list in dependencies.values():
                             for dep in dep_list:
                                 d_id = dep.get("modId")
+
+                                is_mandatory = dep.get("mandatory", True)
+                                if not is_mandatory:
+                                    continue
+
                                 if d_id == "minecraft":
-                                    version_range = str(dep.get("versionRange", "")).strip()
-                                    if version_range and info["mc_version"] == "Неизвестно":
-                                        info["mc_version"] = version_range.lstrip("[(").split(",")[0].strip()
+                                    version_range = dep.get("versionRange", "")
+                                    if version_range:
+                                        add_game_versions(version_range)
                                 elif d_id and d_id not in info["dependencies"]:
                                     info["dependencies"].append(d_id)
                     load_root_png_if_needed()
@@ -552,51 +241,39 @@ class ModViewer(ctk.CTkFrame):
                         info["loaders"].append("Forge (Legacy)")
                     with zf.open("mcmod.info") as f:
                         data = json.load(f)
-                        if isinstance(data, list):
-                            if data:
-                                main_mod = data[0]
-                                info["name"] = main_mod.get("name") or info["name"]
-                                info["description"] = main_mod.get("description") or info["description"]
-                                info["version"] = main_mod.get("version") or info["version"]
-                                info["mc_version"] = main_mod.get("mcversion") or main_mod.get("mcVersion") or info["mc_version"]
-                                deps = main_mod.get("dependencies", [])
-                                if isinstance(deps, list):
-                                    for d in deps:
-                                        if d and d != "minecraft" and d not in info["dependencies"]:
-                                            info["dependencies"].append(str(d))
-                                logo = main_mod.get("logoFile")
-                                if logo and logo in namelist:
-                                    try:
-                                        with zf.open(logo) as imgf:
-                                            info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                                    except:
-                                        pass
+                        if isinstance(data, list) and data:
+                            main_mod = data[0]
                         else:
-                            info["name"] = data.get("name") or info["name"]
-                            info["description"] = data.get("description") or info["description"]
-                            info["version"] = data.get("version") or info["version"]
-                            info["mc_version"] = data.get("mcversion") or data.get("mcVersion") or info["mc_version"]
-                            deps = data.get("dependencies", [])
-                            if isinstance(deps, list):
-                                for d in deps:
-                                    if d and d != "minecraft" and d not in info["dependencies"]:
-                                        info["dependencies"].append(str(d))
+                            main_mod = data if isinstance(data, dict) else {}
+                        info["name"] = main_mod.get("name") or info["name"]
+                        info["description"] = main_mod.get("description") or info["description"]
+                        info["version"] = main_mod.get("version") or info["version"]
+                        mc_ver = main_mod.get("mcversion") or main_mod.get("mcVersion")
+                        add_game_versions(mc_ver)
+                        deps = main_mod.get("dependencies", [])
+                        if isinstance(deps, list):
+                            for d in deps:
+                                if d and d != "minecraft" and d not in info["dependencies"]:
+                                    info["dependencies"].append(str(d))
+                        logo = main_mod.get("logoFile")
+                        if logo and logo in namelist:
+                            try:
+                                with zf.open(logo) as imgf:
+                                    info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
+                            except:
+                                pass
                     load_root_png_if_needed()
 
                 if not info["loaders"]:
                     root_infos = [
                         name for name in namelist
-                        if "/" not in name and "\\" not in name
-                           and ("info" in name.lower() or name.lower().endswith(".info"))
-                           and name.lower()
+                        if "/" not in name and "\\" not in name and ("info" in name.lower() or name.lower().endswith(".info"))
                     ]
                     for info_file in root_infos:
                         try:
                             with zf.open(info_file) as f:
                                 raw_content = f.read().decode('utf-8')
-
                                 repaired_content = repair_json(raw_content)
-
                                 data = json.loads(repaired_content)
                                 if isinstance(data, list) and data:
                                     data = data[0]
@@ -605,7 +282,8 @@ class ModViewer(ctk.CTkFrame):
                                     info["name"] = data.get("name") or data.get("displayName") or data.get("modid") or data.get("id") or info["name"]
                                     info["description"] = data.get("description") or info["description"]
                                     info["version"] = data.get("version") or info["version"]
-                                    info["mc_version"] = data.get("mcversion") or data.get("mcVersion") or info["mc_version"]
+                                    mc_ver = data.get("mcversion") or data.get("mcVersion")
+                                    add_game_versions(mc_ver)
                                     deps = data.get("dependencies") or data.get("depends")
                                     if isinstance(deps, list):
                                         for d in deps:
@@ -615,7 +293,6 @@ class ModViewer(ctk.CTkFrame):
                                         for k in deps.keys():
                                             if k != "minecraft" and k not in info["dependencies"]:
                                                 info["dependencies"].append(str(k))
-
                                     logo = data.get("logoFile") or data.get("icon")
                                     if logo and logo in namelist:
                                         try:
@@ -627,316 +304,199 @@ class ModViewer(ctk.CTkFrame):
                         except:
                             continue
 
+                ver = info.get("version", "")
+                if not ver or ver.startswith("${"):
+                    info["version"] = None
+                else:
+                    info["version"] = ver.strip("[]><=()-* ")
+
                 if "META-INF/MANIFEST.MF" in namelist:
                     try:
                         with zf.open("META-INF/MANIFEST.MF") as f:
                             manifest = f.read().decode("utf-8", errors="ignore")
                             for line in manifest.splitlines():
                                 if line.startswith("Implementation-Version"):
-                                    if info["mc_version"] == "Неизвестно":
-                                        info["mc_version"] = line.split(": ")[1].split("-")[0]
-                                    elif info["version"] == "Неизвестно":
-                                        info["version"] = line.split(": ")[1].split("-")[1]
+                                    parts = line.split(": ")[1].split("-")
+                                    if len(parts) == 2:
+                                        if not info["game_versions"]:
+                                            add_game_versions(parts[0])
+                                        if not info["version"]:
+                                            info["version"] = parts[1]
+                                    elif len(parts) == 1:
+                                        if not info["version"]:
+                                            info["version"] = parts[0]
                                     break
                                 elif line.startswith("Fabric-Minecraft-Version"):
-                                    info["mc_version"] = line.split(": ")[1]
+                                    if not info["game_versions"]:
+                                        add_game_versions(line.split(": ")[1])
+                                    break
+                                elif line.startswith("Built-On-Minecraft"):
+                                    if not info["game_versions"]:
+                                        add_game_versions(line.split(": ")[1])
+                                    break
+                                elif line.startswith("Specification-Version"):
+                                    spec_version = line.split(": ")[1]
+                                    if spec_version == "1":
+                                        continue
+                                    if not info["version"]:
+                                        info["version"] = spec_version
                     except:
                         pass
 
                 if not info["icon"]:
                     load_root_png_if_needed()
                 if info["icon"]:
-                    info["icon"] = self.create_rounded_icon(info["icon"], size=78)
+                    info["icon"] = self.create_rounded_icon(info["icon"])
 
-                ver = str(info.get("version", "")).strip()
-                if not ver or ver.startswith("${") or ver.lower() in ("${file.jarversion}", "неизвестно", ""):
-                    info["version"] = "Неизвестно"
-                else:
-                    info["version"] = info["version"].strip("[]><=()-* ")
-
-                if info["mc_version"] != "Неизвестно":
-                    info["mc_version"] = info["mc_version"].strip("[]><=()-* ")
+                if info["game_versions"]:
+                    info["game_versions"] = list(dict.fromkeys(info["game_versions"]))
 
                 return info
         except Exception:
             mod_name = os.path.basename(mod_path)
             return {
                 "name": mod_name,
-                "description": "Не удалось прочитать мод",
-                "version": "Неизвестно",
+                "description": None,
+                "version": None,
                 "loaders": [],
-                "mc_version": "Неизвестно",
+                "game_versions": [],
                 "jar_name": mod_name,
                 "icon": None,
                 "dependencies": []
             }
 
-    def on_search_change(self, *args):
-        if self.search_after_id is not None:
-            self.after_cancel(self.search_after_id)
-        self.search_after_id = self.after(100, self.apply_search)
-
-    def apply_search(self):
-        self.search_after_id = None
-        self.search_query = self.search_var.get().strip().casefold()
-        self.current_page = 1
-        self.refresh_view()
-
-    def load_mods(self):
-        if not os.path.exists(self.mods_dir):
-            os.makedirs(self.mods_dir, exist_ok=True)
-
-        mod_files = []
-        for entry in os.listdir(self.mods_dir):
-            full_path = os.path.join(self.mods_dir, entry)
-            if os.path.isfile(full_path) and entry.lower().endswith((".jar", ".jar.disabled")):
-                mod_files.append(full_path)
-
-        def sort_key(p):
-            info = self.mod_cache.get(p)
-            if info and info.get("name"):
-                return info["name"].casefold()
-            return os.path.basename(p).casefold()
-
-        self.all_mod_files = sorted(mod_files, key=sort_key)
-
-        current_paths = set(self.all_mod_files)
-        for cached_path in list(self.mod_cache.keys()):
-            if cached_path not in current_paths:
-                del self.mod_cache[cached_path]
-
-        for mod_file in self.all_mod_files:
-            path_key = mod_file
-            mtime_ns = os.stat(mod_file).st_mtime_ns
-            cached = self.mod_cache.get(path_key)
-            if cached is None or cached.get("_mtime_ns") != mtime_ns:
-                info = self.get_mod_info(mod_file)
-                info["_mtime_ns"] = mtime_ns
-                info["_search_blob"] = " ".join(
-                    str(info.get(key, "")) for key in ("name", "jar_name", "description", "loader", "version", "mc_version")
-                ).casefold()
-                self.mod_cache[path_key] = info
-
-        self.refresh_view()
-
-    def refresh_view(self):
-        query = self.search_query.casefold() if self.search_query else ""
-        name_matches = []
-        other_matches = []
-
-        for mod_file in self.all_mod_files:
-            path_key = mod_file
-            info = self.mod_cache.get(path_key)
-
-            if info is None:
-                info = self.get_mod_info(mod_file)
-                info["_search_blob"] = " ".join(
-                    str(info.get(key, "")) for key in ("name", "jar_name", "description", "loader", "version", "mc_version")
-                ).casefold()
-                self.mod_cache[path_key] = info
-
-            if not query:
-                name_matches.append(mod_file)
+    @staticmethod
+    def create_rounded_icon(pil_image, size=78):
+        if pil_image is None:
+            return None
+        original_width, original_height = pil_image.size
+        ratio = original_width / original_height
+        if ratio > 1:
+            new_width = size
+            new_height = int(size / ratio)
+        else:
+            new_height = size
+            new_width = int(size * ratio)
+        resized = pil_image.resize((new_width, new_height), PIL.Image.Resampling.LANCZOS)
+        square = PIL.Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        paste_x = (size - new_width) // 2
+        paste_y = (size - new_height) // 2
+        square.paste(resized, (paste_x, paste_y), resized if resized.mode == "RGBA" else None)
+        mask = PIL.Image.new("L", (size, size))
+        draw = PIL.ImageDraw.Draw(mask)
+        draw.rounded_rectangle((0, 0, size, size), radius=18, fill=255)
+        square.putalpha(mask)
+        return square
+    
+    @staticmethod
+    def check_version(version, constraints) -> bool:
+        try:
+            ver = Version(version)
+        except InvalidVersion:
+            return False
+    
+        if isinstance(constraints, str):
+            constraints = [constraints]
+    
+        for constraint in constraints:
+            constraint = constraint.strip().replace(" ", "")
+    
+            match = re.match(r'^([><=!]=?)(.+)$', constraint)
+            if match:
+                op, ver_str = match.groups()
+                try:
+                    target = Version(ver_str)
+                except InvalidVersion:
+                    continue
+    
+                if op == ">=" and ver >= target:
+                    return True
+                elif op == "<=" and ver <= target:
+                    return True
+                elif op == ">" and ver > target:
+                    return True
+                elif op == "<" and ver < target:
+                    return True
+                elif op == "==" and ver == target:
+                    return True
+                elif op == "!=" and ver != target:
+                    return True
                 continue
-
-            mod_name = str(info.get("name", "")).casefold()
-            mod_stem = os.path.basename(mod_file).casefold().replace(".jar", "")
-
-            if query in mod_name or query in mod_stem:
-                name_matches.append(mod_file)
-            elif query in info["_search_blob"]:
-                other_matches.append(mod_file)
-
-        filtered_files = name_matches + other_matches
-
-        self.filtered_mod_files = filtered_files
-        total_items = len(filtered_files)
-        total_pages = (total_items + self.items_per_page - 1) // self.items_per_page if total_items > 0 else 1
-
-        if self.current_page > total_pages:
-            self.current_page = total_pages
-        if self.current_page < 1:
-            self.current_page = 1
-
-        start = (self.current_page - 1) * self.items_per_page
-        end = start + self.items_per_page
-        page_files = filtered_files[start:end]
-
-        self.render_page(page_files, query)
-        self.update_pagination(total_pages)
-
-
-    def render_page(self, page_files, query):
-        if page_files:
-            self.empty_label.pack_forget()
-            for idx, widget in enumerate(self.mod_widgets):
-                if idx < len(page_files):
-                    mod_file = page_files[idx]
-                    path_key = mod_file
-                    info = self.mod_cache.get(path_key)
-                    if info is None:
-                        info = self.get_mod_info(mod_file)
-                        info["_search_blob"] = " ".join(
-                            str(info.get(key, "")) for key in ("name", "jar_name", "description", "loader", "version", "mc_version")
-                        ).casefold()
-                        self.mod_cache[path_key] = info
-                    is_disabled = os.path.basename(mod_file).lower().endswith(".disabled")
-                    widget.update_content(info, is_disabled, mod_file)
-                    if not widget.winfo_ismapped():
-                        widget.pack(fill="x", padx=8, pady=12)
-                else:
-                    widget.pack_forget()
-        else:
-            for widget in self.mod_widgets:
-                widget.pack_forget()
-            self.empty_label.configure(
-                text="Ничего не найдено." if query else "Папка mods пуста.\n\nПоместите .jar файлы модов сюда."
-            )
-            if not self.empty_label.winfo_ismapped():
-                self.empty_label.pack(pady=120)
-
-    def update_pagination(self, total_pages):
-        if total_pages <= 1:
-            self.pagination_frame.pack_forget()
-            return
-        if not self.pagination_frame.winfo_ismapped():
-            self.pagination_frame.pack(fill="x", padx=30, pady=(8, 20))
-        self.page_label.configure(text=f"{self.current_page} / {total_pages}")
-        self.prev_btn.configure(state="normal" if self.current_page > 1 else "disabled")
-        self.next_btn.configure(state="normal" if self.current_page < total_pages else "disabled")
-
-    def prev_page(self):
-        self.scroll_frame._parent_canvas.yview_moveto(0)
-        if self.current_page > 1:
-            self.current_page -= 1
-            self.refresh_view()
-
-    def next_page(self):
-        self.scroll_frame._parent_canvas.yview_moveto(0)
-        total_items = len(self.filtered_mod_files)
-        total_pages = (total_items + self.items_per_page - 1) // self.items_per_page if total_items > 0 else 1
-        if self.current_page < total_pages:
-            self.current_page += 1
-            self.refresh_view()
-
-    def toggle_disable(self, mod_path):
-        mod_name = os.path.basename(mod_path)
-        mod_dir = os.path.dirname(mod_path)
-        if mod_name.lower().endswith(".disabled"):
-            new_path = os.path.join(mod_dir, mod_name[:-9])
-        else:
-            new_path = os.path.join(mod_dir, mod_name + ".disabled")
-        os.rename(mod_path, new_path)
-        self.load_mods()
-
-    def delete_mod(self, mod_path):
-        mod_name = os.path.basename(mod_path)
-        new_message(
-            title=language_manager.get("messages.titles.warning"),
-            message=f"Вы действительно хотите удалить этот мод?\n{mod_name}",
-            icon="question",
-            option_1=language_manager.get("messages.answers.no"),
-            option_2=language_manager.get("messages.answers.yes")
-        )
-        if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-            if os.path.exists(mod_path):
-                os.remove(mod_path)
-            self.load_mods()
-
-    def _unlock_all_worker(self):
-        try:
-            for mod_file in self.all_mod_files:
-                mod_name = os.path.basename(mod_file)
-                mod_dir = os.path.dirname(mod_file)
-                if mod_name.lower().endswith(".jar.disabled"):
-                    new_path = os.path.join(mod_dir, mod_name[:-9])
-                    os.rename(mod_file, new_path)
-            self.load_mods()
-        finally:
-            self.lock_all_btn.configure(state="normal")
-            self.unlock_all_btn.configure(state="normal")
-            self.refresh_btn.configure(state="normal")
-            self.search_entry.configure(state="normal")
-
-    def unlock_all(self):
-        self.lock_all_btn.configure(state="disabled")
-        self.unlock_all_btn.configure(state="disabled")
-        self.refresh_btn.configure(state="disabled")
-        self.search_entry.configure(state="disabled")
-
-        threading.Thread(target=self._unlock_all_worker, daemon=True).start()
-
-    def lock_all(self):
-        self.lock_all_btn.configure(state="disabled")
-        self.unlock_all_btn.configure(state="disabled")
-        self.refresh_btn.configure(state="disabled")
-        self.search_entry.configure(state="disabled")
-
-        threading.Thread(target=self._lock_all_worker, daemon=True).start()
-
-    def _lock_all_worker(self):
-        try:
-            for mod_file in self.all_mod_files:
-                if not mod_file.lower().endswith(".jar.disabled"):
-                    os.rename(mod_file, mod_file + ".disabled")
-
-            self.load_mods()
-        finally:
-            self.lock_all_btn.configure(state="normal")
-            self.unlock_all_btn.configure(state="normal")
-            self.refresh_btn.configure(state="normal")
-            self.search_entry.configure(state="normal")
-
-    def deiconify(self):
-        if self.winfo_viewable():
-            return
-
-        if not self._first_load_done:
-            self.lock_all_btn.configure(state="disabled")
-            self.unlock_all_btn.configure(state="disabled")
-            self.refresh_btn.configure(state="disabled")
-            self.search_entry.configure(state="disabled")
-            try:
-                if LauncherConfig.version["profile"]:
-                    self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"], "mods")
-                else:
-                    self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "mods")
-                threading.Thread(target=self.load_mods, daemon=True).start()
-                self._first_load_done = True
-            finally:
-                self.lock_all_btn.configure(state="normal")
-                self.unlock_all_btn.configure(state="normal")
-                self.refresh_btn.configure(state="normal")
-                self.search_entry.configure(state="normal")
-
-        duration = 0.25
-        steps = max(1, round(self.fps * duration))
-
-        self.place(relwidth=1, relheight=1)
-        self.lift()
-
-        for i in range(steps):
-            if not self.winfo_exists():
-                break
-            opacity = (i + 1) / steps
-            set_opacity(self, color="#242424", value=opacity)
-            self.update()
-            time.sleep(duration / steps)
-
-    def withdraw(self):
-        if not self.winfo_viewable():
-            return
-
-        duration = 0.25
-        steps = max(1, round(self.fps * duration))
-
-        for i in range(steps - 1, -1, -1):
-            if not self.winfo_exists():
-                break
-            opacity = i / steps
-            set_opacity(self, color="#242424", value=opacity)
-            self.update()
-            time.sleep(duration / steps)
-
-        set_opacity(self, color="#242424", value=1)
-        self.place_forget()
+    
+            reverse_match = re.match(r'^(.+?)([><=!]=)$', constraint)
+            if reverse_match:
+                ver_str, op = reverse_match.groups()
+                try:
+                    target = Version(ver_str)
+                except InvalidVersion:
+                    continue
+    
+                if op == ">=" and target >= ver:
+                    return True
+                elif op == "<=" and target <= ver:
+                    return True
+                elif op == ">" and target > ver:
+                    return True
+                elif op == "<" and target < ver:
+                    return True
+                continue
+    
+            if constraint.startswith("[") and constraint.endswith("]"):
+                try:
+                    parts = constraint[1:-1].split(",")
+                    if len(parts) == 2:
+                        left = parts[0].strip()
+                        right = parts[1].strip()
+                        if left and right:
+                            if ver >= Version(left) and ver <= Version(right):
+                                return True
+                        elif left and not right:
+                            if ver >= Version(left):
+                                return True
+                        elif not left and right:
+                            if ver <= Version(right):
+                                return True
+                    else:
+                        continue
+                except InvalidVersion:
+                    continue
+            elif constraint.startswith("(") and constraint.endswith(")"):
+                try:
+                    parts = constraint[1:-1].split(",")
+                    if len(parts) == 2:
+                        left = parts[0].strip()
+                        right = parts[1].strip()
+                        if left and right:
+                            if ver > Version(left) and ver < Version(right):
+                                return True
+                        elif left and not right:
+                            if ver > Version(left):
+                                return True
+                        elif not left and right:
+                            if ver < Version(right):
+                                return True
+                    else:
+                        continue
+                except InvalidVersion:
+                    continue
+            elif "," in constraint:
+                try:
+                    parts = constraint.split(",")
+                    if len(parts) == 2:
+                        left = parts[0].strip()
+                        right = parts[1].strip()
+                        if left and right:
+                            if ver >= Version(left) and ver <= Version(right):
+                                return True
+                    else:
+                        continue
+                except InvalidVersion:
+                    continue
+            else:
+                try:
+                    if ver == Version(constraint):
+                        return True
+                except InvalidVersion:
+                    continue
+    
+        return False

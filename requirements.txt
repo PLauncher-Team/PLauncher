@@ -7,3 +7,4 @@ ratelimit
 ctkscrollabledropdownpp
 requests-cache
 json-repair
+PySocks
