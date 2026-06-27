@@ -702,6 +702,10 @@ class ModViewer(ctk.CTkFrame):
             return
 
         if not self._first_load_done:
+            self.mod_cache = {}
+            self.all_mod_files = []
+            self.filtered_mod_files = []
+            self.mod_manager = None
             self.lock_all_btn.configure(state="disabled")
             self.unlock_all_btn.configure(state="disabled")
             self.refresh_btn.configure(state="disabled")
