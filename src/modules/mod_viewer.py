@@ -14,7 +14,8 @@ class ModManager:
             cache_name="modrinth-cache",
             backend="sqlite",
             expire_after=604800,
-            allowable_methods=('GET', 'POST')
+            allowable_methods=('GET', 'POST'),
+            timeout=10
         )
         self.session.headers.update({
             "User-Agent": LauncherConfig.USER_AGENT
@@ -24,18 +25,24 @@ class ModManager:
         if url is None:
             return None
         try:
-            response = self.session.get(url, timeout=10)
+            response = self.session.get(url)
             response.raise_for_status()
             return PIL.Image.open(BytesIO(response.content))
         except:
             return None
-
+    
+    def check_version_compatibility(self):
+        for hash, result in self.results.items():
+            if not self.check_version("1.20.1", result["game_versions"]):
+                print("ERROR", result["name"])
+        
     def get_mods_info(self):
         self.hashes = self._get_mods_hashes()
         self.results = self.get_info_from_modrinth()
         projects_infos = {}
         for sha1 in self.results:
             mod_info = self.results[sha1]
+            mod_info["version"] = mod_info["version_number"]
             projects_infos[mod_info["project_id"]] = mod_info
 
         for project in self._get_projects_info(list(projects_infos.keys())):
@@ -45,13 +52,12 @@ class ModManager:
             mod_info["icon"] = self.create_rounded_icon(self._get_pil_image_from_url(project.get("icon_url")))
             sha1_for_mod = next(sha1 for sha1, info in self.results.items() if info["project_id"] == project["id"])
             mod_info["jar_name"] = self.files_name[sha1_for_mod]
-
+        
         unfound_mods = self.hashes - self.results.keys()
         for hash in unfound_mods:
             self.results[hash] = self.get_info_from_jar(hash)
 
         self.results = dict(sorted(self.results.items(), key=lambda item: (item[1].get("name") or "").casefold()))
-
         return self.results
 
     def _get_mods_hashes(self):
@@ -93,7 +99,6 @@ class ModManager:
                     "dependencies": []
                 }
                 info = self.results[mod_sha1]
-
                 def load_root_png_if_needed():
                     if info["icon"]:
                         return
@@ -317,23 +322,20 @@ class ModManager:
                             for line in manifest.splitlines():
                                 if line.startswith("Implementation-Version"):
                                     parts = line.split(": ")[1].split("-")
-                                    if len(parts) == 2:
+                                    if len(parts) >= 2:
                                         if not info["game_versions"]:
                                             add_game_versions(parts[0])
                                         if not info["version"]:
-                                            info["version"] = parts[1]
+                                            info["version"] = "-".join(parts[1:])
                                     elif len(parts) == 1:
                                         if not info["version"]:
                                             info["version"] = parts[0]
-                                    break
                                 elif line.startswith("Fabric-Minecraft-Version"):
                                     if not info["game_versions"]:
                                         add_game_versions(line.split(": ")[1])
-                                    break
-                                elif line.startswith("Built-On-Minecraft"):
+                                elif line.startswith("Built-On-Minecraft") or line.startswith("Build-On-Minecraft"):
                                     if not info["game_versions"]:
                                         add_game_versions(line.split(": ")[1])
-                                    break
                                 elif line.startswith("Specification-Version"):
                                     spec_version = line.split(": ")[1]
                                     if spec_version == "1":
@@ -350,9 +352,10 @@ class ModManager:
 
                 if info["game_versions"]:
                     info["game_versions"] = list(dict.fromkeys(info["game_versions"]))
-
+                
                 return info
         except Exception:
+            excepthook(*sys.exc_info())
             mod_name = os.path.basename(mod_path)
             return {
                 "name": mod_name,
@@ -391,8 +394,8 @@ class ModManager:
     @staticmethod
     def check_version(version, constraints) -> bool:
         try:
-            ver = Version(version)
-        except InvalidVersion:
+            ver = packaging.version.Version(version)
+        except packaging.version.InvalidVersion:
             return False
     
         if isinstance(constraints, str):
@@ -405,8 +408,8 @@ class ModManager:
             if match:
                 op, ver_str = match.groups()
                 try:
-                    target = Version(ver_str)
-                except InvalidVersion:
+                    target = packaging.version.Version(ver_str)
+                except packaging.version.InvalidVersion:
                     continue
     
                 if op == ">=" and ver >= target:
@@ -427,8 +430,8 @@ class ModManager:
             if reverse_match:
                 ver_str, op = reverse_match.groups()
                 try:
-                    target = Version(ver_str)
-                except InvalidVersion:
+                    target = packaging.version.Version(ver_str)
+                except packaging.version.InvalidVersion:
                     continue
     
                 if op == ">=" and target >= ver:
@@ -441,62 +444,56 @@ class ModManager:
                     return True
                 continue
     
-            if constraint.startswith("[") and constraint.endswith("]"):
+            bracket_match = re.match(r'^([\[(])([^,\]]*)(?:,([^])]*))?([])])$', constraint)
+            if bracket_match:
+                left_bracket, left_str, right_str, right_bracket = bracket_match.groups()
                 try:
-                    parts = constraint[1:-1].split(",")
-                    if len(parts) == 2:
-                        left = parts[0].strip()
-                        right = parts[1].strip()
-                        if left and right:
-                            if ver >= Version(left) and ver <= Version(right):
+                    left_ok = right_ok = True
+    
+                    if left_str:
+                        left_ver = packaging.version.Version(left_str)
+                        if left_bracket == "[":
+                            left_ok = ver >= left_ver
+                        else:
+                            left_ok = ver > left_ver
+                    if right_str:
+                        right_ver = packaging.version.Version(right_str)
+                        if right_bracket == "]":
+                            right_ok = ver <= right_ver
+                        else:
+                            right_ok = ver < right_ver
+                    elif right_str is None and left_str:
+                        if left_bracket == "[" and right_bracket == "]":
+                            if ver == left_ver:
                                 return True
-                        elif left and not right:
-                            if ver >= Version(left):
+                            else:
+                                continue
+                        elif left_bracket == "(" and right_bracket == ")":
+                            if ver != left_ver:
                                 return True
-                        elif not left and right:
-                            if ver <= Version(right):
+                            else:
+                                continue
+                        else:
+                            if left_ok:
                                 return True
-                    else:
-                        continue
-                except InvalidVersion:
+                            else:
+                                continue
+                    elif not left_str and right_str:
+                        if right_ok:
+                            return True
+                        else:
+                            continue
+    
+                    if left_ok and right_ok:
+                        return True
+                except packaging.version.InvalidVersion:
                     continue
-            elif constraint.startswith("(") and constraint.endswith(")"):
-                try:
-                    parts = constraint[1:-1].split(",")
-                    if len(parts) == 2:
-                        left = parts[0].strip()
-                        right = parts[1].strip()
-                        if left and right:
-                            if ver > Version(left) and ver < Version(right):
-                                return True
-                        elif left and not right:
-                            if ver > Version(left):
-                                return True
-                        elif not left and right:
-                            if ver < Version(right):
-                                return True
-                    else:
-                        continue
-                except InvalidVersion:
-                    continue
-            elif "," in constraint:
-                try:
-                    parts = constraint.split(",")
-                    if len(parts) == 2:
-                        left = parts[0].strip()
-                        right = parts[1].strip()
-                        if left and right:
-                            if ver >= Version(left) and ver <= Version(right):
-                                return True
-                    else:
-                        continue
-                except InvalidVersion:
-                    continue
+    
             else:
                 try:
-                    if ver == Version(constraint):
+                    if ver == packaging.version.Version(constraint):
                         return True
-                except InvalidVersion:
+                except packaging.version.InvalidVersion:
                     continue
     
         return False

@@ -397,6 +397,7 @@ class ModViewer(ctk.CTkFrame):
         self.search_after_id = self.after(100, self.apply_search)
 
     def apply_search(self):
+        self.scroll_frame._parent_canvas.yview_moveto(0)
         self.search_after_id = None
         self.search_query = self.search_var.get().strip().casefold()
         self.current_page = 1
@@ -408,7 +409,7 @@ class ModViewer(ctk.CTkFrame):
 
         if self.mod_manager is None:
             self.mod_manager = ModManager(mods_path=self.mods_dir)
-    
+        
         self.mod_manager.files_name = {}
         self.mod_manager.results = {}
         self.mod_manager.hashes = []
