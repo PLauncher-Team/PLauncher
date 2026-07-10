@@ -192,14 +192,27 @@ def launch_game():
 
             save_config()
             args_custom = args_entry.get().split()
-
+            
+            default_args = ["-Xmx" + LauncherConfig.config["memory_args"] + "M",
+                            "-Xms" + LauncherConfig.config["memory_args"] + "M",
+                            "-Djavax.net.ssl.trustStoreType=Windows-ROOT",
+                            ]
+            
+            if not bool(re.search(r"-XX:\+Use\w+GC", " ".join(args_custom), re.IGNORECASE)) or "-XX:+UseG1GC" in args_custom:
+                default_args += [
+                    "-XX:+UseG1GC",
+                    "-XX:+UnlockExperimentalVMOptions",
+                    "-XX:MaxGCPauseMillis=50",
+                    "-XX:+DisableExplicitGC",
+                    "-XX:+ParallelRefProcEnabled"
+                ]
+                    
+                
             options = {
                 "gameDirectory": work_folder,
                 "username": username,
                 "uuid": uuid,
-                "jvmArguments": args_custom + ["-Xmx" + LauncherConfig.config["memory_args"] + "M",
-                                               "-Xms" + LauncherConfig.config["memory_args"] + "M",
-                                               "-Djavax.net.ssl.trustStoreType=Windows-ROOT"]
+                "jvmArguments": default_args + args_custom
             }
 
             callback = {
@@ -211,7 +224,7 @@ def launch_game():
             if re.match(r"^Java [1-9]\d*$", LauncherConfig.config["java"]):
                 java_version = LauncherConfig.config["java"].split()[1]
                 java_path = JavaRuntimeManager.get_any_java_exe(java_version)
-                if LauncherConfig.IS_INTERNET:
+                if LauncherConfig.IS_INTERNET and check_var.get():
                     JavaRuntimeManager.download_and_extract_java(java_version, callback)
                     options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
                 elif java_path:
@@ -248,7 +261,8 @@ def launch_game():
                 f"Java: {command[0]}\n"
                 f"Рабочая директория: {work_folder}\n"
                 f"Отладка: {debug_mode}\n"
-                f"UUID: {uuid}",
+                f"UUID: {uuid}"
+                f"Ely.by: {LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get()}",
                 source="launcher_core")
 
             hJob = win32job.CreateJobObject(None, "PLauncher_Job")

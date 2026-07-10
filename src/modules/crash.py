@@ -54,7 +54,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         
         solution_title = ctk.CTkLabel(
             self.solution_frame,
-            text=language_manager.get("crash_log.solution_title", "🔍 Решение проблемы"),
+            text=language_manager.get("crash_log.solution_title"),
             font=("Segoe UI", 18, "bold"),
             fg_color="transparent",
             anchor="w",

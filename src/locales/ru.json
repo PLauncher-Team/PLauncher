@@ -99,7 +99,8 @@
     "title": "Просмотр журнала ошибок",
     "error_log": "Журнал ошибок",
     "ai_analysis": "Анализ ИИ",
-    "cancel_analysis": "Отменить анализ"
+    "cancel_analysis": "Отменить анализ",
+    "solution_title": "\uD83D\uDD0D Решение проблемы"
   },
   "messages": {
     "titles": {

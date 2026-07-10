@@ -92,7 +92,8 @@
     "title": "View Error Log",
     "error_log": "Error Log",
     "ai_analysis": "AI Analysis",
-    "cancel_analysis": "Cancel analysis"
+    "cancel_analysis": "Cancel analysis",
+    "solution_title": "\uD83D\uDD0D Problem solution"
   },
   "feedback": {
     "title": "Sending Feedback",

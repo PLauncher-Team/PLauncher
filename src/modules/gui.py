@@ -209,7 +209,7 @@ ctk.CTkLabel(
 
 texts_language = {
     "ru": "Русский",
-    "uk": "Українська",
+    "ua": "Українська",
     "be": "Беларуский",
     "en": "English",
     "es": "Español"
@@ -622,6 +622,7 @@ version_combobox = CTkScrollableDropdown(
         ["OptiFine", r"(?i).*optifine.*"],
         ["NeoForge", r"(?i).*neoforge.*"],
         ["Quilt",    r"(?i).*quilt.*"],
+        ["Cleanroom", r"(?i).*cleanroom.*"],
         ["Minecraft", "__OTHERS__"],
         [language_manager.get("main.types_versions.installed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get('main.types_versions.installed'))}\s*$"],
         [language_manager.get("main.types_versions.not_completed").replace("(", "").replace(")", ""), rf"{re.escape(language_manager.get('main.types_versions.not_completed'))}\s*$"]

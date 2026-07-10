@@ -73,15 +73,6 @@ class VersionFrame(ctk.CTkFrame):
         self.new_label = None
         threading.Thread(target=self._update_check, daemon=True).start()
 
-    def get_latest_version_by_redirect(self) -> str | None:
-        headers = {"User-Agent": LauncherConfig.USER_AGENT}
-        try:
-            resp = requests.head(self.url, headers=headers, allow_redirects=True, timeout=10)
-            resp.raise_for_status()
-            return resp.url.rstrip('/').rsplit('/', 1)[-1]
-        except Exception:
-            return None
-
     def is_newer_version(self, latest_tag: str, current_tag: str) -> bool:
         try:
             return packaging.version.Version(latest_tag.lstrip('v')) > packaging.version.Version(current_tag.lstrip('v'))
@@ -89,11 +80,16 @@ class VersionFrame(ctk.CTkFrame):
             return False
 
     def check_update(self, current_version: str) -> str | bool:
-        latest_tag = self.get_latest_version_by_redirect()
-        if latest_tag and self.is_newer_version(latest_tag, current_version):
-            log(f"Доступно обновление: {current_version} -> {latest_tag}", source="window_utils")
-            return latest_tag
-        else:
+        try:
+            latest_tag = mcl.utils.get_github_tags("PLauncher-Team", "PLauncher")[0]
+            if latest_tag and self.is_newer_version(latest_tag, current_version):
+                log(f"Доступно обновление: {current_version} -> {latest_tag}", source="window_utils")
+                return latest_tag
+            else:
+                return False
+        except Exception as e:
+            log(f"Ошибка получения информации о новой версии: {e}", source="window_utils")
+            excepthook(*sys.exc_info())
             return False
 
     def open_download(self, event: object = None):

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 class Translator:
     def __init__(self, language: str = None):
-        supported_languages = {"ru", "en", "be", "es", "uk"}
+        supported_languages = {"ru", "en", "be", "es", "ua"}
 
         if not language:
             sys_locale = getdefaultlocale()[0]
@@ -70,7 +70,7 @@ del "%~f0"
 def select_language(selected_value: str):
     texts_language_reverse = {
         "Русский": "ru",
-        "Українська": "uk",
+        "Українська": "ua",
         "Беларуский": "be",
         "English": "en",
         "Español": "es"

@@ -66,7 +66,13 @@ def fun_install_loader():
                                                   minecraft_directory=LaunchOptions.minecraft_path, callback=val_call)
             mcl.neoforge.download_and_run(version=LoadersVersions.dictionary_neoforge[version_select], path_minecraft=LaunchOptions.minecraft_path,
                                           java=path_to_java)
-
+        
+        elif loader_select == "Cleanroom":
+            mcl.install.install_minecraft_version(versionid="1.12.2",
+                                                  minecraft_directory=LaunchOptions.minecraft_path, callback=val_call)
+            mcl.cleanroom.download_and_run(version=version_select, path_minecraft=LaunchOptions.minecraft_path, java=path_to_java)
+            
+            
         root.after_idle(load_versions)
         log(f"Установка успешно завершена", source="loaders")
 
@@ -150,9 +156,10 @@ def get_loaders_versions():
         ("Fabric", lambda: [LoadersVersions.fabric_versions_mine.append(v["version"])
                             for v in mcl.fabric.get_all_minecraft_versions()], "fabric_versions_mine"),
         ("NeoForge", get_neoforge, "neoforge_versions_mine"),
-        ("OptiFine", lambda: LoadersVersions.optifine_version_mine.extend(optipy.getVersionList()), "optifine_version_mine"),
+        ("OptiFine", lambda: LoadersVersions.optifine_versions_mine.extend(optipy.getVersionList()), "optifine_versions_mine"),
         ("Quilt", lambda: LoadersVersions.quilt_versions_mine.extend(
-            [v["version"] for v in mcl.quilt.get_all_minecraft_versions()]), "quilt_versions_mine")
+            [v["version"] for v in mcl.quilt.get_all_minecraft_versions()]), "quilt_versions_mine"),
+        ("Cleanroom", lambda: LoadersVersions.cleanroom_versions_mine.extend(mcl.cleanroom.get_github_tags("CleanroomMC", "Cleanroom")), "cleanroom_versions_mine")
     ]
 
     for name, func, attr in loaders:

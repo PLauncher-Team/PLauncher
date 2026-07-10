@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     log(f"Версия: {LauncherConfig.CURRENT_VERSION}")
     log(f"Частота обновления монитора: {LauncherConfig.FPS} Hz")
-    log(f"Интернет статус: {LauncherConfig.IS_INTERNET}, Ping: {LauncherConfig.ping}")
+    log(f"Интернет статус: {LauncherConfig.IS_INTERNET}, Ping: {LauncherConfig.ping}ms")
     log(f"Объём ОЗУ: {LauncherConfig.MAX_MEMORY_GB} GB")
 
     default_config = {

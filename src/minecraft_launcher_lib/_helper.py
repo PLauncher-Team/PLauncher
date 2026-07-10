@@ -279,7 +279,7 @@ def get_requests_response_cache(url: str, timeout: int = 10) -> requests.models.
     global _requests_response_cache
     if url not in _requests_response_cache or (datetime.datetime.now() - _requests_response_cache[url]["datetime"]).total_seconds() / 60 / 60 >= 1:
         if timeout:
-            r = requests.get(url, timeout=timeout, headers={"User-Agent": f"PLauncher-Team/PLauncher/1.1"})
+            r = requests.get(url, timeout=timeout, headers={"User-Agent": f"PLauncher-Team/PLauncher/v1.1"})
         else:
             r = requests.get(url)
         if r.status_code == 200:

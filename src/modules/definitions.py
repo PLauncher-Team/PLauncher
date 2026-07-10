@@ -36,15 +36,17 @@ class GuiOption:
 
 class LoadersVersions:
     dictionary_neoforge = {}
+    cleanroom_versions_mine = []
     forge_versions_mine = []
     neoforge_versions_mine = []
     fabric_versions_mine = []
     quilt_versions_mine = []
-    optifine_version_mine = []
+    optifine_versions_mine = []
     loaders_versions_mine = {
         "Fabric": fabric_versions_mine,
         "Forge": forge_versions_mine,
         "Quilt": quilt_versions_mine,
-        "OptiFine": optifine_version_mine,
+        "OptiFine": optifine_versions_mine,
         "NeoForge": neoforge_versions_mine,
+        "Cleanroom": cleanroom_versions_mine
     }

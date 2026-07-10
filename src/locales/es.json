@@ -99,7 +99,8 @@
     "title": "Ver registro de errores",
     "error_log": "Registro de errores",
     "ai_analysis": "Análisis de IA",
-    "cancel_analysis": "Cancelar análisis"
+    "cancel_analysis": "Cancelar análisis",
+    "solution_title": "\uD83D\uDD0D Solución del problema"
   },
   "messages": {
     "titles": {

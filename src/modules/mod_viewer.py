@@ -312,8 +312,6 @@ class ModManager:
                 ver = info.get("version", "")
                 if not ver or ver.startswith("${"):
                     info["version"] = None
-                else:
-                    info["version"] = ver.strip("[]><=()-* ")
 
                 if "META-INF/MANIFEST.MF" in namelist:
                     try:

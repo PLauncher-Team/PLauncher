@@ -288,3 +288,16 @@ def is_minecraft_installed(minecraft_directory: str | os.PathLike) -> bool:
         return True
     except AssertionError:
         return False
+
+
+def get_github_tags(owner, repo):
+    url = f"https://api.github.com/repos/{owner}/{repo}/tags"
+
+    response = get_requests_response_cache(url)
+    response.raise_for_status()
+
+    tags_data = response.json()
+
+    all_tags = [tag["name"] for tag in tags_data]
+
+    return all_tags
