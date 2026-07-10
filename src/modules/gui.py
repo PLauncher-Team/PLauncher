@@ -209,7 +209,7 @@ ctk.CTkLabel(
 
 texts_language = {
     "ru": "Русский",
-    "ua": "Українська",
+    "uk": "Українська",
     "be": "Беларуский",
     "en": "English",
     "es": "Español"
