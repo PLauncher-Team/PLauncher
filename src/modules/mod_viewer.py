@@ -12,10 +12,10 @@ class ModManager:
         self.hashes = []
         self.session = CachedSession(
             cache_name="modrinth-cache",
-            backend="sqlite",
             expire_after=604800,
             allowable_methods=('GET', 'POST'),
-            timeout=10
+            timeout=10,
+            match_headers=True,
         )
         self.session.headers.update({
             "User-Agent": LauncherConfig.USER_AGENT
@@ -30,11 +30,6 @@ class ModManager:
             return PIL.Image.open(BytesIO(response.content))
         except:
             return None
-    
-    def check_version_compatibility(self):
-        for hash, result in self.results.items():
-            if not self.check_version("1.20.1", result["game_versions"]):
-                print("ERROR", result["name"])
         
     def get_mods_info(self):
         self.hashes = self._get_mods_hashes()
@@ -75,11 +70,17 @@ class ModManager:
             return set(executor.map(_get_sha1, mods))
 
     def _get_projects_info(self, ids):
-        request = self.session.get("https://api.modrinth.com/v2/projects", params={"ids": json.dumps(ids)})
+        request = self.session.get(
+            "https://api.modrinth.com/v2/projects",
+            params={"ids": json.dumps(sorted(ids))}
+        )
         return request.json()
 
     def get_info_from_modrinth(self):
-        request = self.session.post("https://api.modrinth.com/v2/version_files", json={"algorithm": "sha1", "hashes": list(self.hashes)})
+        request = self.session.post(
+            "https://api.modrinth.com/v2/version_files",
+            json={"algorithm": "sha1", "hashes": sorted(list(self.hashes))}
+        )
         return request.json()
 
     def get_info_from_jar(self, mod_sha1):

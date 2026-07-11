@@ -1,150 +1,151 @@
 {
+  "crash_log": {
+    "ai_analysis": "Аналіз ШІ",
+    "cancel_analysis": "Адмяніць аналіз",
+    "error_log": "Часопіс памылак",
+    "solution_title": "\uD83D\uDD0D Рашэнне праблемы",
+    "title": "Прагляд часопіса памылак"
+  },
+  "feedback": {
+    "description": "Апісанне праблемы / прапановы",
+    "email": "Email (неабавязкова)",
+    "send": "Адправіць",
+    "subject": "Тэма",
+    "title": "Адпраўка FeedBack"
+  },
+  "language": "Беларуская",
   "main": {
-    "width_buttons": 160,
+    "buttons": {
+      "cancel_loading": "Адмяніць запампоўку",
+      "complete_game": "Завяршыць гульню",
+      "feedback": "Сувязь",
+      "launch_game": "Запусціць гульню",
+      "logs": "Лагі",
+      "settings": "Налады"
+    },
+    "mcl_status": {
+      "download_assets": "Запампоўка асэтаў",
+      "download_libraries": "Запампоўка бібліятэк",
+      "installation_complete": "Усталёўка завершана",
+      "install_java_runtime": "Усталёўка Java Runtime"
+    },
+    "status": {
+      "finalizing": "Адмяняем...",
+      "game_completed": "Гульня завершана",
+      "launch_error": "Памылка запуску",
+      "loading": "Запампоўка...",
+      "loading_canceled": "Запампоўка адменена",
+      "loading_completed": "Запампоўка завершана",
+      "loading_error": "Памылка запампоўкі",
+      "waiting": "Чаканне"
+    },
     "types_versions": {
       "installed": " (Усталявана)",
       "not_completed": " (Не завершана)"
     },
-    "buttons": {
-      "feedback": "Сувязь",
-      "logs": "Лагі",
-      "settings": "Налады",
-      "launch_game": "Запусціць гульню",
-      "cancel_loading": "Адмяніць запампоўку",
-      "complete_game": "Завяршыць гульню"
-    },
-    "status": {
-      "waiting": "Чаканне",
-      "loading_canceled": "Запампоўка адменена",
-      "game_completed": "Гульня завершана",
-      "loading_completed": "Запампоўка завершана",
-      "loading_error": "Памылка запампоўкі",
-      "launch_error": "Памылка запуску",
-      "loading": "Запампоўка...",
-      "finalizing": "Адмяняем..."
-    },
-    "mcl_status": {
-      "download_libraries": "Запампоўка бібліятэк",
-      "download_assets": "Запампоўка асэтаў",
-      "install_java_runtime": "Усталёўка Java Runtime",
-      "installation_complete": "Усталёўка завершана"
-    }
-  },
-  "settings": {
-    "title": "Налады",
-    "pages": ["Лаўнчар", "Minecraft", "Скіны", "Загрузчыкі", "Тэмы"],
-    "1_page" : {
-      "version_types_1": "Тыпы версій",
-      "version_types_2": "Тыпы версій, якія адлюстроўваюцца ў спісе на галоўным экране:",
-      "release": "Рэлізы",
-      "snapshots": "Снэпшоты",
-      "old_beta": "Старыя бэты",
-      "old_alpha": "Старыя альфы",
-      "installed_versions": "Усталяваныя версіі",
-      "manager_versions": "Кіраванне ўсталяванымі версіямі",
-      "other_settings": "Іншыя налады",
-      "hide_launcher": "Хаваць лаўнчар пры запуску гульні",
-      "check_files": "Правяраць файлы",
-      "debug_mode": "Рэжым адладкі"
-    },
-    "2_page": {
-      "java_settings": "Налады Java",
-      "java_used": "Выкарыстоўваемая версія Java:",
-      "latest_java": "Апошняя Java",
-      "recommended_java": "Рэкамендаваная Java",
-      "add": "Дадаць…",
-      "java_exe": "Выканальны файл Java",
-      "select_java": "Выберыце выканальны файл Java",
-      "amt_memory": "Колькасць вылучанай памяці (МБ):",
-      "args_JVM": "Аргументы JVM (для дасведчаных карыстальнікаў):",
-      "game_directory": "Дырэкторыя гульні",
-      "default_path": "Дырэкторыя па змаўчанні",
-      "current_path": "Бягучая дырэкторыя гульні:\n",
-      "open_folder": "Адкрыць папку",
-      "change_folder": "Змяніць\nпапку",
-      "select_directory": "Выберыце дырэкторыю гульні"
-    },
-    "3_page": {
-      "update": "Абнавіць",
-      "select_file_skin": "Выбраць файл скіна",
-      "use_ely_by": "Выкарыстоўваць сістэму скінаў Ely.by",
-      "use_default_skin": "Выкарыстоўваць скін па змаўчанні",
-      "choice_png_file": "Выберыце PNG-файл скіна",
-      "png_skin": "PNG скін"
-    },
-    "4_page": {
-      "loaders_mods": "Загрузчыкі модаў",
-      "install_loader": "Усталяваць загрузчык",
-      "cancel_loading": "Адмяніць запампоўку",
-      "mods_profiles": "Профілі зборак",
-      "new_profile": "Увядзіце назву новага профілю",
-      "new_name_profile": "Увядзіце новую назву профілю",
-      "no": "(няма)",
-      "add": "Стварыць",
-      "delete": "Выдаліць",
-      "change": "Змяніць",
-      "save": "Захаваць",
-      "cancel": "Адмена",
-      "open_folder": "Адкрыць папку профілю"
-    }
-  },
-  "feedback": {
-    "title": "Адпраўка FeedBack",
-    "email": "Email (неабавязкова)",
-    "subject": "Тэма",
-    "description": "Апісанне праблемы / прапановы",
-    "send": "Адправіць"
-  },
-  "crash_log": {
-    "title": "Прагляд часопіса памылак",
-    "error_log": "Часопіс памылак",
-    "ai_analysis": "Аналіз ШІ",
-    "cancel_analysis": "Адмяніць аналіз",
-    "solution_title": "\uD83D\uDD0D Рашэнне праблемы"
+    "width_buttons": "160"
   },
   "messages": {
-    "titles": {
-      "warning": "Увага",
-      "error": "Памылка",
-      "info": "Інфармацыя"
+    "answers": {
+      "cancel": "Адмена",
+      "no": "Не",
+      "ok": "Добра",
+      "yes": "Так"
     },
     "texts": {
+      "check": {
+        "feedback_send": "FeedBack паспяхова адпраўлены!"
+      },
       "error": {
-        "loading": "Памылка пры запампоўцы версій:\n",
-        "skin_load": "Няправільны файл скіна. Памер павінен быць 64x64 альбо 64x32.",
-        "ely_by_uuid": "Памылка пры атрыманні UUID з сервераў Ely.by:\n",
         "ely_by_skin": "Памылка пры атрыманні скіна з сервераў Ely.by:\n",
+        "ely_by_uuid": "Памылка пры атрыманні UUID з сервераў Ely.by:\n",
+        "exit_code": "Код выхаду: ",
+        "failed_analyze": "Не ўдалося прааналізаваць часопіс памылак:\n",
+        "feedback_email": "Не ўдалося адправіць feedback:\n",
+        "feedback_send": "Калі ласка, увядзіце карэктны адрас электроннай пошты.",
+        "java": "Не ўдалося атрымаць інфармацыю пра версію Java.",
         "launch": "Памылка пры запуску гульні:\n",
+        "loading": "Памылка пры запампоўцы версій:\n",
         "loading_loader": "Памылка пры запампоўцы загрузчыка:\n",
         "loading_loader_list": "Памылка пры запампоўцы спісу загрузчыкаў:\n",
         "profile_add": "Не ўдалося стварыць профіль:\n",
         "profile_rename": "Не ўдалося перайменаваць профіль:\n",
-        "skin_select": "Не ўдалося загрузіць скін:\n",
-        "exit_code": "Код выхаду: ",
-        "java": "Не ўдалося атрымаць інфармацыю пра версію Java.",
-        "failed_analyze": "Не ўдалося прааналізаваць часопіс памылак:\n",
-        "feedback_send": "Калі ласка, увядзіце карэктны адрас электроннай пошты.",
-        "feedback_email": "Не ўдалося адправіць feedback:\n"
+        "skin_load": "Няправільны файл скіна. Памер павінен быць 64x64 альбо 64x32.",
+        "skin_select": "Не ўдалося загрузіць скін:\n"
       },
       "warning": {
+        "delete_game_version": "Вы ўпэўнены, што жадаеце выдаліць гэтыя версіі гульні?",
         "exit": "Вы сапраўды жадаеце выйсці?",
-        "no_internet": "Адсутнічае падключэнне да інтэрнэту. Бяруцца паказвацца толькі ўсталяваныя версіі.",
-        "version": "Выберыце версію гульні",
-        "logs": "Файлы лагоў не знойдзены.",
-        "profile": "Вы ўпэўнены, што жадаеце выдаліць гэты профіль?",
         "java": "Вы ўпэўнены, што жадаеце выдаліць гэтую Java са спісу?",
         "language": "Змены набудуць сілы пасля перазагрузкі.\nПеразагрузіць зараз?",
-        "delete_game_version": "Вы ўпэўнены, што жадаеце выдаліць гэтыя версіі гульні?"
-      },
-      "check": {
-        "feedback_send": "FeedBack паспяхова адпраўлены!"
+        "logs": "Файлы лагоў не знойдзены.",
+        "no_internet": "Адсутнічае падключэнне да інтэрнэту. Бяруцца паказвацца толькі ўсталяваныя версіі.",
+        "profile": "Вы ўпэўнены, што жадаеце выдаліць гэты профіль?",
+        "version": "Выберыце версію гульні"
       }
     },
-    "answers": {
-      "yes": "Так",
-      "no": "Не",
-      "ok": "Добра",
-      "cancel": "Адмена"
+    "titles": {
+      "error": "Памылка",
+      "info": "Інфармацыя",
+      "warning": "Увага"
     }
+  },
+  "settings": {
+    "1_page": {
+      "check_files": "Правяраць файлы",
+      "debug_mode": "Рэжым адладкі",
+      "hide_launcher": "Хаваць лаўнчар пры запуску гульні",
+      "installed_versions": "Усталяваныя версіі",
+      "manager_versions": "Кіраванне ўсталяванымі версіямі",
+      "old_alpha": "Старыя альфы",
+      "old_beta": "Старыя бэты",
+      "other_settings": "Іншыя налады",
+      "release": "Рэлізы",
+      "snapshots": "Снэпшоты",
+      "version_types_1": "Тыпы версій",
+      "version_types_2": "Тыпы версій, якія адлюстроўваюцца ў спісе на галоўным экране:"
+    },
+    "2_page": {
+      "add": "Дадаць…",
+      "amt_memory": "Колькасць вылучанай памяці (МБ):",
+      "args_JVM": "Аргументы JVM (для дасведчаных карыстальнікаў):",
+      "change_folder": "Змяніць\nпапку",
+      "current_path": "Бягучая дырэкторыя гульні:\n",
+      "default_path": "Дырэкторыя па змаўчанні",
+      "game_directory": "Дырэкторыя гульні",
+      "java_exe": "Выканальны файл Java",
+      "java_settings": "Налады Java",
+      "java_used": "Выкарыстоўваемая версія Java:",
+      "latest_java": "Апошняя Java",
+      "open_folder": "Адкрыць папку",
+      "recommended_java": "Рэкамендаваная Java",
+      "select_directory": "Выберыце дырэкторыю гульні",
+      "select_java": "Выберыце выканальны файл Java"
+    },
+    "3_page": {
+      "choice_png_file": "Выберыце PNG-файл скіна",
+      "png_skin": "PNG скін",
+      "select_file_skin": "Выбраць файл скіна",
+      "update": "Абнавіць",
+      "use_default_skin": "Выкарыстоўваць скін па змаўчанні",
+      "use_ely_by": "Выкарыстоўваць сістэму скінаў Ely.by"
+    },
+    "4_page": {
+      "add": "Стварыць",
+      "cancel": "Адмена",
+      "cancel_loading": "Адмяніць запампоўку",
+      "change": "Змяніць",
+      "delete": "Выдаліць",
+      "install_loader": "Усталяваць загрузчык",
+      "loaders_mods": "Загрузчыкі модаў",
+      "mods_profiles": "Профілі зборак",
+      "new_name_profile": "Увядзіце новую назву профілю",
+      "new_profile": "Увядзіце назву новага профілю",
+      "no": "(няма)",
+      "open_folder": "Адкрыць папку профілю",
+      "save": "Захаваць"
+    },
+    "pages": [ "Лаўнчар", "Minecraft", "Скіны", "Загрузчыкі", "Тэмы" ],
+    "title": "Налады"
   }
 }

@@ -1,3 +1,4 @@
+import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -6,31 +7,48 @@ if TYPE_CHECKING:
 
 class Translator:
     def __init__(self, language: str = None):
-        supported_languages = {"ru", "en", "be", "es", "uk"}
-
+        self.supported_languages = self.get_supported_languages()
+        
+        self.language = None
         if not language:
             sys_locale = getdefaultlocale()[0]
             if sys_locale:
                 lang_code = sys_locale.split("_")[0].lower()
-                self.language = lang_code if lang_code in supported_languages else "en"
-            else:
-                self.language = "ru"
+                self.language = lang_code
             LauncherConfig.config["language"] = self.language
             save_config()
         else:
             self.language = language
-
-        self.translations: dict = {}
-        self._load_translations()
-
-    def _load_translations(self):
-        try:
-            path = os.path.join("locales", f"{self.language}.json")
-            with open(path, encoding="utf-8") as f:
-                self.translations = json.load(f)
-        except FileNotFoundError:
-            log(f"Файл перевода не найден: {path}", level="ERROR", source="translator")
+        
+        if self.language not in self.supported_languages and self.supported_languages:
+            log(f"Файла локализации для языка {self.language} не найдено. Переключаемся на {self.supported_languages[0]}", level="WARNING", source="translator")
+            self.language = self.supported_languages[0]
+        elif not self.supported_languages:
+            log("Не найдено ни одного файла локализации", level="ERROR", source="translator")
             self.translations = {}
+            return
+        
+        self.translations = self._load_translations(self.language)
+    
+    def get_languages_names(self):
+        languages = {}
+        for lang in self.supported_languages:
+            languages[lang] = self._load_translations(lang)["language"]
+        return languages
+        
+    @staticmethod
+    def get_supported_languages():
+        return [locale.removesuffix(".json") for locale in os.listdir("locales") if locale.endswith(".json") and os.path.isfile(os.path.join("locales", locale))]
+        
+    def _load_translations(self, language):
+        try:
+            path = os.path.join("locales", f"{language}.json")
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            log(f"Не удалось загрузить файл локализации: {e}", level="ERROR", source="translator")
+            excepthook(*sys.exc_info())
+            return {}
 
     def get(self, key: str, default: str = None) -> str:
         keys = key.split(".")
@@ -68,13 +86,7 @@ del "%~f0"
 
 
 def select_language(selected_value: str):
-    texts_language_reverse = {
-        "Русский": "ru",
-        "Українська": "uk",
-        "Беларуский": "be",
-        "English": "en",
-        "Español": "es"
-    }
+    texts_language_reverse = {value: key for key, value in self.get_supported_languages()}
 
     if LauncherConfig.config["language"] == selected_value:
         return

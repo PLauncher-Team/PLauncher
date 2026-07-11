@@ -48,7 +48,6 @@ def load_versions():
                                version['id'] not in installed_versions_ids]
 
         installed_versions_combobox.configure(values=installed_versions_list)
-        installed_versions_combobox_ctk.set(installed_versions_list[0] if installed_versions_list else "")
 
         for i, value_dow in enumerate(installed_versions_list):
             if value_dow in LauncherConfig.version["download"]:

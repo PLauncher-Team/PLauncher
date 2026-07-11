@@ -48,7 +48,6 @@ label.place(relheight=1, relwidth=1)
 
 crash_window = CrashLogWindow()
 mod_viewer_window = ModViewer()
-feedback_window = FeedbackApp()
 
 release_var = ctk.BooleanVar(value=LauncherConfig.config["release"])
 snapshot_var = ctk.BooleanVar(value=LauncherConfig.config["snapshot"])
@@ -207,13 +206,7 @@ ctk.CTkLabel(
     font=("Segoe UI", 15, "bold"),
 ).place(relwidth=0.9, relheight=0.087, relx=0.05, rely=0.623)
 
-texts_language = {
-    "ru": "Русский",
-    "uk": "Українська",
-    "be": "Беларуский",
-    "en": "English",
-    "es": "Español"
-}
+texts_language = language_manager.get_languages_names()
 
 language_choice = ctk.CTkSegmentedButton(content_frames[tabs[0]],
                                          values=list(texts_language.values()),
@@ -558,13 +551,13 @@ pil_image_about_us = PIL.Image.open("png/GUI/feedback.png")
 ctk_image_about_us = ctk.CTkImage(pil_image_about_us, size=(30, 30))
 feedback_button = ctk.CTkButton(
     root,
-    width=language_manager.get("main.width_buttons"),
-    command=feedback_window.show,
+    command=lambda: webbrowser.open("https://github.com/PLauncher-Team/PLauncher/issues"),
+    width=int(language_manager.get("main.width_buttons")),
     image=ctk_image_about_us,
     text=language_manager.get("main.buttons.feedback"),
     font=("Segoe UI", 15, "bold"),
 )
-feedback_button.place(relx=0.02, rely=0.403, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+feedback_button.place(relx=0.02, rely=0.403, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
 set_opacity(feedback_button, color="#242424", value=0.8)
 if not LauncherConfig.IS_INTERNET:
     feedback_button.configure(state="disabled")
@@ -578,13 +571,13 @@ logs_button = ctk.CTkButton(
     font=("Segoe UI", 15, "bold"),
     command=open_logs,
 )
-logs_button.place(relx=0.02, rely=0.51, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+logs_button.place(relx=0.02, rely=0.51, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
 set_opacity(logs_button, color="#242424", value=0.8)
 
 pil_image_instances = PIL.Image.open("png/GUI/instances.png")
 ctk_image_instances = ctk.CTkImage(pil_image_instances, size=(30, 30))
 mods_button = ctk.CTkButton(root, text="Моды", image=ctk_image_instances, font=("Segoe UI", 15, "bold"), command=mod_viewer_window.deiconify)
-mods_button.place(relx=0.02, rely=0.617, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+mods_button.place(relx=0.02, rely=0.617, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
 set_opacity(mods_button, color="#242424", value=0.8)
 
 pil_image_settings = PIL.Image.open("png/GUI/settings.png")
@@ -596,7 +589,7 @@ settings_button = ctk.CTkButton(
     command=open_settings,
     image=ctk_image_settings,
 )
-settings_button.place(relx=0.02, rely=0.724, relwidth=language_manager.get("main.width_buttons") / 1000, relheight=0.067)
+settings_button.place(relx=0.02, rely=0.724, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
 set_opacity(settings_button, color="#242424", value=0.8)
 
 version_combobox_ctk = ctk.CTkComboBox(
@@ -655,7 +648,7 @@ apply_hover_border()
 blackout_frame.lift()
 settings_frame.lift()
 
-log(f"Done! ({time.perf_counter() - start_time:.2f} s)", source="gui")
+log(f"Инициализация лаунчера завершена за {time.perf_counter() - start_time:.2f} s", source="gui")
 
 hPyT.window_dwm.toggle_cloak(root, enabled=False)
 

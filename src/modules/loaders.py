@@ -118,7 +118,7 @@ def get_loaders_versions():
         try:
             fetch_func()
             versions = getattr(LoadersVersions, version_list_attr)
-            log(f"Успешно получено {len(versions)} версий для {name}.", "INFO", "loaders")
+            log(f"Загружено версий для {name}: {len(versions)}.", "INFO", "loaders")
 
             def update_ui():
                 available_loaders = list(choice_loader.cget("values"))

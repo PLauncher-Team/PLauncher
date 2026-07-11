@@ -161,9 +161,14 @@ class ModWidget(ctk.CTkFrame):
             text=mod_info.get("name", ""),
             font=ctk.CTkFont(size=22, weight="bold")
         )
-        status_text = "ЗАБЛОКИРОВАН" if is_disabled else "АКТИВЕН"
-        status_color = "#ff4444" if is_disabled else "#22cc66"
-        status_bg = "#3a1f1f" if is_disabled else "#1f3a2a"
+        if mod_info.get("_incompatible", False) and not os.path.basename(mod_path).lower().endswith(".disabled"):
+            status_text = "НЕСОВМЕСТИМАЯ ВЕРСИЯ"
+            status_color = "#ff8800"
+            status_bg = "#3a2a1f"
+        else:
+            status_text = "ЗАБЛОКИРОВАН" if is_disabled else "АКТИВЕН"
+            status_color = "#ff4444" if is_disabled else "#22cc66"
+            status_bg = "#3a1f1f" if is_disabled else "#1f3a2a"
         self.status_label.configure(
             text=status_text,
             font=ctk.CTkFont(size=12, weight="bold"),
@@ -207,9 +212,15 @@ class ModWidget(ctk.CTkFrame):
         else:
             self.icon_ctk_image = None
             self.icon_label.configure(image=self.empty_icon_image, text="")
-        toggle_text = "Разблокировать" if is_disabled else "Заблокировать"
-        toggle_color = "#ff8800" if is_disabled else "#0066ff"
-        toggle_hover = "#ffaa33" if is_disabled else "#3388ff"
+        is_actually_disabled = os.path.basename(mod_path).lower().endswith(".disabled")
+        if mod_info.get("_incompatible", False) and not is_actually_disabled:
+            toggle_text = "Заблокировать"
+            toggle_color = "#0066ff"
+            toggle_hover = "#3388ff"
+        else:
+            toggle_text = "Разблокировать" if is_actually_disabled else "Заблокировать"
+            toggle_color = "#ff8800" if is_actually_disabled else "#0066ff"
+            toggle_hover = "#ffaa33" if is_actually_disabled else "#3388ff"
         self.toggle_button.configure(
             text=toggle_text,
             fg_color=toggle_color,
@@ -247,13 +258,14 @@ class ModViewer(ctk.CTkFrame):
         self.fps = LauncherConfig.FPS
         self._first_load_done = False
         self.mod_manager = None
+        self.version_var = ctk.StringVar(value="1.20.1")
 
         top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
         top_frame.pack(fill="x", padx=25, pady=(20, 10))
 
         toolbar = ctk.CTkFrame(top_frame, fg_color="transparent", border_width=0)
-        toolbar.pack(side="top")
-
+        toolbar.pack(side="top", fill="x")
+    
         self.refresh_btn = ctk.CTkButton(
             toolbar,
             text="Обновить",
@@ -264,7 +276,7 @@ class ModViewer(ctk.CTkFrame):
             command=self.load_mods
         )
         self.refresh_btn.pack(side="left", padx=5)
-
+    
         self.unlock_all_btn = ctk.CTkButton(
             toolbar,
             text="Разблокировать",
@@ -277,7 +289,7 @@ class ModViewer(ctk.CTkFrame):
             command=self.unlock_all
         )
         self.unlock_all_btn.pack(side="left", padx=5)
-
+    
         self.lock_all_btn = ctk.CTkButton(
             toolbar,
             text="Заблокировать",
@@ -290,7 +302,34 @@ class ModViewer(ctk.CTkFrame):
             command=self.lock_all
         )
         self.lock_all_btn.pack(side="left", padx=5)
-
+    
+        version_frame = ctk.CTkFrame(toolbar, fg_color="transparent", border_width=0)
+        version_frame.pack(side="left", padx=15)
+    
+        version_label = ctk.CTkLabel(
+            version_frame,
+            text="Версия:",
+            font=ctk.CTkFont(size=14)
+        )
+        version_label.pack(side="left", padx=(0, 8))
+    
+        self.version_entry = ctk.CTkEntry(
+            version_frame,
+            width=120,
+            height=38,
+            font=ctk.CTkFont(size=14),
+            textvariable=self.version_var
+        )
+        self.version_entry.pack(side="left", padx=(0, 8))
+    
+        self.incompatible_count_label = ctk.CTkLabel(
+            toolbar,
+            text="",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color="#ff8800"
+        )
+        self.incompatible_count_label.pack(side="left", padx=5)
+    
         self.close_btn = ctk.CTkButton(
             top_frame,
             text="✕",
@@ -326,13 +365,6 @@ class ModViewer(ctk.CTkFrame):
             border_width=0
         )
         self.scroll_frame.pack(fill="both", expand=True, padx=30, pady=8)
-
-        self.empty_label = ctk.CTkLabel(
-            self.scroll_frame,
-            text="",
-            font=ctk.CTkFont(size=18),
-            text_color="#666666"
-        )
 
         self.mod_widgets = []
 
@@ -391,6 +423,24 @@ class ModViewer(ctk.CTkFrame):
         )
         self.next_btn.pack(side="left", padx=4)
 
+    def check_compatibility(self):
+        selected_version = self.version_var.get()
+        if not selected_version:
+            return
+        for mod_file in self.all_mod_files:
+            path_key = mod_file
+            info = self.mod_cache.get(path_key)
+            if not info:
+                continue
+            is_disabled = os.path.basename(mod_file).lower().endswith(".disabled")
+            if is_disabled:
+                continue
+            game_versions = info.get("game_versions", [])
+            if not game_versions:
+                continue
+        self.mod_manager = None
+        self.load_mods()
+    
     def on_search_change(self, *args):
         if self.search_after_id is not None:
             self.after_cancel(self.search_after_id)
@@ -453,10 +503,8 @@ class ModViewer(ctk.CTkFrame):
             if cached is None or cached.get("_mtime_ns") != mtime_ns:
                 mod_name = os.path.basename(mod_file)
                 search_name = mod_name
-                is_disabled = False
                 if search_name.lower().endswith(".jar.disabled"):
                     search_name = search_name[:-9]
-                    is_disabled = True
                 elif search_name.lower().endswith(".jar"):
                     search_name = search_name[:-4]
     
@@ -548,6 +596,37 @@ class ModViewer(ctk.CTkFrame):
 
         filtered_files = name_matches + other_matches
 
+        selected_version = self.version_var.get()
+        incompatible_count = 0
+        for mod_file in filtered_files:
+            path_key = mod_file
+            info = self.mod_cache.get(path_key)
+            if not info:
+                continue
+            is_disabled = os.path.basename(mod_file).lower().endswith(".disabled")
+            if is_disabled:
+                continue
+            if selected_version:
+                game_versions = info.get("game_versions", [])
+                if game_versions:
+                    compatible = False
+                    for constraint in game_versions:
+                        if ModManager.check_version(selected_version, constraint):
+                            compatible = True
+                            break
+                    if not compatible:
+                        incompatible_count += 1
+                        info["_incompatible"] = True
+                    else:
+                        info["_incompatible"] = False
+
+        self.incompatible_count_label.configure(text=f"Несовместимо: {incompatible_count}" if incompatible_count > 0 else "")
+
+        filtered_files.sort(key=lambda f: (
+            0 if self.mod_cache.get(f, {}).get("_incompatible", False) and not os.path.basename(f).lower().endswith(".disabled") else 1,
+            self.mod_cache.get(f, {}).get("name", os.path.basename(f)).casefold()
+        ))
+
         self.filtered_mod_files = filtered_files
         total_items = len(filtered_files)
         total_pages = (total_items + self.items_per_page - 1) // self.items_per_page if total_items > 0 else 1
@@ -565,8 +644,8 @@ class ModViewer(ctk.CTkFrame):
         self.update_pagination(total_pages)
 
     def render_page(self, page_files, query):
+        selected_version = self.version_var.get()
         if page_files:
-            self.empty_label.pack_forget()
             for idx, widget in enumerate(self.mod_widgets):
                 if idx < len(page_files):
                     mod_file = page_files[idx]
@@ -576,8 +655,8 @@ class ModViewer(ctk.CTkFrame):
                         mod_name = os.path.basename(mod_file)
                         info = {
                             "name": mod_name,
-                            "description": "Нет описания",
-                            "version": "Неизвестно",
+                            "description": "",
+                            "version": "",
                             "loaders": [],
                             "game_versions": [],
                             "jar_name": mod_name,
@@ -589,6 +668,19 @@ class ModViewer(ctk.CTkFrame):
                         ).casefold()
                         self.mod_cache[path_key] = info
                     is_disabled = os.path.basename(mod_file).lower().endswith(".disabled")
+                    if selected_version and not is_disabled:
+                        game_versions = info.get("game_versions", [])
+                        if game_versions:
+                            compatible = False
+                            for constraint in game_versions:
+                                if ModManager.check_version(selected_version, constraint):
+                                    compatible = True
+                                    break
+                            if not compatible:
+                                is_disabled = True
+                                info["_incompatible"] = True
+                            else:
+                                info["_incompatible"] = False
                     widget.update_content(info, is_disabled, mod_file)
                     if not widget.winfo_ismapped():
                         widget.pack(fill="x", padx=8, pady=12)
@@ -597,11 +689,6 @@ class ModViewer(ctk.CTkFrame):
         else:
             for widget in self.mod_widgets:
                 widget.pack_forget()
-            self.empty_label.configure(
-                text="Ничего не найдено." if query else "Папка mods пуста.\n\nПоместите .jar файлы модов сюда."
-            )
-            if not self.empty_label.winfo_ismapped():
-                self.empty_label.pack(pady=120)
 
     def update_pagination(self, total_pages):
         if total_pages <= 1:

@@ -126,8 +126,8 @@ class VersionFrame(ctk.CTkFrame):
 
 def apply_hover_border():
     widget_list = [launch_button, version_combobox_ctk, username_entry, settings_button, mods_button, logs_button,
-                   feedback_button, version_combobox.search_entry, feedback_window.email_entry, feedback_window.subject_entry,
-                   feedback_window.desc_text, mod_viewer_window.search_entry, mod_viewer_window.refresh_btn, mod_viewer_window.lock_all_btn,
+                   feedback_button, version_combobox.search_entry,
+                   mod_viewer_window.search_entry, mod_viewer_window.refresh_btn, mod_viewer_window.lock_all_btn,
                    mod_viewer_window.unlock_all_btn, mod_viewer_window.close_btn, installed_versions_combobox_ctk, del_version, java_combobox,
                    memory_combobox, args_entry, open_folder, change_folder, update_skin_button, select_skin_button, choice_version_ctk, choice_loader,
                    install_loader, list_profiles, add_profile_Entry, add_profile_button, del_profile_button, rename_profile_button,

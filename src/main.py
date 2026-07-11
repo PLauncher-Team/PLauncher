@@ -67,13 +67,12 @@ def execute_module(module_name: str) -> None:
         exec(compile(code_bytes, module_path, "exec"), globals())
 
     except Exception:
-        log(f"Error found in module {module_name}, exiting...", "ERROR")
+        log(f"Ошибка в модуле {module_name}, выход...", "ERROR")
         excepthook(*sys.exc_info())
         os._exit(0)
 
 
 def excepthook(exc_type, exc_value, exc_tb) -> None:
-    """Custom exception handler to log uncaught exceptions."""
     with log_lock:
         traceback.print_exception(exc_type, exc_value, exc_tb)
         with open("launcher.log", "a", encoding="utf-8") as f:
@@ -93,7 +92,7 @@ if __name__ == "__main__":
     sys.excepthook = excepthook
     log("Добро пожаловать в дебаг...")
 
-    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "feedback", "settings_gui",
+    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "settings_gui",
                    "notifications", "definitions", "mod_viewer_gui", "mod_viewer"]:
         execute_module(module)
 
@@ -139,12 +138,17 @@ if __name__ == "__main__":
                 LauncherConfig.config[t] = default_config[t]
 
         if LauncherConfig.config["custom_image"] and not os.path.isfile(LauncherConfig.config["custom_image"]):
-            log("Файл изображения не найден", "ERROR")
+            log(f"Файл изображения не найден: {LauncherConfig.config['custom_image']}", "ERROR")
             LauncherConfig.config["custom_image"] = default_config["custom_image"]
 
         if LauncherConfig.config["custom_skin"] and not os.path.isfile(LauncherConfig.config["custom_skin"]):
-            log("Файл скина не найден", "ERROR")
+            log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "ERROR")
             LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
+
+        if LauncherConfig.config["custom_theme"] and not os.path.isfile(LauncherConfig.config["custom_theme"]):
+            log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "ERROR")
+            LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
+        
         LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))
         save_config()
         log("data.json найден, настройки загружены")

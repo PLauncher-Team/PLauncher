@@ -19,6 +19,7 @@ import json
 import sys
 import re
 import os
+from requests_cache import CachedSession
 
 
 def get_user_agent() -> str:
@@ -269,27 +270,29 @@ def get_classpath_separator() -> Literal[":", ";"]:
         return ":"
 
 
-_requests_response_cache: dict[str, RequestsResponseCache] = {}
+_cached_session: CachedSession | None = None
+
+
+def _get_cached_session() -> CachedSession:
+    global _cached_session
+    if _cached_session is None:
+        _cached_session = CachedSession(
+            'minecraft_launcher_cache',
+            expire_after=3600,
+            allowable_methods=('GET',),
+            stale_if_error=True,
+        )
+    return _cached_session
 
 
 def get_requests_response_cache(url: str, timeout: int = 10) -> requests.models.Response:
-    """
-    Caches the result of request.get(). If a request was made to the same URL within the last hour, the cache will be used, so you don't need to make a request to a URl each timje you call a function.
-    """
-    global _requests_response_cache
-    if url not in _requests_response_cache or (datetime.datetime.now() - _requests_response_cache[url]["datetime"]).total_seconds() / 60 / 60 >= 1:
-        if timeout:
-            r = requests.get(url, timeout=timeout, headers={"User-Agent": f"PLauncher-Team/PLauncher/v1.1"})
-        else:
-            r = requests.get(url)
-        if r.status_code == 200:
-            _requests_response_cache[url] = {
-                "response": r,
-                "datetime": datetime.datetime.now()
-            }
-        return r
+    session = _get_cached_session()
+    headers = {"User-Agent": f"PLauncher-Team/PLauncher/v1.1"}
+    if timeout:
+        r = session.get(url, timeout=timeout, headers=headers)
     else:
-        return _requests_response_cache[url]["response"]
+        r = session.get(url, headers=headers)
+    return r
 
 
 def parse_maven_metadata(url: str) -> MavenMetadata:
@@ -297,7 +300,6 @@ def parse_maven_metadata(url: str) -> MavenMetadata:
     Parses a maven metadata file
     """
     r = get_requests_response_cache(url)
-    # The structure of the metadata file is simple. So you don't need a XML parser. It can be parsed using RegEx.
     return {
         "release": re.search("(?<=<release>).*?(?=</release>)", r.text, re.MULTILINE).group(),  # type: ignore
         "latest": re.search("(?<=<latest>).*?(?=</latest>)", r.text, re.MULTILINE).group(),  # type: ignore
