@@ -86,8 +86,7 @@ del "%~f0"
 
 
 def select_language(selected_value: str):
-    texts_language_reverse = {value: key for key, value in self.get_supported_languages()}
-
+    texts_language_reverse = {value: key for key, value in language_manager.get_languages_names().items()}
     if LauncherConfig.config["language"] == selected_value:
         return
 
