@@ -131,7 +131,7 @@ class ModWidget(ctk.CTkFrame):
         self.toggle_button.pack(pady=(0, 10))
         self.delete_button = ctk.CTkButton(
             self.btn_frame,
-            text="Удалить",
+            text=language_manager.get("mod_viewer.delete"),
             width=170,
             height=42,
             border_width=0,
@@ -162,11 +162,11 @@ class ModWidget(ctk.CTkFrame):
             font=ctk.CTkFont(size=22, weight="bold")
         )
         if mod_info.get("_incompatible", False) and not os.path.basename(mod_path).lower().endswith(".disabled"):
-            status_text = "НЕСОВМЕСТИМАЯ ВЕРСИЯ"
+            status_text = language_manager.get("mod_viewer.status.incompatible")
             status_color = "#ff8800"
             status_bg = "#3a2a1f"
         else:
-            status_text = "ЗАБЛОКИРОВАН" if is_disabled else "АКТИВЕН"
+            status_text = language_manager.get("mod_viewer.status.disabled") if is_disabled else language_manager.get("mod_viewer.status.active")
             status_color = "#ff4444" if is_disabled else "#22cc66"
             status_bg = "#3a1f1f" if is_disabled else "#1f3a2a"
         self.status_label.configure(
@@ -181,7 +181,7 @@ class ModWidget(ctk.CTkFrame):
             font=ctk.CTkFont(size=12)
         )
         loaders = mod_info.get("loaders", [])
-        loaders_text = ", ".join(loaders) if loaders else "Неизвестно"
+        loaders_text = ", ".join(loaders) if loaders else language_manager.get("mod_viewer.unknown")
         game_versions = mod_info.get("game_versions", [])
         if game_versions:
             if isinstance(game_versions, list):
@@ -189,13 +189,13 @@ class ModWidget(ctk.CTkFrame):
             else:
                 mc_ver = str(game_versions)
         else:
-            mc_ver = "Неизвестно"
-        details = f"{loaders_text} • Версия: {mod_info.get('version') or 'Неизвестно'} • Minecraft: {mc_ver}"
+            mc_ver = language_manager.get("mod_viewer.unknown")
+        details = f"{loaders_text} • {language_manager.get('mod_viewer.version')} {mod_info.get('version') or language_manager.get('mod_viewer.unknown')} • Minecraft: {mc_ver}"
         self.details_label.configure(
             text=details,
             font=ctk.CTkFont(size=14)
         )
-        desc = mod_info.get("description") or "Нет описания"
+        desc = mod_info.get("description") or language_manager.get("mod_viewer.no_description")
         if len(desc) > 240:
             desc = desc[:237] + "..."
         self.desc_label.configure(
@@ -214,11 +214,11 @@ class ModWidget(ctk.CTkFrame):
             self.icon_label.configure(image=self.empty_icon_image, text="")
         is_actually_disabled = os.path.basename(mod_path).lower().endswith(".disabled")
         if mod_info.get("_incompatible", False) and not is_actually_disabled:
-            toggle_text = "Заблокировать"
+            toggle_text = language_manager.get("mod_viewer.toggle.lock")
             toggle_color = "#0066ff"
             toggle_hover = "#3388ff"
         else:
-            toggle_text = "Разблокировать" if is_actually_disabled else "Заблокировать"
+            toggle_text = language_manager.get("mod_viewer.toggle.unlock") if is_actually_disabled else language_manager.get("mod_viewer.toggle.lock")
             toggle_color = "#ff8800" if is_actually_disabled else "#0066ff"
             toggle_hover = "#ffaa33" if is_actually_disabled else "#3388ff"
         self.toggle_button.configure(
@@ -258,7 +258,7 @@ class ModViewer(ctk.CTkFrame):
         self.fps = LauncherConfig.FPS
         self._first_load_done = False
         self.mod_manager = None
-        self.version_var = ctk.StringVar(value="1.20.1")
+        self.version_var = ctk.StringVar()
 
         top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
         top_frame.pack(fill="x", padx=25, pady=(20, 10))
@@ -268,7 +268,7 @@ class ModViewer(ctk.CTkFrame):
     
         self.refresh_btn = ctk.CTkButton(
             toolbar,
-            text="Обновить",
+            text=language_manager.get("mod_viewer.refresh"),
             width=130,
             height=38,
             corner_radius=18,
@@ -279,7 +279,7 @@ class ModViewer(ctk.CTkFrame):
     
         self.unlock_all_btn = ctk.CTkButton(
             toolbar,
-            text="Разблокировать",
+            text=language_manager.get("mod_viewer.unlock_all"),
             width=150,
             height=38,
             corner_radius=18,
@@ -292,7 +292,7 @@ class ModViewer(ctk.CTkFrame):
     
         self.lock_all_btn = ctk.CTkButton(
             toolbar,
-            text="Заблокировать",
+            text=language_manager.get("mod_viewer.lock_all"),
             width=150,
             height=38,
             corner_radius=18,
@@ -308,7 +308,7 @@ class ModViewer(ctk.CTkFrame):
     
         version_label = ctk.CTkLabel(
             version_frame,
-            text="Версия:",
+            text=language_manager.get("mod_viewer.version"),
             font=ctk.CTkFont(size=14)
         )
         version_label.pack(side="left", padx=(0, 8))
@@ -350,7 +350,7 @@ class ModViewer(ctk.CTkFrame):
 
         self.search_entry = ctk.CTkEntry(
             search_frame,
-            placeholder_text="Поиск по названию мода...",
+            placeholder_text="Industrial Craft 2",
             height=40,
             font=ctk.CTkFont(size=15),
             textvariable=self.search_var
@@ -518,8 +518,8 @@ class ModViewer(ctk.CTkFrame):
                     if data_name == search_name:
                         info = {
                             "name": data.get("name", mod_name),
-                            "description": data.get("description") or "Нет описания",
-                            "version": data.get("version") or "Неизвестно",
+                            "description": data.get("description"),
+                            "version": data.get("version"),
                             "loaders": data.get("loaders", []),
                             "game_versions": data.get("game_versions", []),
                             "jar_name": mod_name,
@@ -530,8 +530,8 @@ class ModViewer(ctk.CTkFrame):
                 if info is None:
                     info = {
                         "name": search_name,
-                        "description": "Нет описания",
-                        "version": "Неизвестно",
+                        "description": "",
+                        "version": "",
                         "loaders": [],
                         "game_versions": [],
                         "jar_name": mod_name,
@@ -569,8 +569,8 @@ class ModViewer(ctk.CTkFrame):
                 mod_name = os.path.basename(mod_file)
                 info = {
                     "name": mod_name,
-                    "description": "Нет описания",
-                    "version": "Неизвестно",
+                    "description": "",
+                    "version": "",
                     "loaders": [],
                     "game_versions": [],
                     "jar_name": mod_name,
@@ -620,7 +620,7 @@ class ModViewer(ctk.CTkFrame):
                     else:
                         info["_incompatible"] = False
 
-        self.incompatible_count_label.configure(text=f"Несовместимо: {incompatible_count}" if incompatible_count > 0 else "")
+        self.incompatible_count_label.configure(text=f"{language_manager.get("mod_viewer.incompatible_count")} {incompatible_count}" if incompatible_count > 0 else "")
 
         filtered_files.sort(key=lambda f: (
             0 if self.mod_cache.get(f, {}).get("_incompatible", False) and not os.path.basename(f).lower().endswith(".disabled") else 1,
@@ -729,7 +729,7 @@ class ModViewer(ctk.CTkFrame):
         mod_name = os.path.basename(mod_path)
         new_message(
             title=language_manager.get("messages.titles.warning"),
-            message=f"Вы действительно хотите удалить этот мод?\n{mod_name}",
+            message=f"{language_manager.get('mod_viewer.delete_confirm')}\n{mod_name}",
             icon="question",
             option_1=language_manager.get("messages.answers.no"),
             option_2=language_manager.get("messages.answers.yes")

@@ -21,6 +21,7 @@
       "feedback": "Feedback",
       "launch_game": "Launch Game",
       "logs": "Logs",
+      "mods": "Mods",
       "settings": "Settings"
     },
     "mcl_status": {
@@ -74,6 +75,7 @@
         "skin_select": "Failed to load skin:\n"
       },
       "warning": {
+        "delete_confirm": "Are you sure you want to delete this mod?",
         "delete_game_version": "Are you sure you want to delete these game versions?",
         "exit": "Are you sure you want to exit?",
         "java": "Are you sure you want to remove this Java from the list?",
@@ -89,6 +91,25 @@
       "info": "Info",
       "warning": "Warning"
     }
+  },
+  "mod_viewer": {
+    "delete": "Delete",
+    "incompatible_count": "Incompatible:",
+    "lock_all": "Block",
+    "no_description": "No description",
+    "refresh": "Refresh",
+    "status": {
+      "active": "ACTIVE",
+      "disabled": "BLOCKED",
+      "incompatible": "INCOMPATIBLE VERSION"
+    },
+    "toggle": {
+      "lock": "Lock",
+      "unlock": "Unlock"
+    },
+    "unknown": "Unknown",
+    "unlock_all": "Unblock",
+    "version": "Version:"
   },
   "settings": {
     "1_page": {

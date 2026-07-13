@@ -576,7 +576,7 @@ set_opacity(logs_button, color="#242424", value=0.8)
 
 pil_image_instances = PIL.Image.open("png/GUI/instances.png")
 ctk_image_instances = ctk.CTkImage(pil_image_instances, size=(30, 30))
-mods_button = ctk.CTkButton(root, text="Моды", image=ctk_image_instances, font=("Segoe UI", 15, "bold"), command=mod_viewer_window.deiconify)
+mods_button = ctk.CTkButton(root, text=language_manager.get("main.buttons.mods"), image=ctk_image_instances, font=("Segoe UI", 15, "bold"), command=mod_viewer_window.deiconify)
 mods_button.place(relx=0.02, rely=0.617, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
 set_opacity(mods_button, color="#242424", value=0.8)
 
