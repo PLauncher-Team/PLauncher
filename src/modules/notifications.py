@@ -218,7 +218,7 @@ def new_message(**kwargs):
         GuiOptions.msg.get()
 
     if kwargs["icon"] == "cancel":
-        log(kwargs["message"].replace("\n", " "), "ERROR", "window_utils")
+        log(kwargs["message"].replace("\n", " "), "ERROR")
 
     GuiOptions.msg = CTkMessagebox(
         **kwargs,

@@ -92,7 +92,7 @@ class MinecraftSkinRenderer:
 
 def get_skin_png() -> PIL.Image.Image:
     try:
-        log(f"Загрузка скина с Ely.by для пользователя: {username_entry.get()}", source="skin")
+        log(f"Загрузка скина с Ely.by для пользователя: {username_entry.get()}")
         url = f'https://skinsystem.ely.by/skins/{username_entry.get()}.png'
         response = requests.get(url)
         response.raise_for_status()
@@ -104,7 +104,7 @@ def get_skin_png() -> PIL.Image.Image:
 def set_skin():
     image_skin = None
     if LauncherConfig.config["default_skin"]:
-        log("Использование стандартного скина", source="skin")
+        log("Использование стандартного скина")
     else:
         update_skin_button.configure(state="disabled")
         skins_ely_by_checkbox.configure(state="disabled")
@@ -112,10 +112,10 @@ def set_skin():
             image_skin = get_skin_png()
         elif LauncherConfig.config["custom_skin"]:
             if os.path.isfile(LauncherConfig.config["custom_skin"]):
-                log(f"Загрузка пользовательского скина из: {LauncherConfig.config['custom_skin']}", source="skin")
+                log(f"Загрузка пользовательского скина из: {LauncherConfig.config['custom_skin']}")
                 image_skin = PIL.Image.open(LauncherConfig.config["custom_skin"])
             else:
-                log(f"Файл пользовательского скина не найден: {LauncherConfig.config['custom_skin']}", level="WARNING", source="skin")
+                log(f"Файл пользовательского скина не найден: {LauncherConfig.config['custom_skin']}", level="WARNING")
                 LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
 
         if image_skin:
@@ -143,7 +143,7 @@ def select_png_file():
         set_skin()
         save_config()
     except Exception as e:
-        log(f"Не удалось загрузить файл скина {file_path}: {e}", level="ERROR", source="skin")
+        log(f"Не удалось загрузить файл скина {file_path}: {e}", level="ERROR")
         excepthook(*sys.exc_info())
         LauncherConfig.config["custom_skin"] = old_path
         ToastNotification(
@@ -243,7 +243,7 @@ class MinecraftTexturePackCreator:
         return lines
 
     def run(self):
-        log("Запуск создания текстурпака", source="skin")
+        log("Запуск создания текстурпака")
         self.create_texture_pack()
         self.modify_options()
-        log("Создание текстурпака завершено", source="skin")
+        log("Создание текстурпака завершено")

@@ -83,12 +83,12 @@ class VersionFrame(ctk.CTkFrame):
         try:
             latest_tag = mcl.utils.get_github_tags("PLauncher-Team", "PLauncher")[0]
             if latest_tag and self.is_newer_version(latest_tag, current_version):
-                log(f"Доступно обновление: {current_version} -> {latest_tag}", source="window_utils")
+                log(f"Доступно обновление: {current_version} -> {latest_tag}")
                 return latest_tag
             else:
                 return False
         except Exception as e:
-            log(f"Ошибка получения информации о новой версии: {e}", source="window_utils")
+            log(f"Ошибка получения информации о новой версии: {e}")
             excepthook(*sys.exc_info())
             return False
 

@@ -438,7 +438,6 @@ class ModViewer(ctk.CTkFrame):
             game_versions = info.get("game_versions", [])
             if not game_versions:
                 continue
-        self.mod_manager = None
         self.load_mods()
     
     def on_search_change(self, *args):
@@ -459,6 +458,8 @@ class ModViewer(ctk.CTkFrame):
 
         if self.mod_manager is None:
             self.mod_manager = ModManager(mods_path=self.mods_dir)
+        else:
+            self.mod_manager.mods_path = self.mods_dir
         
         self.mod_manager.files_name = {}
         self.mod_manager.results = {}
@@ -620,7 +621,7 @@ class ModViewer(ctk.CTkFrame):
                     else:
                         info["_incompatible"] = False
 
-        self.incompatible_count_label.configure(text=f"{language_manager.get("mod_viewer.incompatible_count")} {incompatible_count}" if incompatible_count > 0 else "")
+        self.incompatible_count_label.configure(text=f"{language_manager.get('mod_viewer.incompatible_count')} {incompatible_count}" if incompatible_count > 0 else "")
 
         filtered_files.sort(key=lambda f: (
             0 if self.mod_cache.get(f, {}).get("_incompatible", False) and not os.path.basename(f).lower().endswith(".disabled") else 1,
@@ -722,7 +723,6 @@ class ModViewer(ctk.CTkFrame):
         else:
             new_path = os.path.join(mod_dir, mod_name + ".disabled")
         os.rename(mod_path, new_path)
-        self.mod_manager = None
         self.load_mods()
 
     def delete_mod(self, mod_path):
@@ -737,7 +737,6 @@ class ModViewer(ctk.CTkFrame):
         if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
             if os.path.exists(mod_path):
                 os.remove(mod_path)
-            self.mod_manager = None
             self.load_mods()
 
     def _unlock_all_worker(self):
@@ -748,7 +747,6 @@ class ModViewer(ctk.CTkFrame):
                 if mod_name.lower().endswith(".jar.disabled"):
                     new_path = os.path.join(mod_dir, mod_name[:-9])
                     os.rename(mod_file, new_path)
-            self.mod_manager = None
             self.load_mods()
         finally:
             self.lock_all_btn.configure(state="normal")
@@ -777,7 +775,6 @@ class ModViewer(ctk.CTkFrame):
             for mod_file in self.all_mod_files:
                 if not mod_file.lower().endswith(".jar.disabled"):
                     os.rename(mod_file, mod_file + ".disabled")
-            self.mod_manager = None
             self.load_mods()
         finally:
             self.lock_all_btn.configure(state="normal")
@@ -793,7 +790,6 @@ class ModViewer(ctk.CTkFrame):
             self.mod_cache = {}
             self.all_mod_files = []
             self.filtered_mod_files = []
-            self.mod_manager = None
             self.lock_all_btn.configure(state="disabled")
             self.unlock_all_btn.configure(state="disabled")
             self.refresh_btn.configure(state="disabled")

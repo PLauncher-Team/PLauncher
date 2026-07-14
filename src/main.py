@@ -47,16 +47,42 @@ from json_repair import repair_json
 
 ctk.deactivate_automatic_dpi_awareness()
 
-def log(message: str, level: str = 'INFO', source: str = 'main') -> None:
-    caller_name = sys._getframe(1).f_code.co_name
+def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-    output = f"[{timestamp} - {level} - {source}.{caller_name}] - {message}"
+
+    if exc_info:
+        exc_type, exc_value, exc_tb = exc_info
+
+        tb = exc_tb
+        while tb.tb_next:
+            tb = tb.tb_next
+
+        frame = tb.tb_frame
+        code = frame.f_code
+
+        filename = os.path.relpath(code.co_filename)
+        func_name = code.co_name
+        lineno = tb.tb_lineno
+        thread_name = threading.current_thread().name
+
+        message = f"{exc_type.__name__}: {exc_value}"
+    else:
+        caller_frame = sys._getframe(1)
+        caller_code = caller_frame.f_code
+
+        filename = os.path.relpath(caller_code.co_filename)
+        func_name = caller_code.co_name
+        lineno = caller_frame.f_lineno
+        thread_name = threading.current_thread().name
+
+    pycharm_link = f'File "{filename}", line {lineno}'
+    meta = f"{level:<5} │ {thread_name:<35} │ {pycharm_link:<45} │ {func_name+'()':<25}"
+    output = f"[{timestamp}] │ {meta} │ {message}"
 
     with log_lock:
         print(output)
         with open("launcher.log", "a", encoding="utf-8") as f:
             f.write(output + "\n")
-            
 
 def execute_module(module_name: str) -> None:
     module_path = os.path.join("modules", f"{module_name}.py")
@@ -73,6 +99,7 @@ def execute_module(module_name: str) -> None:
 
 
 def excepthook(exc_type, exc_value, exc_tb) -> None:
+    log(level="ERROR", exc_info=[exc_type, exc_value, exc_tb])
     with log_lock:
         traceback.print_exception(exc_type, exc_value, exc_tb)
         with open("launcher.log", "a", encoding="utf-8") as f:

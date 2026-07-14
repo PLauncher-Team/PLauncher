@@ -9,7 +9,7 @@ def profile_select(*args):
     LauncherConfig.version["profile"] = False if current == language_manager.get("settings.4_page.no") else current
     save_version()
     mod_viewer_window._first_load_done = False
-    log(f"Выбран профиль: {current}", source="profiles")
+    log(f"Выбран профиль: {current}")
 
 
 def del_profile():
@@ -23,7 +23,7 @@ def del_profile():
             option_2=language_manager.get("messages.answers.yes")
         )
         if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-            log(f"Удаление профиля: {current}", source="profiles")
+            log(f"Удаление профиля: {current}")
             if os.path.isdir(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current)):
                 shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current))
 
@@ -32,7 +32,7 @@ def del_profile():
             list_profiles.set(first)
             LauncherConfig.version["profile"] = False if first == language_manager.get("settings.4_page.no") else first
             save_version()
-            log(f"Профиль {current} успешно удалён", source="profiles")
+            log(f"Профиль {current} успешно удалён")
 
 
 def _add_profile():
@@ -57,7 +57,7 @@ def save_add_profile():
     if not name or name == no:
         return
 
-    log(f"Создание нового профиля: {name}", source="profiles")
+    log(f"Создание нового профиля: {name}")
     try:
         profile_path = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + name)
         os.makedirs(profile_path)
@@ -67,9 +67,9 @@ def save_add_profile():
 
         for directory in dirs:
             os.makedirs(os.path.join(profile_path, directory), exist_ok=True)
-        log(f"Профиль {name} успешно создан с {len(dirs)} директориями", source="profiles")
+        log(f"Профиль {name} успешно создан с {len(dirs)} директориями")
     except Exception as e:
-        log(f"Не удалось создать профиль {name}: {e}", level="ERROR", source="profiles")
+        log(f"Не удалось создать профиль {name}: {e}", level="ERROR")
         excepthook(*sys.exc_info())
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
@@ -131,9 +131,9 @@ def rename_profile(old_name: str):
             os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + old_name),
             os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + new_name)
         )
-        log(f"Профиль успешно переименован", source="profiles")
+        log(f"Профиль успешно переименован")
     except Exception as e:
-        log(f"Не удалось переименовать профиль:", level="ERROR", source="profiles")
+        log(f"Не удалось переименовать профиль:", level="ERROR")
         excepthook(*sys.exc_info())
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
@@ -184,5 +184,5 @@ def open_folder_profile():
     current = list_profiles.get()
     if current != language_manager.get("settings.4_page.no"):
         path = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current)
-        log(f"Открытие папки профиля: {path}", source="profiles")
+        log(f"Открытие папки профиля: {path}")
         os.startfile(path)

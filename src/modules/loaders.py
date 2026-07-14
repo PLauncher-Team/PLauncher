@@ -27,12 +27,12 @@ def fun_install_loader():
         java_major = LaunchOptions.available_major_versions[-1]
 
         if not JavaRuntimeManager.get_any_java_exe(java_major):
-            log(f"Установка JVM {java_major} runtime", source="loaders")
+            log(f"Установка JVM {java_major} runtime")
             JavaRuntimeManager.download_and_extract_java(java_major, callback=val_call)
         path_to_java = JavaRuntimeManager.get_any_java_exe(java_major)
 
-        log(f"Загрузка версии Minecraft {version_select} с загрузчиком {loader_select}..", source="loaders")
-        log(f"Путь к Java: {path_to_java}", source="loaders")
+        log(f"Загрузка версии Minecraft {version_select} с загрузчиком {loader_select}..")
+        log(f"Путь к Java: {path_to_java}")
 
         if loader_select == "Fabric":
             mcl.fabric.install_fabric(minecraft_version=version_select, minecraft_directory=LaunchOptions.minecraft_path,
@@ -74,10 +74,10 @@ def fun_install_loader():
             
             
         root.after_idle(load_versions)
-        log(f"Установка успешно завершена", source="loaders")
+        log(f"Установка успешно завершена")
 
     except Exception as e:
-        log(f"Ошибка установки загрузчика:", level="ERROR", source="loaders")
+        log(f"Ошибка установки загрузчика:", level="ERROR")
         excepthook(*sys.exc_info())
         ToastNotification(title=language_manager.get("messages.titles.error"),
                           message=language_manager.get("messages.texts.error.loading_loader") + str(e.__class__.__name__),
@@ -118,7 +118,7 @@ def get_loaders_versions():
         try:
             fetch_func()
             versions = getattr(LoadersVersions, version_list_attr)
-            log(f"Загружено версий для {name}: {len(versions)}.", "INFO", "loaders")
+            log(f"Загружено версий для {name}: {len(versions)}.", "INFO")
 
             def update_ui():
                 available_loaders = list(choice_loader.cget("values"))
@@ -134,7 +134,7 @@ def get_loaders_versions():
                         choice_version_ctk.set(versions[0])
             content_frames[tabs[3]].after_idle(update_ui)
         except Exception as e:
-            log(f"Ошибка получения версий для {name}: {e}", "ERROR", "loaders")
+            log(f"Ошибка получения версий для {name}: {e}", "ERROR")
             excepthook(*sys.exc_info())
 
     loaders = [

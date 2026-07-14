@@ -177,7 +177,7 @@ def change_mine(selection: bool = True):
         else:
             list_profiles.set(language_manager.get("settings.4_page.no"))
         mod_viewer_window._first_load_done = False
-        log(f"Директория Minecraft изменена на: {LaunchOptions.minecraft_path}", source="utils")
+        log(f"Директория Minecraft изменена на: {LaunchOptions.minecraft_path}")
 
 
 def del_installed_version():
@@ -194,7 +194,7 @@ def del_installed_version():
     )
 
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log(f"Удаление версии: {currents}", source="utils")
+        log(f"Удаление версии: {currents}")
         for current in currents.split():
             shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "versions", current))
             for i in ("download", "not_comp"):

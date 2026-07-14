@@ -47,12 +47,12 @@ def add_java():
         return
 
     if is_java:
-        log(f"Добавление Java установки: {path}", source="java")
+        log(f"Добавление Java установки: {path}")
         LauncherConfig.config["java_paths"].append(path)
         save_config()
         java_combobox.configure(values=get_java_options())
     elif path:
-        log(f"Не удалось добавить Java установку: {path}", level="ERROR", source="java")
+        log(f"Не удалось добавить Java установку: {path}", level="ERROR")
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.java"),
@@ -91,7 +91,7 @@ def del_java():
         option_2=language_manager.get("messages.answers.yes")
     )
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log(f"Удаление Java установки: {current}", source="java")
+        log(f"Удаление Java установки: {current}")
         LauncherConfig.config["java"] = default_config["java"]
         LauncherConfig.config["java_paths"].remove(current)
         save_config()

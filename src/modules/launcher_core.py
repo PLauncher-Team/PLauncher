@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 def thread_load_versions():
     if LauncherConfig.IS_INTERNET:
         LaunchOptions.versions = mcl.utils.get_version_list()
-        log(f"Список версий получен: {len(LaunchOptions.versions)} элементов", source="launcher_core")
+        log(f"Список версий получен: {len(LaunchOptions.versions)} элементов")
     root.after_idle(load_versions)
 
 
@@ -20,10 +20,10 @@ def save_versions_var():
 
 
 def load_versions():
-    if LauncherConfig.version["version"]:
-        LaunchOptions.latest_version = LauncherConfig.version["version"]
-
     try:
+        if LauncherConfig.version["version"]:
+            LaunchOptions.latest_version = LauncherConfig.version["version"]
+        
         installed_versions = mcl.utils.get_installed_versions(LaunchOptions.minecraft_path)
         installed_versions_ids = {version['id'] for version in installed_versions}
 
@@ -56,30 +56,30 @@ def load_versions():
                 installed_versions_list[i] += language_manager.get("main.types_versions.not_completed")
 
         version_combobox.configure(values=installed_versions_list + other_versions_list)
+
+        if LaunchOptions.latest_version in LauncherConfig.version["download"]:
+            check_version = LaunchOptions.latest_version + language_manager.get("main.types_versions.installed")
+        elif LaunchOptions.latest_version in LauncherConfig.version["not_comp"]:
+            check_version = LaunchOptions.latest_version + language_manager.get("main.types_versions.not_completed")
+        else:
+            check_version = LaunchOptions.latest_version
+        
+        if check_version not in version_combobox.values:
+            version_combobox_ctk.set("")
+        else:
+            if LaunchOptions.latest_version in LauncherConfig.version["download"]:
+                version_combobox_ctk.set(LaunchOptions.latest_version + language_manager.get("main.types_versions.installed"))
+            elif LaunchOptions.latest_version in LauncherConfig.version["not_comp"]:
+                version_combobox_ctk.set(LaunchOptions.latest_version + language_manager.get("main.types_versions.not_completed"))
+            else:
+                version_combobox_ctk.set(LaunchOptions.latest_version)
     except Exception as e:
         excepthook(*sys.exc_info())
         ToastNotification(title=language_manager.get("messages.titles.error"),
                           message=language_manager.get("messages.texts.error.loading") + str(e),
                           toast_type="error")
 
-    if LaunchOptions.latest_version in LauncherConfig.version["download"]:
-        check_version = LaunchOptions.latest_version + language_manager.get("main.types_versions.installed")
-    elif LaunchOptions.latest_version in LauncherConfig.version["not_comp"]:
-        check_version = LaunchOptions.latest_version + language_manager.get("main.types_versions.not_completed")
-    else:
-        check_version = LaunchOptions.latest_version
-
-    if check_version not in version_combobox.values:
-        version_combobox_ctk.set("")
-    else:
-        if LaunchOptions.latest_version in LauncherConfig.version["download"]:
-            version_combobox_ctk.set(LaunchOptions.latest_version + language_manager.get("main.types_versions.installed"))
-        elif LaunchOptions.latest_version in LauncherConfig.version["not_comp"]:
-            version_combobox_ctk.set(LaunchOptions.latest_version + language_manager.get("main.types_versions.not_completed"))
-        else:
-            version_combobox_ctk.set(LaunchOptions.latest_version)
-
-    log("Список версий успешно загружен", source="launcher_core")
+    log("Список версий успешно загружен")
 
 
 def stop_action():
@@ -88,14 +88,14 @@ def stop_action():
         LaunchOptions.minecraft_log_file.close()
         LaunchOptions.is_running = False
         try:
-            log("Завершение процесса Minecraft.", source="launcher_core")
+            log("Завершение процесса Minecraft.")
             LaunchOptions.minecraft_process.terminate()
             LaunchOptions.minecraft_process.wait(timeout=5)
-            log("Процесс Minecraft завершён корректно.", source="launcher_core")
+            log("Процесс Minecraft завершён корректно.")
         except subprocess.TimeoutExpired:
-            log("Таймаут истёк; принудительное завершение процесса Minecraft.", source="launcher_core")
+            log("Таймаут истёк; принудительное завершение процесса Minecraft.")
             LaunchOptions.minecraft_process.kill()
-            log("Процесс Minecraft убит.", source="launcher_core")
+            log("Процесс Minecraft убит.")
 
 
 def set_step(value: str):
@@ -334,18 +334,18 @@ def launch_game():
                     save_version()
 
                 if selected_version not in LauncherConfig.version["download"]:
-                    log("Загрузка файлов Minecraft...", source="launcher_core")
+                    log("Загрузка файлов Minecraft...")
                     mcl.install.install_minecraft_version(selected_version, LaunchOptions.minecraft_path, callback={
                         "setMax": lambda val_max: set_max_value(val_max),
                         "setProgress": lambda val_prog: progress_bar_update(val_prog, progress_bar),
                         "setStatus": set_step,
                     })
-                    log("Файлы Minecraft готовы.", source="launcher_core")
+                    log("Файлы Minecraft готовы.")
 
                 elif check_var.get():
-                    log("Проверка файлов Minecraft...", source="launcher_core")
+                    log("Проверка файлов Minecraft...")
                     mcl.install.install_minecraft_version(selected_version, LaunchOptions.minecraft_path)
-                    log("Файлы Minecraft готовы.", source="launcher_core")
+                    log("Файлы Minecraft готовы.")
 
                 if selected_version not in LauncherConfig.version["download"]:
                     LauncherConfig.version["download"].append(selected_version)
