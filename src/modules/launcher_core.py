@@ -261,8 +261,7 @@ def launch_game():
                 f"Рабочая директория: {work_folder}\n"
                 f"Отладка: {debug_mode}\n"
                 f"UUID: {uuid}"
-                f"Ely.by: {LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get()}",
-                source="launcher_core")
+                f"Ely.by: {LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get()}")
 
             hJob = win32job.CreateJobObject(None, "PLauncher_Job")
             extended_info = win32job.QueryInformationJobObject(hJob, win32job.JobObjectExtendedLimitInformation)
