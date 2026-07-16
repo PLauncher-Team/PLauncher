@@ -30,3 +30,6 @@ test/
 # Windows
 Thumbs.db
 ehthumbs.db
+
+/uv.lock
+*.sqlite
