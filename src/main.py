@@ -2,29 +2,123 @@ from typing import TYPE_CHECKING, Optional, Literal
 
 if TYPE_CHECKING:
     from context import *
+
+def excepthook(exc_type, exc_value, exc_tb) -> None:
+    is_main = threading.current_thread().name == "MainThread"
+    log(level="FATAL" if is_main else "ERROR", exc_info=[exc_type, exc_value, exc_tb])
+
+    level_colors = {
+        "FATAL": "\033[31;1m",
+        "ERROR": "\033[31m",
+    }
+
+    error_color = level_colors.get("FATAL" if is_main else "ERROR")
+
+    tb_lines = traceback.format_exception(exc_type, exc_value, exc_tb)
+    tb_text = "".join(tb_lines)
+
+    with log_lock:
+        print(f"{error_color}{tb_text}\033[0m", end="")
+
+        with open("launcher.log", "a", encoding="utf-8") as f:
+            f.write(tb_text)
+
+    if is_main:
+        os._exit(1)
+
+def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
+    os.system("")
+
+    level_colors = {
+        "FATAL": "\033[31;1m",
+        "ERROR": "\033[31m",
+        "WARNING": "\033[33m",
+        "INFO": "\033[36m"
+    }
+    color_reset = "\033[0m"
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+
+    if exc_info:
+        exc_type, exc_value, exc_tb = exc_info
+        tb = exc_tb
+        while tb.tb_next:
+            tb = tb.tb_next
+        frame = tb.tb_frame
+        code = frame.f_code
+        filename = os.path.relpath(code.co_filename)
+        func_name = code.co_name
+        lineno = tb.tb_lineno
+        thread_name = threading.current_thread().name
+        message = f"{exc_type.__name__}: {exc_value}"
+    else:
+        caller_frame = sys._getframe(1)
+        caller_code = caller_frame.f_code
+        filename = os.path.relpath(caller_code.co_filename)
+        func_name = caller_code.co_name
+        lineno = caller_frame.f_lineno
+        thread_name = threading.current_thread().name
+
+    if filename.split("\\")[-1] == "main.py":
+        filename = "main.py"
+
+    pycharm_link = f'File "{filename}", line {lineno}'
+    meta = f"{level:<5} │ {thread_name:<35} │ {pycharm_link:<45} │ {func_name + '()':<25}"
+
+    lvl_upper = level.upper()
+    level_color = level_colors.get(lvl_upper, color_reset)
+
+    if lvl_upper in ("ERROR", "FATAL"):
+        output_console = f"{level_color}[{timestamp}] │ {meta} │ {message}{color_reset}"
+    else:
+        console_meta = f"{level_color}{level:<5}{color_reset} │ {thread_name:<35} │ {pycharm_link:<45} │ {func_name + '()':<25}"
+        output_console = f"[{timestamp}] │ {console_meta} │ {message}"
+
+    output_file = f"[{timestamp}] │ {meta} │ {message}"
+
+    with log_lock:
+        print(output_console)
+
+    with open("launcher.log", "a", encoding="utf-8") as f:
+        f.write(output_file + "\n")
+
 import time
-start_time = time.perf_counter()  
+import ctypes
+import threading
+import os
+import sys
+from datetime import datetime
+
+start_time = time.perf_counter()
+
+kernel32 = ctypes.windll.kernel32
+mutex = kernel32.CreateMutexW(None, False, "PLauncher")
+if kernel32.GetLastError() == 183:
+    os._exit(0)
+
+log_lock = threading.Lock()
+if os.path.isfile("launcher.log"):
+    os.remove("launcher.log")
+
+sys.excepthook = excepthook
+log("Добро пожаловать в дебаг...")
 
 import json
-import os
 import re
-import ctypes
 import traceback
-import sys
 import shutil
 import random
 import webbrowser
 import subprocess
 import tomllib
 import zipfile
-import threading
 import hashlib
 from io import BytesIO
 from locale import getdefaultlocale
 from socket import create_connection
-from datetime import datetime
 from uuid import uuid4
 from tkinter import filedialog
+from tkinterdnd2 import TkinterDnD, DND_FILES
 
 import minecraft_launcher_lib as mcl
 import customtkinter as ctk
@@ -45,44 +139,9 @@ from pywinstyles import set_opacity
 from ratelimit import rate_limited
 from json_repair import repair_json
 
+log("Импорт библиотек завершен")
+
 ctk.deactivate_automatic_dpi_awareness()
-
-def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-
-    if exc_info:
-        exc_type, exc_value, exc_tb = exc_info
-
-        tb = exc_tb
-        while tb.tb_next:
-            tb = tb.tb_next
-
-        frame = tb.tb_frame
-        code = frame.f_code
-
-        filename = os.path.relpath(code.co_filename)
-        func_name = code.co_name
-        lineno = tb.tb_lineno
-        thread_name = threading.current_thread().name
-
-        message = f"{exc_type.__name__}: {exc_value}"
-    else:
-        caller_frame = sys._getframe(1)
-        caller_code = caller_frame.f_code
-
-        filename = os.path.relpath(caller_code.co_filename)
-        func_name = caller_code.co_name
-        lineno = caller_frame.f_lineno
-        thread_name = threading.current_thread().name
-
-    pycharm_link = f'File "{filename}", line {lineno}'
-    meta = f"{level:<5} │ {thread_name:<35} │ {pycharm_link:<45} │ {func_name+'()':<25}"
-    output = f"[{timestamp}] │ {meta} │ {message}"
-
-    with log_lock:
-        print(output)
-        with open("launcher.log", "a", encoding="utf-8") as f:
-            f.write(output + "\n")
 
 def execute_module(module_name: str) -> None:
     module_path = os.path.join("modules", f"{module_name}.py")
@@ -93,37 +152,16 @@ def execute_module(module_name: str) -> None:
         exec(compile(code_bytes, module_path, "exec"), globals())
 
     except Exception:
-        log(f"Ошибка в модуле {module_name}, выход...", "ERROR")
+        log(f"Ошибка в модуле {module_name}, выход...", "FATAL")
         excepthook(*sys.exc_info())
-        os._exit(0)
-
-
-def excepthook(exc_type, exc_value, exc_tb) -> None:
-    log(level="ERROR", exc_info=[exc_type, exc_value, exc_tb])
-    with log_lock:
-        traceback.print_exception(exc_type, exc_value, exc_tb)
-        with open("launcher.log", "a", encoding="utf-8") as f:
-            traceback.print_exception(exc_type, exc_value, exc_tb, file=f)
 
 
 if __name__ == "__main__":
-    kernel32 = ctypes.windll.kernel32
-    mutex = kernel32.CreateMutexW(None, False, "PLauncher")
-    if kernel32.GetLastError() == 183:
-        os._exit(0)
-
-    log_lock = threading.Lock()
-    if os.path.isfile("launcher.log"):
-        os.remove("launcher.log")
-
-    sys.excepthook = excepthook
-    log("Добро пожаловать в дебаг...")
-
     for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "settings_gui",
                    "notifications", "definitions", "mod_viewer_gui", "mod_viewer"]:
         execute_module(module)
 
-    log("Импортирование модулей завершено")
+    log("Динамическая загрузка модулей завершена")
 
     log(f"Версия: {LauncherConfig.CURRENT_VERSION}")
     log(f"Частота обновления монитора: {LauncherConfig.FPS} Hz")
@@ -165,15 +203,15 @@ if __name__ == "__main__":
                 LauncherConfig.config[t] = default_config[t]
 
         if LauncherConfig.config["custom_image"] and not os.path.isfile(LauncherConfig.config["custom_image"]):
-            log(f"Файл изображения не найден: {LauncherConfig.config['custom_image']}", "ERROR")
+            log(f"Файл изображения не найден: {LauncherConfig.config['custom_image']}", "WARNING")
             LauncherConfig.config["custom_image"] = default_config["custom_image"]
 
         if LauncherConfig.config["custom_skin"] and not os.path.isfile(LauncherConfig.config["custom_skin"]):
-            log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "ERROR")
+            log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "WARNING")
             LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
 
         if LauncherConfig.config["custom_theme"] and not os.path.isfile(LauncherConfig.config["custom_theme"]):
-            log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "ERROR")
+            log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "WARNING")
             LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
         
         LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))

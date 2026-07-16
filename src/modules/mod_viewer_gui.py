@@ -246,6 +246,8 @@ class ModViewer(ctk.CTkFrame):
     def __init__(self):
         super().__init__(root, border_width=0)
         self.place_forget()
+        self.drop_target_register(DND_FILES)
+        self.dnd_bind('<<Drop>>', self.add_mods)
 
         self.configure(fg_color="#0f0f0f")
         self.items_per_page = 10
@@ -422,7 +424,22 @@ class ModViewer(ctk.CTkFrame):
             command=self.next_page
         )
         self.next_btn.pack(side="left", padx=4)
-
+    
+    def add_mods(self, event):
+        mods = [file for file in root.tk.splitlist(event.data) if file.endswith(".jar")]
+        new_message(
+            title=language_manager.get("messages.titles.warning"),
+            message=language_manager.get('messages.texts.warning.add_confirm'),
+            icon="question",
+            option_1=language_manager.get("messages.answers.no"),
+            option_2=language_manager.get("messages.answers.yes")
+        )
+        if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
+            for mod_path in mods:
+                if os.path.exists(mod_path):
+                    shutil.copy(mod_path, self.mods_dir)
+            self.load_mods()
+    
     def check_compatibility(self):
         selected_version = self.version_var.get()
         if not selected_version:
@@ -729,7 +746,7 @@ class ModViewer(ctk.CTkFrame):
         mod_name = os.path.basename(mod_path)
         new_message(
             title=language_manager.get("messages.titles.warning"),
-            message=f"{language_manager.get('mod_viewer.delete_confirm')}\n{mod_name}",
+            message=f"{language_manager.get('messages.texts.warning.delete_confirm')}\n{mod_name}",
             icon="question",
             option_1=language_manager.get("messages.answers.no"),
             option_2=language_manager.get("messages.answers.yes")

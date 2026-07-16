@@ -17,7 +17,12 @@ else:
 log(f"Тема лаунчера: {theme_path}")
 ctk.set_default_color_theme(f"themes/{theme_path}.json")
 
-root = ctk.CTk(fg_color="#242424")
+class CTkDND(ctk.CTk, TkinterDnD.DnDWrapper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.TkdndVersion = TkinterDnD._require(self)
+
+root = CTkDND(fg_color="#242424")
 
 root.report_callback_exception = excepthook
 root.resizable(False, False)

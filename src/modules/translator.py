@@ -58,6 +58,7 @@ class Translator:
                 result = result[k]
             return result
         except (KeyError, TypeError):
+            log(f"Ключ локализации не найден: '{key}'", "WARNING")
             return default or key
 
 

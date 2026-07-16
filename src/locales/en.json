@@ -6,13 +6,6 @@
     "solution_title": "\uD83D\uDD0D Problem solution",
     "title": "View Error Log"
   },
-  "feedback": {
-    "description": "Problem / suggestion description",
-    "email": "Email (optional)",
-    "send": "Send",
-    "subject": "Subject",
-    "title": "Sending Feedback"
-  },
   "language": "English",
   "main": {
     "buttons": {
@@ -50,31 +43,23 @@
     "answers": {
       "cancel": "Cancel",
       "no": "No",
-      "ok": "Ok",
       "yes": "Yes"
     },
     "texts": {
-      "check": {
-        "feedback_send": "Feedback sent successfully!"
-      },
       "error": {
-        "ely_by_skin": "Error obtaining skin from Ely.by servers:\n",
         "ely_by_uuid": "Error obtaining UUID from Ely.by servers:\n",
         "exit_code": "Exit code: ",
         "failed_analyze": "Failed to analyze error log:\n",
-        "feedback_email": "Failed to send feedback:\n",
-        "feedback_send": "Please enter a valid email address.",
         "java": "Failed to retrieve Java version information.",
         "launch": "Error launching game:\n",
         "loading": "Error loading versions:\n",
         "loading_loader": "Error loading loader:\n",
-        "loading_loader_list": "Error loading loaders list:\n",
         "profile_add": "Failed to create profile:\n",
         "profile_rename": "Failed to rename profile:\n",
-        "skin_load": "Incorrect skin file. Resolution must be 64x64 or 64x32.",
-        "skin_select": "Failed to load skin:\n"
+        "skin_load": "Incorrect skin file. Resolution must be 64x64 or 64x32."
       },
       "warning": {
+        "add_confirm": "Add selected mods?",
         "delete_confirm": "Are you sure you want to delete this mod?",
         "delete_game_version": "Are you sure you want to delete these game versions?",
         "exit": "Are you sure you want to exit?",
@@ -114,7 +99,6 @@
   "settings": {
     "1_page": {
       "check_files": "Check files",
-      "debug_mode": "Debug mode",
       "hide_launcher": "Hide launcher when game launches",
       "installed_versions": "Installed Versions",
       "manager_versions": "Manage installed versions",
@@ -160,8 +144,6 @@
       "install_loader": "Install loader",
       "loaders_mods": "Mods loaders",
       "mods_profiles": "Modpack Profiles",
-      "new_name_profile": "Enter the new profile name",
-      "new_profile": "Enter the name of the new profile",
       "no": "(none)",
       "open_folder": "Open profile folder",
       "save": "Save"

@@ -88,7 +88,7 @@ class VersionFrame(ctk.CTkFrame):
             else:
                 return False
         except Exception as e:
-            log(f"Ошибка получения информации о новой версии: {e}")
+            log(f"Ошибка получения информации о новой версии: {e}", "ERROR")
             excepthook(*sys.exc_info())
             return False
 

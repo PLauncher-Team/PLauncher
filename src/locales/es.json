@@ -6,13 +6,6 @@
     "solution_title": "\uD83D\uDD0D Solución del problema",
     "title": "Ver registro de errores"
   },
-  "feedback": {
-    "description": "Descripción del problema / sugerencia",
-    "email": "Correo electrónico (opcional)",
-    "send": "Enviar",
-    "subject": "Asunto",
-    "title": "Envío de comentarios"
-  },
   "language": "Español",
   "main": {
     "buttons": {
@@ -50,31 +43,23 @@
     "answers": {
       "cancel": "Cancelar",
       "no": "No",
-      "ok": "Ok",
       "yes": "Sí"
     },
     "texts": {
-      "check": {
-        "feedback_send": "¡Comentarios enviados con éxito!"
-      },
       "error": {
-        "ely_by_skin": "Error al obtener el skin de los servidores de Ely.by:\n",
         "ely_by_uuid": "Error al obtener UUID de los servidores de Ely.by:\n",
         "exit_code": "Código de salida",
         "failed_analyze": "No se pudo analizar el registro de errores:\n",
-        "feedback_email": "No se pudo enviar la opinión:\n",
-        "feedback_send": "Por favor, introduce una dirección de correo electrónico válida.",
         "java": "No se pudo obtener información sobre la versión de Java.",
         "launch": "Error al iniciar el juego:\n",
         "loading": "Error al cargar versiones:\n",
         "loading_loader": "Error al cargar el cargador:\n",
-        "loading_loader_list": "Error al cargar la lista de cargadores:\n",
         "profile_add": "No se pudo crear el perfil:\n",
         "profile_rename": "No se pudo renombrar el perfil:\n",
-        "skin_load": "Archivo de skin incorrecto. La resolución debe ser 64x64 o 64x32.",
-        "skin_select": "No se pudo cargar el skin:\n"
+        "skin_load": "Archivo de skin incorrecto. La resolución debe ser 64x64 o 64x32."
       },
       "warning": {
+        "add_confirm": "¿Añadir los mods seleccionados?",
         "delete_confirm": "¿Estás seguro de que quieres eliminar este mod?",
         "delete_game_version": "¿Está seguro de que desea eliminar estas versiones del juego?",
         "exit": "¿Realmente deseas salir?",
@@ -114,7 +99,6 @@
   "settings": {
     "1_page": {
       "check_files": "Verificar archivos",
-      "debug_mode": "Modo de depuración",
       "hide_launcher": "Ocultar lanzador al iniciar el juego",
       "installed_versions": "Versiones Instaladas",
       "manager_versions": "Gestión de versiones instaladas",
@@ -160,8 +144,6 @@
       "install_loader": "Instalar cargador",
       "loaders_mods": "Cargadores de mods",
       "mods_profiles": "Perfiles de mods",
-      "new_name_profile": "Ingrese el nuevo nombre del perfil",
-      "new_profile": "Ingrese el nombre del nuevo perfil",
       "no": "(ninguno)",
       "open_folder": "Abrir carpeta del perfil",
       "save": "Guardar"
