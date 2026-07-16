@@ -110,7 +110,10 @@ import shutil
 import random
 import webbrowser
 import subprocess
-import tomllib
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 import zipfile
 import hashlib
 from io import BytesIO

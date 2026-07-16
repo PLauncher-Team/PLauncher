@@ -8,3 +8,4 @@ ctkscrollabledropdownpp
 requests-cache
 json-repair
 PySocks
+tomli
