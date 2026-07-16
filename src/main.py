@@ -59,11 +59,8 @@ def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
         lineno = caller_frame.f_lineno
         thread_name = threading.current_thread().name
 
-    if filename.split("\\")[-1] == "main.py":
-        filename = "main.py"
-
     pycharm_link = f'File "{filename}", line {lineno}'
-    meta = f"{level:<5} │ {thread_name:<35} │ {pycharm_link:<45} │ {func_name + '()':<25}"
+    meta = f"{level:<5} │ {thread_name:<35} │ {pycharm_link[-45:]:<45} │ {func_name + '()':<25}"
 
     lvl_upper = level.upper()
     level_color = level_colors.get(lvl_upper, color_reset)
