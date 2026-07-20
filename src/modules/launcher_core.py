@@ -170,7 +170,6 @@ def launch_game():
                     uuid_response.raise_for_status()
                     uuid = uuid_response.json()["id"]
                 except Exception as e:
-                    excepthook(*sys.exc_info())
                     ToastNotification(title=language_manager.get("messages.titles.error"),
                                       message=language_manager.get("messages.texts.error.ely_by_uuid") + str(e),
                                       toast_type="error")

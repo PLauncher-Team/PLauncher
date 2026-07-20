@@ -49,7 +49,7 @@ def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
         filename = os.path.relpath(code.co_filename)
         func_name = code.co_name
         lineno = tb.tb_lineno
-        thread_name = threading.current_thread().name
+        thread_name = threading.current_thread().name.split(" (")[0]
         message = f"{exc_type.__name__}: {exc_value}"
     else:
         caller_frame = sys._getframe(1)
@@ -57,10 +57,10 @@ def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
         filename = os.path.relpath(caller_code.co_filename)
         func_name = caller_code.co_name
         lineno = caller_frame.f_lineno
-        thread_name = threading.current_thread().name
+        thread_name = threading.current_thread().name.split(" (")[0]
 
     pycharm_link = f'File "{filename}", line {lineno}'
-    meta = f"{level:<5} │ {thread_name:<35} │ {pycharm_link[-45:]:<45} │ {func_name + '()':<25}"
+    meta = f"{level:<7} │ {thread_name:<10} │ {pycharm_link[-45:]:<45} │ {func_name + '()':<30}"
 
     lvl_upper = level.upper()
     level_color = level_colors.get(lvl_upper, color_reset)
@@ -68,7 +68,7 @@ def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
     if lvl_upper in ("ERROR", "FATAL"):
         output_console = f"{level_color}[{timestamp}] │ {meta} │ {message}{color_reset}"
     else:
-        console_meta = f"{level_color}{level:<5}{color_reset} │ {thread_name:<35} │ {pycharm_link:<45} │ {func_name + '()':<25}"
+        console_meta = f"{level_color}{level:<7}{color_reset} │ {thread_name:<10} │ {pycharm_link:<45} │ {func_name + '()':<30}"
         output_console = f"[{timestamp}] │ {console_meta} │ {message}"
 
     output_file = f"[{timestamp}] │ {meta} │ {message}"
@@ -98,6 +98,7 @@ if os.path.isfile("launcher.log"):
     os.remove("launcher.log")
 
 sys.excepthook = excepthook
+threading.excepthook = lambda args: excepthook(args.exc_type, args.exc_value, args.exc_traceback)
 log("Добро пожаловать в дебаг...")
 
 import json

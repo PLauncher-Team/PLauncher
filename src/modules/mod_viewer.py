@@ -14,7 +14,7 @@ class ModManager:
             cache_name="modrinth-cache",
             expire_after=604800,
             allowable_methods=('GET', 'POST'),
-            timeout=10,
+            timeout=5,
             match_headers=True,
         )
         self.session.headers.update({
@@ -22,25 +22,34 @@ class ModManager:
         })
 
     def _get_pil_image_from_url(self, url):
-        if url is None:
+        if url is None or not LauncherConfig.IS_INTERNET:
             return None
         try:
             response = self.session.get(url)
             response.raise_for_status()
             return PIL.Image.open(BytesIO(response.content))
-        except:
+        except Exception as e:
+            log(f"Не удалось загрузить изображение по URL: {url}, ошибка: {e}", "WARNING")
             return None
-        
+
     def get_mods_info(self):
+        log("Начинаем получение информации о модах")
         self.hashes = self._get_mods_hashes()
+        log(f"Найдено {len(self.hashes)} модов для обработки")
+
         self.results = self.get_info_from_modrinth()
+        log(f"Получено {len(self.results)} модов из Modrinth")
+
         projects_infos = {}
         for sha1 in self.results:
             mod_info = self.results[sha1]
             mod_info["version"] = mod_info["version_number"]
             projects_infos[mod_info["project_id"]] = mod_info
 
-        for project in self._get_projects_info(list(projects_infos.keys())):
+        projects_data = self._get_projects_info(list(projects_infos.keys()))
+        log(f"Получена информация о {len(projects_data)} проектах")
+
+        for project in projects_data:
             mod_info = projects_infos[project["id"]]
             mod_info["description"] = project["description"]
             mod_info["name"] = project["title"]
@@ -49,10 +58,25 @@ class ModManager:
             mod_info["jar_name"] = self.files_name[sha1_for_mod]
         
         unfound_mods = self.hashes - self.results.keys()
-        for hash in unfound_mods:
-            self.results[hash] = self.get_info_from_jar(hash)
+        if unfound_mods:
+            log(f"{len(unfound_mods)} модов не найдено в Modrinth, обрабатываем локально")
+    
+        def process_single_mod(mod_hash):
+            return mod_hash, self.get_info_from_jar(mod_hash)
+    
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future_to_mod = {
+                executor.submit(process_single_mod, mod_hash): mod_hash
+                for mod_hash in unfound_mods
+            }
+    
+            for future in concurrent.futures.as_completed(future_to_mod):
+                mod_hash = future_to_mod[future]
+                result = future.result()
+                self.results[mod_hash] = result[1]
 
         self.results = dict(sorted(self.results.items(), key=lambda item: (item[1].get("name") or "").casefold()))
+        log(f"Обработка модов завершена")
         return self.results
 
     def _get_mods_hashes(self):
@@ -65,23 +89,38 @@ class ModManager:
             i for i in os.listdir(self.mods_path)
             if os.path.isfile(os.path.join(self.mods_path, i)) and (i.endswith(".jar") or i.endswith(".jar.disabled"))
         ]
-    
+
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            return set(executor.map(_get_sha1, mods))
+            hashes = set(executor.map(_get_sha1, mods))
+            return hashes
 
     def _get_projects_info(self, ids):
-        request = self.session.get(
-            "https://api.modrinth.com/v2/projects",
-            params={"ids": json.dumps(sorted(ids))}
-        )
-        return request.json()
+        if not LauncherConfig.IS_INTERNET:
+            return []
+        try:
+            request = self.session.get(
+                "https://api.modrinth.com/v2/projects",
+                params={"ids": json.dumps(sorted(ids))}
+            )
+            request.raise_for_status()
+            return request.json()
+        except Exception as e:
+            log(f"Ошибка при запросе проектов: {e}", "ERROR")
+            return []
 
     def get_info_from_modrinth(self):
-        request = self.session.post(
-            "https://api.modrinth.com/v2/version_files",
-            json={"algorithm": "sha1", "hashes": sorted(list(self.hashes))}
-        )
-        return request.json()
+        if not LauncherConfig.IS_INTERNET:
+            return {}
+        try:
+            request = self.session.post(
+                "https://api.modrinth.com/v2/version_files",
+                json={"algorithm": "sha1", "hashes": sorted(list(self.hashes))}
+            )
+            request.raise_for_status()
+            return request.json()
+        except Exception as e:
+            log(f"Ошибка при запросе к Modrinth: {e}", "ERROR")
+            return {}
 
     def get_info_from_jar(self, mod_sha1):
         mod_path = os.path.join(self.mods_path, self.files_name[mod_sha1])
@@ -108,8 +147,8 @@ class ModManager:
                         try:
                             with zf.open(root_pngs[0]) as imgf:
                                 info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                        except:
-                            pass
+                        except Exception as e:
+                            log(f"Не удалось загрузить иконку из {mod_name}: {e}", "WARNING")
 
                 def add_game_versions(versions):
                     if isinstance(versions, str):
@@ -139,8 +178,8 @@ class ModManager:
                             try:
                                 with zf.open(icon_path) as imgf:
                                     info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                            except:
-                                pass
+                            except Exception as e:
+                                log(f"Не удалось загрузить иконку Fabric из {mod_name}: {e}", "WARNING")
                     load_root_png_if_needed()
 
                 if "quilt.mod.json" in namelist:
@@ -177,8 +216,8 @@ class ModManager:
                             try:
                                 with zf.open(icon_path) as imgf:
                                     info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                            except:
-                                pass
+                            except Exception as e:
+                                log(f"Не удалось загрузить иконку Quilt из {mod_name}: {e}", "WARNING")
                     load_root_png_if_needed()
 
                 if "META-INF/neoforge.mods.toml" in namelist:
@@ -194,8 +233,8 @@ class ModManager:
                                 try:
                                     with zf.open(logo) as imgf:
                                         info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                                except:
-                                    pass
+                                except Exception as e:
+                                    log(f"Не удалось загрузить лого NeoForge из {mod_name}: {e}", "WARNING")
                             break
                         dependencies = toml_data.get("dependencies", {})
                         for dep_list in dependencies.values():
@@ -222,8 +261,8 @@ class ModManager:
                                 try:
                                     with zf.open(logo) as imgf:
                                         info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                                except:
-                                    pass
+                                except Exception as e:
+                                    log(f"Не удалось загрузить лого Forge из {mod_name}: {e}", "WARNING")
                             break
                         dependencies = toml_data.get("dependencies", {})
                         for dep_list in dependencies.values():
@@ -266,8 +305,8 @@ class ModManager:
                             try:
                                 with zf.open(logo) as imgf:
                                     info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                            except:
-                                pass
+                            except Exception as e:
+                                log(f"Не удалось загрузить лого из mcmod.info из {mod_name}: {e}", "WARNING")
                     load_root_png_if_needed()
 
                 if not info["loaders"]:
@@ -304,10 +343,11 @@ class ModManager:
                                         try:
                                             with zf.open(logo) as imgf:
                                                 info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
-                                        except:
-                                            pass
+                                        except Exception as e:
+                                            log(f"Не удалось загрузить лого из {info_file} из {mod_name}: {e}", "WARNING")
                                     break
-                        except:
+                        except Exception as e:
+                            log(f"Не удалось обработать {info_file} из {mod_name}: {e}", "WARNING")
                             continue
 
                 ver = info.get("version", "")
@@ -341,8 +381,8 @@ class ModManager:
                                         continue
                                     if not info["version"]:
                                         info["version"] = spec_version
-                    except:
-                        pass
+                    except Exception as e:
+                        log(f"Не удалось обработать MANIFEST.MF из {mod_name}: {e}", "WARNING")
 
                 if not info["icon"]:
                     load_root_png_if_needed()
@@ -351,9 +391,10 @@ class ModManager:
 
                 if info["game_versions"]:
                     info["game_versions"] = list(dict.fromkeys(info["game_versions"]))
-                
+
                 return info
-        except Exception:
+        except Exception as e:
+            log(f"Критическая ошибка при обработке {mod_path}: {e}", "ERROR")
             excepthook(*sys.exc_info())
             mod_name = os.path.basename(mod_path)
             return {
@@ -389,20 +430,20 @@ class ModManager:
         draw.rounded_rectangle((0, 0, size, size), radius=18, fill=255)
         square.putalpha(mask)
         return square
-    
+
     @staticmethod
     def check_version(version, constraints) -> bool:
         try:
             ver = packaging.version.Version(version)
         except packaging.version.InvalidVersion:
             return False
-    
+
         if isinstance(constraints, str):
             constraints = [constraints]
-    
+
         for constraint in constraints:
             constraint = constraint.strip().replace(" ", "")
-    
+
             match = re.match(r'^([><=!]=?)(.+)$', constraint)
             if match:
                 op, ver_str = match.groups()
@@ -410,7 +451,7 @@ class ModManager:
                     target = packaging.version.Version(ver_str)
                 except packaging.version.InvalidVersion:
                     continue
-    
+
                 if op == ">=" and ver >= target:
                     return True
                 elif op == "<=" and ver <= target:
@@ -424,7 +465,7 @@ class ModManager:
                 elif op == "!=" and ver != target:
                     return True
                 continue
-    
+
             reverse_match = re.match(r'^(.+?)([><=!]=)$', constraint)
             if reverse_match:
                 ver_str, op = reverse_match.groups()
@@ -432,7 +473,7 @@ class ModManager:
                     target = packaging.version.Version(ver_str)
                 except packaging.version.InvalidVersion:
                     continue
-    
+
                 if op == ">=" and target >= ver:
                     return True
                 elif op == "<=" and target <= ver:
@@ -442,13 +483,13 @@ class ModManager:
                 elif op == "<" and target < ver:
                     return True
                 continue
-    
+
             bracket_match = re.match(r'^([\[(])([^,\]]*)(?:,([^])]*))?([])])$', constraint)
             if bracket_match:
                 left_bracket, left_str, right_str, right_bracket = bracket_match.groups()
                 try:
                     left_ok = right_ok = True
-    
+
                     if left_str:
                         left_ver = packaging.version.Version(left_str)
                         if left_bracket == "[":
@@ -482,17 +523,17 @@ class ModManager:
                             return True
                         else:
                             continue
-    
+
                     if left_ok and right_ok:
                         return True
                 except packaging.version.InvalidVersion:
                     continue
-    
+
             else:
                 try:
                     if ver == packaging.version.Version(constraint):
                         return True
                 except packaging.version.InvalidVersion:
                     continue
-    
+
         return False

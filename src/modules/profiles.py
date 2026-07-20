@@ -70,7 +70,6 @@ def save_add_profile():
         log(f"Профиль {name} успешно создан с {len(dirs)} директориями")
     except Exception as e:
         log(f"Не удалось создать профиль {name}: {e}", level="ERROR")
-        excepthook(*sys.exc_info())
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_add") + str(e),
@@ -134,7 +133,6 @@ def rename_profile(old_name: str):
         log(f"Профиль успешно переименован")
     except Exception as e:
         log(f"Не удалось переименовать профиль:", level="ERROR")
-        excepthook(*sys.exc_info())
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_rename") + str(e),

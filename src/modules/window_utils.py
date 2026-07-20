@@ -80,6 +80,8 @@ class VersionFrame(ctk.CTkFrame):
             return False
 
     def check_update(self, current_version: str) -> str | bool:
+        if not LauncherConfig.IS_INTERNET:
+            return False
         try:
             latest_tag = mcl.utils.get_github_tags("PLauncher-Team", "PLauncher")[0]
             if latest_tag and self.is_newer_version(latest_tag, current_version):
@@ -89,7 +91,6 @@ class VersionFrame(ctk.CTkFrame):
                 return False
         except Exception as e:
             log(f"Ошибка получения информации о новой версии: {e}", "ERROR")
-            excepthook(*sys.exc_info())
             return False
 
     def open_download(self, event: object = None):

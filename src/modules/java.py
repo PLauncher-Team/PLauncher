@@ -44,6 +44,7 @@ def add_java():
     path = select_java_path()
     is_java = check_java(path)
     if os.path.normcase(path) in map(os.path.normcase, LauncherConfig.config["java_paths"] + JavaRuntimeManager.get_all_javas_exe()):
+        log(f"Java установка уже существует: {path}", "WARNING")
         return
 
     if is_java:
@@ -72,10 +73,13 @@ def on_select_java(name: str):
         return
     elif name == language_manager.get("settings.2_page.recommended_java"):
         LauncherConfig.config["java"] = "Stable"
+        log(f"Выбрана рекомендуемая Java версия")
     elif name == language_manager.get("settings.2_page.latest_java"):
         LauncherConfig.config["java"] = "Latest"
+        log(f"Выбрана последняя Java версия")
     else:
         LauncherConfig.config["java"] = name
+        log(f"Выбрана Java: {name}")
     save_config()
 
 
@@ -106,8 +110,13 @@ def get_java_options():
 class JavaRuntimeManager:
     @staticmethod
     def get_available_major_versions():
+        if not LauncherConfig.IS_INTERNET:
+            LaunchOptions.available_major_versions = [8, 11, 17, 21, 25]
+            java_combobox.configure(values=get_java_options())
+            return 
+        
         api_url = "https://api.adoptium.net/v3/info/available_releases"
-
+        
         try:
             r = requests.get(
                 api_url,
@@ -120,9 +129,11 @@ class JavaRuntimeManager:
             versions = data["available_lts_releases"]
 
             LaunchOptions.available_major_versions = sorted(list(set(versions)))
+            log(f"Получены доступные версии Java: {LaunchOptions.available_major_versions}")
 
-        except Exception:
+        except Exception as e:
             LaunchOptions.available_major_versions = [8, 11, 17, 21, 25]
+            log(f"Не удалось получить версии Java, используем стандартные: {e}", "WARNING")
 
         java_combobox.configure(values=get_java_options())
 
@@ -133,23 +144,30 @@ class JavaRuntimeManager:
             f"?architecture=x64&image_type=jre&os=windows&vendor=eclipse"
         )
 
-        r = requests.get(
-            api_url,
-            headers={"User-Agent": LauncherConfig.USER_AGENT},
-            timeout=5
-        )
-        r.raise_for_status()
+        try:
+            r = requests.get(
+                api_url,
+                headers={"User-Agent": LauncherConfig.USER_AGENT},
+                timeout=5
+            )
+            r.raise_for_status()
 
-        data = r.json()
-        if not data:
+            data = r.json()
+            if not data:
+                log(f"Нет данных для Java {version}", "WARNING")
+                return None, None
+
+            latest_release = data[0]
+
+            semver = latest_release["version"]["semver"]
+            download_url = latest_release["binary"]["package"]["link"]
+
+            log(f"Найдена последняя версия Java {version}: {semver}")
+            return semver, download_url
+
+        except Exception as e:
+            log(f"Ошибка получения Java {version}: {e}", "ERROR")
             return None, None
-
-        latest_release = data[0]
-
-        semver = latest_release["version"]["semver"]
-        download_url = latest_release["binary"]["package"]["link"]
-
-        return semver, download_url
 
     @staticmethod
     def _get_local_semantic_version(target_java_dir):
@@ -178,74 +196,92 @@ class JavaRuntimeManager:
 
     @staticmethod
     def download_and_extract_java(version, callback=None):
+        log(f"Начинаем загрузку Java {version}")
         runtimes_dir = os.path.join(LaunchOptions.minecraft_path, "runtime")
         target_java_dir = os.path.join(runtimes_dir, f"Java {version}")
 
         api_semver, download_url = JavaRuntimeManager.get_latest_java(version)
         if not api_semver or not download_url:
+            log(f"Не удалось получить информацию о Java {version}", "ERROR")
             return target_java_dir if os.path.exists(target_java_dir) else None
 
         local_semver = JavaRuntimeManager._get_local_semantic_version(target_java_dir)
 
         java_exe_path = os.path.join(target_java_dir, "bin", "java.exe")
         if local_semver == api_semver and os.path.exists(java_exe_path):
+            log(f"Java {version} уже установлена (версия {api_semver})")
             return os.path.abspath(target_java_dir)
 
         zip_filename = "java_temp.zip"
+        log(f"Загрузка Java {version} из {download_url}")
 
         os.makedirs(runtimes_dir, exist_ok=True)
         callback["setStatus"](language_manager.get("main.mcl_status.install_java_runtime"))
 
-        with requests.get(
-                download_url,
-                stream=True,
-                timeout=300,
-                headers={"User-Agent": LauncherConfig.USER_AGENT}
-        ) as r:
-            r.raise_for_status()
-            total_size = int(r.headers.get("content-length", 0))
-            if callback and "setMax" in callback:
-                callback["setMax"](total_size)
-            downloaded = 0
-            with open(zip_filename, "wb") as f:
-                for chunk in r.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        if callback and "setProgress" in callback:
-                            callback["setProgress"](downloaded)
+        try:
+            with requests.get(
+                    download_url,
+                    stream=True,
+                    timeout=300,
+                    headers={"User-Agent": LauncherConfig.USER_AGENT}
+            ) as r:
+                r.raise_for_status()
+                total_size = int(r.headers.get("content-length", 0))
+                if callback and "setMax" in callback:
+                    callback["setMax"](total_size)
+                downloaded = 0
+                with open(zip_filename, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                            if callback and "setProgress" in callback:
+                                callback["setProgress"](downloaded)
 
-        if os.path.exists(target_java_dir):
-            shutil.rmtree(target_java_dir)
+            log(f"Загрузка Java {version} завершена, распаковка...")
 
-        with zipfile.ZipFile(zip_filename, "r") as zip_ref:
-            for member in zip_ref.infolist():
-                filename = member.filename.strip()
-                norm_path = os.path.normpath(filename)
-                path_parts = norm_path.split(os.sep)
+            if os.path.exists(target_java_dir):
+                shutil.rmtree(target_java_dir)
 
-                if len(path_parts) <= 1:
-                    continue
+            with zipfile.ZipFile(zip_filename, "r") as zip_ref:
+                for member in zip_ref.infolist():
+                    filename = member.filename.strip()
+                    norm_path = os.path.normpath(filename)
+                    path_parts = norm_path.split(os.sep)
 
-                relative_path = os.path.join(*path_parts[1:])
-                final_path = os.path.join(target_java_dir, relative_path)
+                    if len(path_parts) <= 1:
+                        continue
 
-                if member.is_dir():
-                    os.makedirs(final_path, exist_ok=True)
-                else:
-                    os.makedirs(os.path.dirname(final_path), exist_ok=True)
-                    with zip_ref.open(member) as src, open(final_path, "wb") as dst:
-                        shutil.copyfileobj(src, dst)
+                    relative_path = os.path.join(*path_parts[1:])
+                    final_path = os.path.join(target_java_dir, relative_path)
 
-        JavaRuntimeManager._save_local_semantic_version(target_java_dir, api_semver)
+                    if member.is_dir():
+                        os.makedirs(final_path, exist_ok=True)
+                    else:
+                        os.makedirs(os.path.dirname(final_path), exist_ok=True)
+                        with zip_ref.open(member) as src, open(final_path, "wb") as dst:
+                            shutil.copyfileobj(src, dst)
 
-        return os.path.abspath(target_java_dir)
+            JavaRuntimeManager._save_local_semantic_version(target_java_dir, api_semver)
+            log(f"Java {version} успешно установлена в {target_java_dir}")
+
+            return os.path.abspath(target_java_dir)
+
+        except Exception as e:
+            log(f"Ошибка загрузки Java {version}: {e}", "ERROR")
+            return None
+        finally:
+            if os.path.exists(zip_filename):
+                os.remove(zip_filename)
 
     @staticmethod
     def get_all_javas_exe():
         runtimes_dir = os.path.join(LaunchOptions.minecraft_path, "runtime")
 
         java_exes = []
+
+        if not os.path.exists(runtimes_dir):
+            return java_exes
 
         for entry in os.listdir(runtimes_dir):
             java_exe = os.path.join(runtimes_dir, entry, "bin", "java.exe")

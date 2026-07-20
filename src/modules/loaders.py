@@ -134,8 +134,7 @@ def get_loaders_versions():
                         choice_version_ctk.set(versions[0])
             content_frames[tabs[3]].after_idle(update_ui)
         except Exception as e:
-            log(f"Ошибка получения версий для {name}: {e}", "ERROR")
-            excepthook(*sys.exc_info())
+            log(f"Ошибка получения версий для {name}: {e}", "WARNING")
 
     loaders = [
         (

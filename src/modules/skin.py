@@ -144,7 +144,6 @@ def select_png_file():
         save_config()
     except Exception as e:
         log(f"Не удалось загрузить файл скина {file_path}: {e}", level="ERROR")
-        excepthook(*sys.exc_info())
         LauncherConfig.config["custom_skin"] = old_path
         ToastNotification(
             title=language_manager.get("messages.titles.error"),

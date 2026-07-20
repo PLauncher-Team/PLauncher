@@ -14,7 +14,10 @@ def check_internet_connection() -> float | None:
         ping_ms = (end_time - start_time) * 1000
         return round(ping_ms, 2)
 
-    except Exception:
+    except Exception as e:
+        error_type = type(e).__name__
+        error_msg = str(e)
+        log(f"Нет интернета: {error_type} - {error_msg}", "WARNING")
         return 0
 
 
