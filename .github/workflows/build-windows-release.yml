@@ -120,7 +120,7 @@ jobs:
           script: |
             const tag = `${{ env.VERSION }}`;
             const vtUrl = `${{ steps.vt.outputs.report_url }}`;
-            const note = `VirusTotal скан: ${vtUrl}`;
+            const note = `VirusTotal: ${vtUrl}`;
 
             const release = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
