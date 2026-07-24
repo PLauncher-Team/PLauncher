@@ -169,7 +169,7 @@ See [USED\_LIBS.md](USED_LIBS.md) for a complete list of licenses for the librar
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [GPL-3.0](LICENSE).
 
 ---
 
