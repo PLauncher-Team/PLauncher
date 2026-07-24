@@ -1,3 +1,7 @@
+<div align="right">
+  <b>🌐 <a href="README_EN.md">English</a> | 🇷🇺 Русский</b>
+</div>
+
 # PLauncher
 
 [![Последний релиз](https://img.shields.io/github/v/release/PLauncher-Team/PLauncher)](https://github.com/PLauncher-Team/PLauncher/releases)
