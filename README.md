@@ -1,194 +1,194 @@
 <div align="right">
-  <b>🌐 <a href="README_EN.md">English</a> | 🇷🇺 Русский</b>
+  <b>🌐 <a href="README.md">🇷🇺 Русский</a> | English</b>
 </div>
 
 # PLauncher
 
-[![Последний релиз](https://img.shields.io/github/v/release/PLauncher-Team/PLauncher)](https://github.com/PLauncher-Team/PLauncher/releases)
-[![Сборка Windows Release](https://github.com/PLauncher-Team/PLauncher/actions/workflows/build-windows-release.yml/badge.svg)](https://github.com/PLauncher-Team/PLauncher/actions/workflows/build-windows-release.yml)
+[![Latest Release](https://img.shields.io/github/v/release/PLauncher-Team/PLauncher)](https://github.com/PLauncher-Team/PLauncher/releases)
+[![Windows Release Build](https://github.com/PLauncher-Team/PLauncher/actions/workflows/build-windows-release.yml/badge.svg)](https://github.com/PLauncher-Team/PLauncher/actions/workflows/build-windows-release.yml)
 
 <div align="center">
   <img src="PLauncher.png" width="1002" alt="">
 </div>
 
-**PLauncher** - это удобный и лёгкий лаунчер для Minecraft, объединяющий поддержку официальных версий, модов и кастомизацию скинов. Он обеспечивает быстрый запуск игры и простую настройку в интуитивном интерфейсе.
+**PLauncher** is a convenient and lightweight Minecraft launcher that combines support for official versions, mods, and skin customization. It provides fast game launching and simple configuration through an intuitive interface.
 
 ---
 
-## 📚 Содержание
-- [Установка](#-установка)
-- [Требования](#-требования)
-- [Ключевые возможности](#-ключевые-возможности)
-- [Сборка из исходного кода](#-сборка-из-исходного-кода)
-- [Режим разработки](#-режим-разработки)
-- [Ресурсы](#-ресурсы)
-- [Лицензия](#-лицензия)
-- [Поддержать проект](#-поддержать-проект-пожертвования)
-- [Отказ от ответственности](#-отказ-от-ответственности)
+## 📚 Table of Contents
+- [Installation](#-installation)
+- [Requirements](#-requirements)
+- [Key Features](#-key-features)
+- [Building from Source](#-building-from-source)
+- [Development Mode](#-development-mode)
+- [Resources](#-resources)
+- [License](#-license)
+- [Support the Project](#-support-the-project-donations)
+- [Disclaimer](#-disclaimer)
 
 ---
 
-## 📥 Установка
+## 📥 Installation
 
-Чтобы установить PLauncher, выполните эти простые шаги:
+To install PLauncher, follow these simple steps:
 
-1. Перейдите на [страницу релизов](https://github.com/PLauncher-Team/PLauncher/releases) на GitHub.
-2. Скачайте последнюю версию.
-3. Запустите установщик.
-4. Следуйте инструкциям на экране.
-
----
-
-## 💻 Требования
-
-* Windows 10 (64-бит) или новее
-* Широкополосное подключение к интернету
+1. Go to the [releases page](https://github.com/PLauncher-Team/PLauncher/releases) on GitHub.
+2. Download the latest version.
+3. Run the installer.
+4. Follow the on-screen instructions.
 
 ---
 
-## ⭐ Ключевые возможности
+## 💻 Requirements
 
-* **Автоматическое управление версиями Minecraft**
+* Windows 10 (64-bit) or newer
+* Broadband internet connection
 
-    * Скачивание официальных релизов, снапшотов и устаревших альфа/бета-сборок.
+---
 
-* **Управление профилями**
+## ⭐ Key Features
 
-    * Создание, выбор и удаление полностью изолированных профилей с отдельными данными игры и настройками.
+* **Automatic Minecraft Version Management**
 
-* **Настройка Java**
+    * Download official releases, snapshots, and legacy alpha/beta builds.
 
-    * Полноценное управление версиями Java
-    * Возможность добавления JVM аргументов
+* **Profile Management**
 
-* **Поддержка загрузчиков**
+    * Create, select, and delete fully isolated profiles with separate game data and settings.
 
-    * Встроенная поддержка Forge, Fabric, Quilt, NeoForge, OptiFine, Cleanroom.
-    * Просмотр и установка доступных версий загрузчиков в один клик.
+* **Java Configuration**
 
-* **Локализация**
+    * Full Java version management
+    * Ability to add JVM arguments
 
-    * Поддержка нескольких языков: English, Русский, Español, Українська.
+* **Mod Loader Support**
 
-* **Поддержка Ely.by**
+    * Built-in support for Forge, Fabric, Quilt, NeoForge, OptiFine, Cleanroom.
+    * Browse and install available loader versions with a single click.
 
-    * Полное управление скинами: предпросмотр, загрузка и смена образа.
+* **Localization**
 
-* **Просмотр логов**
+    * Multi-language support: English, Русский, Español, Українська.
 
-    * Просматривайте логи сбоев и мгновенно получайте решение благодаря анализу ИИ!
+* **Ely.by Support**
 
-* **Офлайн-запуск**
-    * Запуск Minecraft без аутентификации или подключения к интернету.
+    * Full skin management: preview, upload, and change your appearance.
 
-* **Производительность и легковесность**
+* **Log Viewer**
+
+    * View crash logs and instantly get solutions through AI-powered analysis!
+
+* **Offline Launch**
+    * Launch Minecraft without authentication or an internet connection.
+
+* **Performance & Lightweight**
 <table border="0">
   <tr>
     <td width="40%">
-      <p><b>Моментальный запуск:</b> лаунчер полностью готов к работе менее чем за 3 секунды.</p>
-      <p><b>Минимальное потребление ресурсов:</b> в пике потребляет до 100 МБ оперативной памяти, что делает его одним из самых нетребовательных лаунчеров.</p>
-      <p><b>Компактный размер:</b> сам установщик весит не больше 30 МБ.</p>
+      <p><b>Instant Launch:</b> the launcher is fully ready to use in less than 3 seconds.</p>
+      <p><b>Minimal Resource Usage:</b> peaks at up to 100 MB of RAM, making it one of the most lightweight launchers available.</p>
+      <p><b>Compact Size:</b> the installer itself weighs no more than 30 MB.</p>
     </td>
     <td width="60%">
-      <img src="performance_graph.png" alt="График потребления памяти">
+      <img src="performance_graph.png" alt="Memory usage graph">
     </td>
   </tr>
 </table>
 
 ---
 
-## 🛠 Сборка из исходного кода
+## 🛠 Building from Source
 
-Чтобы собрать **PLauncher** из исходного кода, выполните следующие шаги.
+To build **PLauncher** from source, follow the steps below.
 
-### Необходимые компоненты
+### Prerequisites
 
 * **Python 3.10+**: [https://www.python.org/downloads/release/python-3100/](https://www.python.org/downloads/release/python-3100/)
 * **Microsoft C++ Build Tools**: [https://visualstudio.microsoft.com/visual-cpp-build-tools/](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 * **Git**: [https://git-scm.com/downloads](https://git-scm.com/downloads)
 
-### Шаги
+### Steps
 
-1. **Клонируйте репозиторий**
+1. **Clone the repository**
 
    ```bash
    git clone https://github.com/PLauncher-Team/PLauncher.git
    cd PLauncher
    ```
 
-2. **Запустите сборочный скрипт**
+2. **Run the build script**
 
    ```bash
    python build.py
    ```
-    * Автоматически устанавливает все зависимости и генерирует `main.exe` (Windows) в `dist/main.dist/` с помощью Nuitka
+    * Automatically installs all dependencies and generates `main.exe` (Windows) in `dist/main.dist/` using Nuitka
 
-3. **Запустите собранный исполняемый файл**
+3. **Run the built executable**
 
    ```bash
    cd dist/main.dist
    ./main.exe
    ```
 
-Теперь у вас есть локально собранная копия **PLauncher**, готовая к тестированию или распространению! 🙌
+You now have a locally built copy of **PLauncher**, ready for testing or distribution! 🙌
 
 ---
 
-## 🚀 Режим разработки
+## 🚀 Development Mode
 
-Во время разработки вы можете быстро развернуть и запустить приложение с помощью нашего скрипта `run.py`:
+During development, you can quickly set up and run the application using our `run.py` script:
 
-### Необходимые компоненты
+### Prerequisites
 
 * **Git**: [https://git-scm.com/downloads](https://git-scm.com/downloads)
 * **Python 3.10+**: [https://www.python.org/downloads/release/python-3100/](https://www.python.org/downloads/release/python-3100/)
 
-### Шаги
+### Steps
 
-1. **Клонируйте репозиторий**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/PLauncher-Team/PLauncher.git
    cd PLauncher
     ```
 
-2. **Из корня проекта выполните:**
+2. **From the project root, run:**
 
    ```bash
    python run.py
    ```
-    * Это запустит `main.py` в режиме разработки.
+    * This will launch `main.py` in development mode.
 
 
 ---
 
-## 📦 Ресурсы
+## 📦 Resources
 
-Смотреть [USED\_LIBS.md](USED_LIBS.md) для полного списка лицензий используемых библиотек.
-
----
-
-## 📄 Лицензия
-
-Этот проект лицензирован под [GPL-3.0](LICENSE).
+See [USED\_LIBS.md](USED_LIBS.md) for a complete list of licenses for the libraries used.
 
 ---
 
-## 📢 Отказ от ответственности
+## 📄 License
 
-PLauncher — это независимый проект, и он **не связан с Mojang, Microsoft или Minecraft**.  
-Все торговые марки, включая "Minecraft", являются собственностью их соответствующих владельцев.  
-Пожалуйста, приобретите игру на [minecraft.net](https://www.minecraft.net/), чтобы поддержать официальных разработчиков.
+This project is licensed under the [GPL-3.0](LICENSE).
 
 ---
 
-## 💰 Поддержать проект (Пожертвования)
+## 📢 Disclaimer
 
-Если вам нравится PLauncher, пожалуйста, поддержите нас пожертвованием в криптовалюте:
+PLauncher is an independent project and is **not affiliated with Mojang, Microsoft, or Minecraft**.  
+All trademarks, including "Minecraft", are the property of their respective owners.  
+Please purchase the game at [minecraft.net](https://www.minecraft.net/) to support the official developers.
 
-| Криптовалюта   | Адрес                                        | QR-код                                                |
-|----------------|----------------------------------------------|-------------------------------------------------------|
-| USDT (TRC20)   | `THqGaKcE2Lui483fqpaFxYMqXZ5wgcSHJA`         | <img src="qr/qr_usdt.png" width="100" alt="QR USDT"/> |
-| Bitcoin        | `bc1qgsnfj0de6fm89thpqev0xcc3483kunrtf56e9z` | <img src="qr/qr_btc.png" width="100" alt="QR BTC"/>   |
-| Ethereum       | `0x5132B071b4bFFd5a3ccAF70448166DAB590bA0F2` | <img src="qr/qr_eth.png" width="100" alt="QR ETH"/>   |
+---
 
-Спасибо за вашу поддержку! 🙏
+## 💰 Support the Project (Donations)
+
+If you enjoy PLauncher, please support us with a cryptocurrency donation:
+
+| Cryptocurrency | Address                                      | QR Code                                                |
+|----------------|----------------------------------------------|--------------------------------------------------------|
+| USDT (TRC20)   | `THqGaKcE2Lui483fqpaFxYMqXZ5wgcSHJA`         | <img src="qr/qr_usdt.png" width="100" alt="QR USDT"/>  |
+| Bitcoin        | `bc1qgsnfj0de6fm89thpqev0xcc3483kunrtf56e9z` | <img src="qr/qr_btc.png" width="100" alt="QR BTC"/>    |
+| Ethereum       | `0x5132B071b4bFFd5a3ccAF70448166DAB590bA0F2` | <img src="qr/qr_eth.png" width="100" alt="QR ETH"/>    |
+
+Thank you for your support! 🙏
