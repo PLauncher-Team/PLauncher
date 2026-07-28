@@ -259,7 +259,7 @@ def launch_game():
                 f"Java: {command[0]}\n"
                 f"Рабочая директория: {work_folder}\n"
                 f"Отладка: {debug_mode}\n"
-                f"UUID: {uuid}"
+                f"UUID: {uuid}\n"
                 f"Ely.by: {LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get()}")
 
             hJob = win32job.CreateJobObject(None, "PLauncher_Job")
@@ -273,9 +273,7 @@ def launch_game():
                 creationflags=creationflags,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                encoding="utf-8",
-                text=True,
-                bufsize=1
+                bufsize=-1
             )
 
             win32job.AssignProcessToJobObject(hJob, int(LaunchOptions.minecraft_process._handle))
@@ -286,7 +284,13 @@ def launch_game():
             launch_button.configure(text=language_manager.get("main.buttons.complete_game"),
                                     command=stop_action,
                                     state="normal")
-            for line in LaunchOptions.minecraft_process.stdout:
+            for line_bytes in LaunchOptions.minecraft_process.stdout:
+                try:
+                    line = line_bytes.decode("utf-8")
+                except UnicodeDecodeError:
+                    line = line_bytes.decode("cp1251", errors="replace")
+
+                line = line.replace('\r\n', '\n')
                 print(line, end='')
                 LaunchOptions.minecraft_log_file.write(line)
                 LaunchOptions.minecraft_log_file.flush()
