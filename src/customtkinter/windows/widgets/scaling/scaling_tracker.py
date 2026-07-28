@@ -172,27 +172,25 @@ class ScalingTracker:
     @classmethod
     def check_dpi_scaling(cls):
         new_scaling_detected = False
-        try:
-            # check for every window if scaling value changed
-            for window in cls.window_widgets_dict:
-                if window.winfo_exists() and not window.state() == "iconic":
-                    current_dpi_scaling_value = cls.get_window_dpi_scaling(window)
-                    if current_dpi_scaling_value != cls.window_dpi_scaling_dict[window]:
-                        cls.window_dpi_scaling_dict[window] = current_dpi_scaling_value
-    
-                        if sys.platform.startswith("win"):
-                            window.attributes("-alpha", 0.15)
-    
-                        window.block_update_dimensions_event()
-                        cls.update_scaling_callbacks_for_window(window)
-                        window.unblock_update_dimensions_event()
-    
-                        if sys.platform.startswith("win"):
-                            window.attributes("-alpha", 1)
-    
-                        new_scaling_detected = True
-        except Exception:
-            pass
+
+        # check for every window if scaling value changed
+        for window in cls.window_widgets_dict:
+            if window.winfo_exists() and not window.state() == "iconic":
+                current_dpi_scaling_value = cls.get_window_dpi_scaling(window)
+                if current_dpi_scaling_value != cls.window_dpi_scaling_dict[window]:
+                    cls.window_dpi_scaling_dict[window] = current_dpi_scaling_value
+
+                    if sys.platform.startswith("win"):
+                        window.attributes("-alpha", 0.15)
+
+                    window.block_update_dimensions_event()
+                    cls.update_scaling_callbacks_for_window(window)
+                    window.unblock_update_dimensions_event()
+
+                    if sys.platform.startswith("win"):
+                        window.attributes("-alpha", 1)
+
+                    new_scaling_detected = True
 
         # find an existing tkinter object for the next call of .after()
         for app in cls.window_widgets_dict.keys():

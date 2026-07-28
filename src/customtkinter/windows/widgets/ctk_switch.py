@@ -24,6 +24,7 @@ class CTkSwitch(CTkBaseClass):
                  corner_radius: Optional[int] = None,
                  border_width: Optional[int] = None,
                  button_length: Optional[int] = None,
+
                  bg_color: Union[str, Tuple[str, str]] = "transparent",
                  fg_color: Optional[Union[str, Tuple[str, str]]] = None,
                  border_color: Union[str, Tuple[str, str]] = "transparent",
@@ -32,6 +33,7 @@ class CTkSwitch(CTkBaseClass):
                  button_hover_color: Optional[Union[str, Tuple[str, str]]] = None,
                  text_color: Optional[Union[str, Tuple[str, str]]] = None,
                  text_color_disabled: Optional[Union[str, Tuple[str, str]]] = None,
+
                  text: str = "CTkSwitch",
                  font: Optional[Union[tuple, CTkFont]] = None,
                  textvariable: Union[tkinter.Variable, None] = None,
@@ -41,12 +43,16 @@ class CTkSwitch(CTkBaseClass):
                  hover: bool = True,
                  command: Union[Callable, Any] = None,
                  state: str = tkinter.NORMAL,
-                 is_animation: bool = True,
-                 fps: int = 60,
                  **kwargs):
+
+        # transfer basic functionality (_bg_color, size, __appearance_mode, scaling) to CTkBaseClass
         super().__init__(master=master, bg_color=bg_color, width=width, height=height, **kwargs)
+
+        # dimensions
         self._switch_width = switch_width
         self._switch_height = switch_height
+
+        # color
         self._border_color = self._check_color_type(border_color, transparency=True)
         self._fg_color = ThemeManager.theme["CTkSwitch"]["fg_color"] if fg_color is None else self._check_color_type(fg_color)
         self._progress_color = ThemeManager.theme["CTkSwitch"]["progress_color"] if progress_color is None else self._check_color_type(progress_color, transparency=True)
@@ -54,48 +60,72 @@ class CTkSwitch(CTkBaseClass):
         self._button_hover_color = ThemeManager.theme["CTkSwitch"]["button_hover_color"] if button_hover_color is None else self._check_color_type(button_hover_color)
         self._text_color = ThemeManager.theme["CTkSwitch"]["text_color"] if text_color is None else self._check_color_type(text_color)
         self._text_color_disabled = ThemeManager.theme["CTkSwitch"]["text_color_disabled"] if text_color_disabled is None else self._check_color_type(text_color_disabled)
+
+        # text
         self._text = text
         self._text_label = None
+
+        # font
         self._font = CTkFont() if font is None else self._check_font_type(font)
         if isinstance(self._font, CTkFont):
             self._font.add_size_configure_callback(self._update_font)
+
+        # shape
         self._corner_radius = ThemeManager.theme["CTkSwitch"]["corner_radius"] if corner_radius is None else corner_radius
         self._border_width = ThemeManager.theme["CTkSwitch"]["border_width"] if border_width is None else border_width
         self._button_length = ThemeManager.theme["CTkSwitch"]["button_length"] if button_length is None else button_length
         self._hover_state: bool = False
-        self._check_state: bool = False
+        self._check_state: bool = False  # True if switch is activated
         self._hover = hover
         self._state = state
         self._onvalue = onvalue
         self._offvalue = offvalue
+
+        # callback and control variables
         self._command = command
         self._variable = variable
         self._variable_callback_blocked = False
         self._variable_callback_name = None
         self._textvariable = textvariable
-        self._is_animation = is_animation
-        self._fps = fps
-        self._animating = False
-        self._animation_job = None
+
+        # configure grid system (3x1)
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=0, minsize=self._apply_widget_scaling(6))
         self.grid_columnconfigure(2, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        self._bg_canvas = CTkCanvas(master=self, highlightthickness=0, width=self._apply_widget_scaling(self._current_width), height=self._apply_widget_scaling(self._current_height))
+
+        self._bg_canvas = CTkCanvas(master=self,
+                                    highlightthickness=0,
+                                    width=self._apply_widget_scaling(self._current_width),
+                                    height=self._apply_widget_scaling(self._current_height))
         self._bg_canvas.grid(row=0, column=0, columnspan=3, sticky="nswe")
-        self._canvas = CTkCanvas(master=self, highlightthickness=0, width=self._apply_widget_scaling(self._switch_width), height=self._apply_widget_scaling(self._switch_height))
+
+        self._canvas = CTkCanvas(master=self,
+                                 highlightthickness=0,
+                                 width=self._apply_widget_scaling(self._switch_width),
+                                 height=self._apply_widget_scaling(self._switch_height))
         self._canvas.grid(row=0, column=0, sticky="")
         self._draw_engine = DrawEngine(self._canvas)
-        self._text_label = tkinter.Label(master=self, bd=0, padx=0, pady=0, text=self._text, justify=tkinter.LEFT, font=self._apply_font_scaling(self._font), textvariable=self._textvariable)
+
+        self._text_label = tkinter.Label(master=self,
+                                         bd=0,
+                                         padx=0,
+                                         pady=0,
+                                         text=self._text,
+                                         justify=tkinter.LEFT,
+                                         font=self._apply_font_scaling(self._font),
+                                         textvariable=self._textvariable)
         self._text_label.grid(row=0, column=2, sticky="w")
         self._text_label["anchor"] = "w"
+
         if self._variable is not None and self._variable != "":
             self._variable_callback_name = self._variable.trace_add("write", self._variable_callback)
             self._check_state = True if self._variable.get() == self._onvalue else False
+
         self._create_bindings()
         self._set_cursor()
-        self._draw()
-    
+        self._draw()  # initial draw
+
     def _create_bindings(self, sequence: Optional[str] = None):
         """ set necessary bindings for functionality of widget, will overwrite other bindings """
         if sequence is None or sequence == "<Enter>":
@@ -225,17 +255,7 @@ class CTkSwitch(CTkBaseClass):
             self._text_label.configure(bg=self._apply_appearance_mode(self._bg_color))
 
     def configure(self, require_redraw=False, **kwargs):
-        if "corner_radius" in kwargs:
-            self._corner_radius = kwargs.pop("corner_radius")
-            require_redraw = True
-
-        if "border_width" in kwargs:
-            self._border_width = kwargs.pop("border_width")
-            require_redraw = True
-
-        if "button_length" in kwargs:
-            self._button_length = kwargs.pop("button_length")
-            require_redraw = True
+        require_new_state = False
 
         if "switch_width" in kwargs:
             self._switch_width = kwargs.pop("switch_width")
@@ -247,22 +267,16 @@ class CTkSwitch(CTkBaseClass):
             self._canvas.configure(height=self._apply_widget_scaling(self._switch_height))
             require_redraw = True
 
-        if "text" in kwargs:
-            self._text = kwargs.pop("text")
-            self._text_label.configure(text=self._text)
+        if "corner_radius" in kwargs:
+            self._corner_radius = kwargs.pop("corner_radius")
+            require_redraw = True
 
-        if "font" in kwargs:
-            if isinstance(self._font, CTkFont):
-                self._font.remove_size_configure_callback(self._update_font)
-            self._font = self._check_font_type(kwargs.pop("font"))
-            if isinstance(self._font, CTkFont):
-                self._font.add_size_configure_callback(self._update_font)
+        if "border_width" in kwargs:
+            self._border_width = kwargs.pop("border_width")
+            require_redraw = True
 
-            self._update_font()
-
-        if "state" in kwargs:
-            self._state = kwargs.pop("state")
-            self._set_cursor()
+        if "button_length" in kwargs:
+            self._button_length = kwargs.pop("button_length")
             require_redraw = True
 
         if "fg_color" in kwargs:
@@ -293,40 +307,65 @@ class CTkSwitch(CTkBaseClass):
             self._text_color_disabled = self._check_color_type(kwargs.pop("text_color_disabled"))
             require_redraw = True
 
+        if "text" in kwargs:
+            self._text = kwargs.pop("text")
+            self._text_label.configure(text=self._text)
+
+        if "font" in kwargs:
+            if isinstance(self._font, CTkFont):
+                self._font.remove_size_configure_callback(self._update_font)
+            self._font = self._check_font_type(kwargs.pop("font"))
+            if isinstance(self._font, CTkFont):
+                self._font.add_size_configure_callback(self._update_font)
+            self._update_font()
+
+        if "textvariable" in kwargs:
+            self._textvariable = kwargs.pop("textvariable")
+            self._text_label.configure(textvariable=self._textvariable)
+
+        if "onvalue" in kwargs:
+            self._onvalue = kwargs.pop("onvalue")
+            require_new_state = True
+
+        if "offvalue" in kwargs:
+            self._offvalue = kwargs.pop("offvalue")
+            require_new_state = True
+
+        if "variable" in kwargs:
+            if self._variable is not None and self._variable != "":
+                self._variable.trace_remove("write", self._variable_callback_name)
+            self._variable = kwargs.pop("variable")
+            if self._variable is not None and self._variable != "":
+                self._variable_callback_name = self._variable.trace_add("write", self._variable_callback)
+                require_new_state = True
+
         if "hover" in kwargs:
             self._hover = kwargs.pop("hover")
 
         if "command" in kwargs:
             self._command = kwargs.pop("command")
 
-        if "textvariable" in kwargs:
-            self._textvariable = kwargs.pop("textvariable")
-            self._text_label.configure(textvariable=self._textvariable)
+        if "state" in kwargs:
+            self._state = kwargs.pop("state")
+            self._set_cursor()
+            require_redraw = True
 
-        if "variable" in kwargs:
-            if self._variable is not None and self._variable != "":
-                self._variable.trace_remove("write", self._variable_callback_name)
-
-            self._variable = kwargs.pop("variable")
-
-            if self._variable is not None and self._variable != "":
-                self._variable_callback_name = self._variable.trace_add("write", self._variable_callback)
-                self._check_state = True if self._variable.get() == self._onvalue else False
-                require_redraw = True
-
+        if require_new_state and self._variable is not None and self._variable != "":
+            self._check_state = True if self._variable.get() == self._onvalue else False
+            require_redraw = True
         super().configure(require_redraw=require_redraw, **kwargs)
 
     def cget(self, attribute_name: str) -> any:
-        if attribute_name == "corner_radius":
+        if attribute_name == "switch_width":
+            return self._switch_width
+        elif attribute_name == "switch_height":
+            return self._switch_height
+        elif attribute_name == "corner_radius":
             return self._corner_radius
         elif attribute_name == "border_width":
             return self._border_width
         elif attribute_name == "button_length":
             return self._button_length
-        elif attribute_name == "switch_width":
-            return self._switch_width
-        elif attribute_name == "switch_height":
-            return self._switch_height
 
         elif attribute_name == "fg_color":
             return self._fg_color
@@ -364,86 +403,28 @@ class CTkSwitch(CTkBaseClass):
 
         else:
             return super().cget(attribute_name)
+    
+    def set(self, state: bool, from_variable_callback=False):
+        self._check_state = state
+        self._draw(no_color_updates=True)
 
-    def _animate(self, start: float, end: float):
-        self._animating = True
-        duration_ms = 100
-        steps = max(1, int(self._fps * duration_ms / 1000))
-        interval = max(1, int(1000 / self._fps))
-
-        def ease_in_out_quad(t: float) -> float:
-            if t < 0.5:
-                return 2 * t * t
-            return -1 + (4 - 2 * t) * t
-
-        def step(i: int = 0):
-            if i <= steps:
-                t = i / steps
-                current = start + (end - start) * ease_in_out_quad(t)
-                self._draw_engine.draw_rounded_slider_with_border_and_button(
-                    self._apply_widget_scaling(self._switch_width),
-                    self._apply_widget_scaling(self._switch_height),
-                    self._apply_widget_scaling(self._corner_radius),
-                    self._apply_widget_scaling(self._border_width),
-                    self._apply_widget_scaling(self._button_length),
-                    self._apply_widget_scaling(self._corner_radius),
-                    current, "w")
-                self._canvas.itemconfig(
-                    "slider_parts",
-                    fill=self._apply_appearance_mode(self._button_color),
-                    outline=self._apply_appearance_mode(self._button_color)
-                )
-                self._animation_job = self.after(interval, lambda: step(i + 1))
-            else:
-                self._animating = False
-                self._animation_job = None
-                self._draw(no_color_updates=True)
-
-        step()
-
-    def toggle(self, event: Optional[Any] = None):
-        if self._state == tkinter.DISABLED:
-            return
-        if self._is_animation and self._animating:
-            return
-
-        start = 1.0 if self._check_state else 0.0
-        self._check_state = not self._check_state
-        end = 1.0 if self._check_state else 0.0
-
-        if self._is_animation:
-            self._animate(start, end)
-        else:
-            self._draw(no_color_updates=True)
-
-        if self._variable is not None:
+        if self._variable is not None and not from_variable_callback:
             self._variable_callback_blocked = True
-            self._variable.set(self._onvalue if self._check_state else self._offvalue)
+            self._variable.set(self._onvalue if self._check_state is True else self._offvalue)
             self._variable_callback_blocked = False
-        if self._command is not None:
-            self._command()
+
+    def toggle(self, event=None):
+        if self._state == tkinter.NORMAL:
+            self.set(not self._check_state)
+
+            if self._command is not None:
+                self._command()
 
     def select(self, from_variable_callback=False):
-        if self._state is not tkinter.DISABLED or from_variable_callback:
-            self._check_state = True
-
-            self._draw(no_color_updates=True)
-
-            if self._variable is not None and not from_variable_callback:
-                self._variable_callback_blocked = True
-                self._variable.set(self._onvalue)
-                self._variable_callback_blocked = False
+        self.set(True, from_variable_callback)
 
     def deselect(self, from_variable_callback=False):
-        if self._state is not tkinter.DISABLED or from_variable_callback:
-            self._check_state = False
-
-            self._draw(no_color_updates=True)
-
-            if self._variable is not None and not from_variable_callback:
-                self._variable_callback_blocked = True
-                self._variable.set(self._offvalue)
-                self._variable_callback_blocked = False
+        self.set(False, from_variable_callback)
 
     def get(self) -> Union[int, str]:
         return self._onvalue if self._check_state is True else self._offvalue

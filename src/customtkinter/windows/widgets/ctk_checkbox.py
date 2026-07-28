@@ -31,7 +31,7 @@ class CTkCheckBox(CTkBaseClass):
                  checkmark_color: Optional[Union[str, Tuple[str, str]]] = None,
                  text_color: Optional[Union[str, Tuple[str, str]]] = None,
                  text_color_disabled: Optional[Union[str, Tuple[str, str]]] = None,
-                 factor: Union[int, float] = 1,
+
                  text: str = "CTkCheckBox",
                  font: Optional[Union[tuple, CTkFont]] = None,
                  textvariable: Union[tkinter.Variable, None] = None,
@@ -46,13 +46,9 @@ class CTkCheckBox(CTkBaseClass):
         # transfer basic functionality (_bg_color, size, __appearance_mode, scaling) to CTkBaseClass
         super().__init__(master=master, bg_color=bg_color, width=width, height=height, **kwargs)
 
-        self._factor = factor
-        
-        # Store original dimensions and apply factor
-        self._original_checkbox_width = checkbox_width
-        self._original_checkbox_height = checkbox_height
-        self._checkbox_width = self._original_checkbox_width * self._factor
-        self._checkbox_height = self._original_checkbox_height * self._factor
+        # dimensions
+        self._checkbox_width = checkbox_width
+        self._checkbox_height = checkbox_height
 
         # color
         self._fg_color = ThemeManager.theme["CTkCheckBox"]["fg_color"] if fg_color is None else self._check_color_type(fg_color)
@@ -80,7 +76,7 @@ class CTkCheckBox(CTkBaseClass):
         self._state = state
         self._hover = hover
         self._check_state = False
-        
+
         self._onvalue = onvalue
         self._offvalue = offvalue
         self._variable: tkinter.Variable = variable
@@ -142,14 +138,14 @@ class CTkCheckBox(CTkBaseClass):
     def _set_scaling(self, *args, **kwargs):
         super()._set_scaling(*args, **kwargs)
 
-        # Update canvas dimensions with current factor
-        self._checkbox_width = self._original_checkbox_width * self._factor
-        self._checkbox_height = self._original_checkbox_height * self._factor
+        self.grid_columnconfigure(1, weight=0, minsize=self._apply_widget_scaling(6))
+        self._text_label.configure(font=self._apply_font_scaling(self._font))
 
-        self._canvas.configure(
-            width=self._apply_widget_scaling(self._checkbox_width),
-            height=self._apply_widget_scaling(self._checkbox_height)
-        )
+        self._canvas.delete("checkmark")
+        self._bg_canvas.configure(width=self._apply_widget_scaling(self._desired_width),
+                                  height=self._apply_widget_scaling(self._desired_height))
+        self._canvas.configure(width=self._apply_widget_scaling(self._checkbox_width),
+                               height=self._apply_widget_scaling(self._checkbox_height))
         self._draw(no_color_updates=True)
 
     def _set_dimensions(self, width: int = None, height: int = None):
@@ -180,22 +176,15 @@ class CTkCheckBox(CTkBaseClass):
     def _draw(self, no_color_updates=False):
         super()._draw(no_color_updates)
 
-        # Draw checkbox with current dimensions
-        requires_recoloring_1 = self._draw_engine.draw_rounded_rect_with_border(
-            self._apply_widget_scaling(self._checkbox_width),
-            self._apply_widget_scaling(self._checkbox_height),
-            self._apply_widget_scaling(self._corner_radius),
-            self._apply_widget_scaling(self._border_width)
-        )
+        requires_recoloring_1 = self._draw_engine.draw_rounded_rect_with_border(self._apply_widget_scaling(self._checkbox_width),
+                                                                                self._apply_widget_scaling(self._checkbox_height),
+                                                                                self._apply_widget_scaling(self._corner_radius),
+                                                                                self._apply_widget_scaling(self._border_width))
 
-        # Draw checkmark scaled proportionally
         if self._check_state is True:
-            checkmark_size = self._checkbox_height * 0.58  # 58% of checkbox height
-            requires_recoloring_2 = self._draw_engine.draw_checkmark(
-                self._apply_widget_scaling(self._checkbox_width),
-                self._apply_widget_scaling(self._checkbox_height),
-                self._apply_widget_scaling(checkmark_size)
-            )
+            requires_recoloring_2 = self._draw_engine.draw_checkmark(self._apply_widget_scaling(self._checkbox_width),
+                                                                     self._apply_widget_scaling(self._checkbox_height),
+                                                                     self._apply_widget_scaling(self._checkbox_height * 0.58))
         else:
             requires_recoloring_2 = False
             self._canvas.delete("checkmark")
@@ -232,26 +221,7 @@ class CTkCheckBox(CTkBaseClass):
             self._text_label.configure(bg=self._apply_appearance_mode(self._bg_color))
 
     def configure(self, require_redraw=False, **kwargs):
-        if "factor" in kwargs:
-            self._factor = kwargs.pop("factor")
-
-            # Update dimensions and redraw
-            self._checkbox_width = self._original_checkbox_width * self._factor
-            self._checkbox_height = self._original_checkbox_height * self._factor
-
-            self._canvas.configure(
-                width=self._apply_widget_scaling(self._checkbox_width),
-                height=self._apply_widget_scaling(self._checkbox_height)
-            )
-            require_redraw = True
-        
-        if "corner_radius" in kwargs:
-            self._corner_radius = kwargs.pop("corner_radius")
-            require_redraw = True
-
-        if "border_width" in kwargs:
-            self._border_width = kwargs.pop("border_width")
-            require_redraw = True
+        require_new_state = False
 
         if "checkbox_width" in kwargs:
             self._checkbox_width = kwargs.pop("checkbox_width")
@@ -263,22 +233,12 @@ class CTkCheckBox(CTkBaseClass):
             self._canvas.configure(height=self._apply_widget_scaling(self._checkbox_height))
             require_redraw = True
 
-        if "text" in kwargs:
-            self._text = kwargs.pop("text")
-            self._text_label.configure(text=self._text)
+        if "corner_radius" in kwargs:
+            self._corner_radius = kwargs.pop("corner_radius")
+            require_redraw = True
 
-        if "font" in kwargs:
-            if isinstance(self._font, CTkFont):
-                self._font.remove_size_configure_callback(self._update_font)
-            self._font = self._check_font_type(kwargs.pop("font"))
-            if isinstance(self._font, CTkFont):
-                self._font.add_size_configure_callback(self._update_font)
-
-            self._update_font()
-
-        if "state" in kwargs:
-            self._state = kwargs.pop("state")
-            self._set_cursor()
+        if "border_width" in kwargs:
+            self._border_width = kwargs.pop("border_width")
             require_redraw = True
 
         if "fg_color" in kwargs:
@@ -305,38 +265,63 @@ class CTkCheckBox(CTkBaseClass):
             self._text_color_disabled = self._check_color_type(kwargs.pop("text_color_disabled"))
             require_redraw = True
 
+        if "text" in kwargs:
+            self._text = kwargs.pop("text")
+            self._text_label.configure(text=self._text)
+
+        if "font" in kwargs:
+            if isinstance(self._font, CTkFont):
+                self._font.remove_size_configure_callback(self._update_font)
+            self._font = self._check_font_type(kwargs.pop("font"))
+            if isinstance(self._font, CTkFont):
+                self._font.add_size_configure_callback(self._update_font)
+            self._update_font()
+
+        if "textvariable" in kwargs:
+            self._textvariable = kwargs.pop("textvariable")
+            self._text_label.configure(textvariable=self._textvariable)
+
+        if "state" in kwargs:
+            self._state = kwargs.pop("state")
+            self._set_cursor()
+            require_redraw = True
+
         if "hover" in kwargs:
             self._hover = kwargs.pop("hover")
 
         if "command" in kwargs:
             self._command = kwargs.pop("command")
 
-        if "textvariable" in kwargs:
-            self._textvariable = kwargs.pop("textvariable")
-            self._text_label.configure(textvariable=self._textvariable)
+        if "onvalue" in kwargs:
+            self._onvalue = kwargs.pop("onvalue")
+            require_new_state = True
+
+        if "offvalue" in kwargs:
+            self._offvalue = kwargs.pop("offvalue")
+            require_new_state = True
 
         if "variable" in kwargs:
             if self._variable is not None and self._variable != "":
                 self._variable.trace_remove("write", self._variable_callback_name)  # remove old variable callback
-
             self._variable = kwargs.pop("variable")
-
             if self._variable is not None and self._variable != "":
                 self._variable_callback_name = self._variable.trace_add("write", self._variable_callback)
-                self._check_state = True if self._variable.get() == self._onvalue else False
-                require_redraw = True
+                require_new_state = True
 
+        if require_new_state and self._variable is not None and self._variable != "":
+            self._check_state = True if self._variable.get() == self._onvalue else False
+            require_redraw = True
         super().configure(require_redraw=require_redraw, **kwargs)
 
     def cget(self, attribute_name: str) -> any:
-        if attribute_name == "corner_radius":
-            return self._corner_radius
-        elif attribute_name == "border_width":
-            return self._border_width
-        elif attribute_name == "checkbox_width":
+        if attribute_name == "checkbox_width":
             return self._checkbox_width
         elif attribute_name == "checkbox_height":
             return self._checkbox_height
+        elif attribute_name == "corner_radius":
+            return self._corner_radius
+        elif attribute_name == "border_width":
+            return self._border_width
 
         elif attribute_name == "fg_color":
             return self._fg_color
@@ -361,14 +346,15 @@ class CTkCheckBox(CTkBaseClass):
             return self._state
         elif attribute_name == "hover":
             return self._hover
+        elif attribute_name == "command":
+            return self._command
         elif attribute_name == "onvalue":
             return self._onvalue
         elif attribute_name == "offvalue":
             return self._offvalue
         elif attribute_name == "variable":
             return self._variable
-        elif attribute_name == "factor":
-            return self._factor
+
         else:
             return super().cget(attribute_name)
 
@@ -430,41 +416,28 @@ class CTkCheckBox(CTkBaseClass):
                 self.select(from_variable_callback=True)
             elif self._variable.get() == self._offvalue:
                 self.deselect(from_variable_callback=True)
+    
+    def set(self, state: bool, from_variable_callback=False):
+        self._check_state = state
+        self._draw()
+
+        if self._variable is not None and not from_variable_callback:
+            self._variable_callback_blocked = True
+            self._variable.set(self._onvalue if self._check_state is True else self._offvalue)
+            self._variable_callback_blocked = False
 
     def toggle(self, event=0):
         if self._state == tkinter.NORMAL:
-            if self._check_state is True:
-                self._check_state = False
-                self._draw()
-            else:
-                self._check_state = True
-                self._draw()
-
-            if self._variable is not None:
-                self._variable_callback_blocked = True
-                self._variable.set(self._onvalue if self._check_state is True else self._offvalue)
-                self._variable_callback_blocked = False
+            self.set(not self._check_state)
 
             if self._command is not None:
                 self._command()
 
     def select(self, from_variable_callback=False):
-        self._check_state = True
-        self._draw()
-
-        if self._variable is not None and not from_variable_callback:
-            self._variable_callback_blocked = True
-            self._variable.set(self._onvalue)
-            self._variable_callback_blocked = False
+        self.set(True, from_variable_callback)
 
     def deselect(self, from_variable_callback=False):
-        self._check_state = False
-        self._draw()
-
-        if self._variable is not None and not from_variable_callback:
-            self._variable_callback_blocked = True
-            self._variable.set(self._offvalue)
-            self._variable_callback_blocked = False
+        self.set(False, from_variable_callback)
 
     def get(self) -> Union[int, str]:
         return self._onvalue if self._check_state is True else self._offvalue

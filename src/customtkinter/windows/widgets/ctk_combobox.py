@@ -2,7 +2,6 @@ import tkinter
 import sys
 import copy
 from typing import Union, Tuple, Callable, List, Optional, Any
-from PIL import Image, ImageTk
 
 from .core_widget_classes import DropdownMenu
 from .core_rendering import CTkCanvas
@@ -44,7 +43,6 @@ class CTkComboBox(CTkBaseClass):
                  variable: Union[tkinter.Variable, None] = None,
                  command: Union[Callable[[str], Any], None] = None,
                  justify: str = "left",
-                 dropdown_image: Optional[Image.Image] = None,
                  **kwargs):
 
         # transfer basic functionality (_bg_color, size, __appearance_mode, scaling) to CTkBaseClass
@@ -87,6 +85,7 @@ class CTkComboBox(CTkBaseClass):
                                            hover_color=dropdown_hover_color,
                                            text_color=dropdown_text_color,
                                            font=dropdown_font)
+        self._close_on_next_click: bool = False
 
         # configure grid system (1x1)
         self.grid_rowconfigure(0, weight=1)
@@ -106,9 +105,6 @@ class CTkComboBox(CTkBaseClass):
                                     highlightthickness=0,
                                     font=self._apply_font_scaling(self._font))
 
-        # Initialize dropdown image
-        self._dropdown_image = dropdown_image
-        self._dropdown_photoimage = None
         self._create_grid()
         self._create_bindings()
         self._draw()  # initial draw
@@ -185,30 +181,12 @@ class CTkComboBox(CTkBaseClass):
                                                                                             self._apply_widget_scaling(self._border_width),
                                                                                             self._apply_widget_scaling(left_section_width))
 
-        # Delete previous dropdown item
-        self._canvas.delete("dropdown_arrow")
+        requires_recoloring_2 = self.draw_engine.draw_dropdown_arrow(self._apply_widget_scaling(self._current_width - (self._current_height / 2)),
+                                                                     self._apply_widget_scaling(self._current_height / 2),
+                                                                     self._apply_widget_scaling(self._current_height / 3))
 
-        if self._dropdown_image is not None:
-            # Calculate size in pixels
-            target_height = self._current_height / 2
-            original_width, original_height = self._dropdown_image.size
-            scale_factor = target_height / original_height
-            new_width = int(original_width * scale_factor)
-            new_height = int(target_height)
+        if no_color_updates is False or requires_recoloring or requires_recoloring_2:
 
-            # Create PhotoImage
-            self._dropdown_photoimage = ImageTk.PhotoImage(self._dropdown_image)
-
-            # Place image on canvas
-            x = self._current_width - self._current_height / 2
-            y = self._current_height / 2
-            self._canvas.create_image(x, y, image=self._dropdown_photoimage, anchor='center', tags="dropdown_arrow")
-        else:
-            # Draw arrow
-            requires_recoloring_2 = self.draw_engine.draw_dropdown_arrow(self._apply_widget_scaling(self._current_width - (self._current_height / 2)),
-                                                                         self._apply_widget_scaling(self._current_height / 2),
-                                                                         self._apply_widget_scaling(self._current_height / 3))
-        if no_color_updates is False or requires_recoloring or (self._dropdown_image is None and 'requires_recoloring_2' in locals()):
             self._canvas.configure(bg=self._apply_appearance_mode(self._bg_color))
 
             self._canvas.itemconfig("inner_parts_left",
@@ -232,23 +210,19 @@ class CTkComboBox(CTkBaseClass):
                                   highlightcolor=self._apply_appearance_mode(self._fg_color),
                                   insertbackground=self._apply_appearance_mode(self._text_color))
 
-            if self._dropdown_image is None:
-                if self._state == tkinter.DISABLED:
-                    self._canvas.itemconfig("dropdown_arrow",
-                                            fill=self._apply_appearance_mode(self._text_color_disabled))
-                else:
-                    self._canvas.itemconfig("dropdown_arrow",
-                                            fill=self._apply_appearance_mode(self._text_color))
+            if self._state == tkinter.DISABLED:
+                self._canvas.itemconfig("dropdown_arrow",
+                                        fill=self._apply_appearance_mode(self._text_color_disabled))
+            else:
+                self._canvas.itemconfig("dropdown_arrow",
+                                        fill=self._apply_appearance_mode(self._text_color))
 
     def _open_dropdown_menu(self):
         self._dropdown_menu.open(self.winfo_rootx(),
                                  self.winfo_rooty() + self._apply_widget_scaling(self._current_height + 0))
+        self._close_on_next_click = True
 
     def configure(self, require_redraw=False, **kwargs):
-        if "dropdown_image" in kwargs:
-            self._dropdown_image = kwargs.pop("dropdown_image")
-            require_redraw = True
-
         if "corner_radius" in kwargs:
             self._corner_radius = kwargs.pop("corner_radius")
             require_redraw = True
@@ -328,9 +302,7 @@ class CTkComboBox(CTkBaseClass):
         super().configure(require_redraw=require_redraw, **kwargs)
 
     def cget(self, attribute_name: str) -> any:
-        if attribute_name == "dropdown_image":
-            return self._dropdown_image
-        elif attribute_name == "corner_radius":
+        if attribute_name == "corner_radius":
             return self._corner_radius
         elif attribute_name == "border_width":
             return self._border_width
@@ -370,10 +342,12 @@ class CTkComboBox(CTkBaseClass):
             return self._command
         elif attribute_name == "justify":
             return self._entry.cget("justify")
+
         else:
             return super().cget(attribute_name)
 
     def _on_enter(self, event=0):
+        self._close_on_next_click = self._dropdown_menu.is_open()
         if self._hover is True and self._state == tkinter.NORMAL and len(self._values) > 0:
             if sys.platform == "darwin" and len(self._values) > 0 and self._cursor_manipulation_enabled:
                 self._canvas.configure(cursor="pointinghand")
@@ -434,8 +408,19 @@ class CTkComboBox(CTkBaseClass):
     def get(self) -> str:
         return self._entry.get()
 
+    def index(self, value: Optional[Any] = None) -> int:
+        """ returns index of selected value, raises ValueError if the value is missing
+        if the parameter is provided, returns the associated index or raises ValueError if no value is found """
+        if value is None:
+            return self._values.index(self.get())
+        else:
+            return self._values.index(value)
+
     def _clicked(self, event=None):
-        if self._state is not tkinter.DISABLED and len(self._values) > 0:
+        if self._close_on_next_click:
+            self._dropdown_menu.close()
+            self._close_on_next_click = False
+        elif self._state is not tkinter.DISABLED and len(self._values) > 0:
             self._open_dropdown_menu()
 
     def bind(self, sequence=None, command=None, add=True):

@@ -85,8 +85,7 @@ class CTkFont(Font):
     def cget(self, attribute_name: str) -> any:
         if attribute_name == "size":
             return self._size
-        if attribute_name == "family":
-            return self._family
+
         else:
             return super().cget(attribute_name)
 
