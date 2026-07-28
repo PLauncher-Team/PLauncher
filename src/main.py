@@ -282,7 +282,7 @@ if __name__ == "__main__":
             log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "WARNING")
             LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
 
-        if LauncherConfig.config["custom_theme"] and not os.path.isfile(LauncherConfig.config["custom_theme"]):
+        if LauncherConfig.config["custom_theme"] and not os.path.isfile(os.path.join("themes", LauncherConfig.config["custom_theme"]+".json")):
             log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "WARNING")
             LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
         
