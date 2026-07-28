@@ -9,4 +9,3 @@ requests-cache
 json-repair
 PySocks
 tomli
-tkinterdnd2

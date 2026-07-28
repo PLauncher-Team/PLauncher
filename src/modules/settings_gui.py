@@ -58,7 +58,7 @@ def animate_value(start: tuple = (1, 0), end: tuple = (0.55, 0.3), duration_ms: 
         current_opacity = start[1] + (end[1] - start[1]) * eased_t
 
         settings_frame.place(relx=current_pos)
-        set_opacity(blackout_frame, value=current_opacity)
+        pywinstyles.set_opacity(blackout_frame, value=current_opacity)
 
         if frame_index < frames:
             settings_frame.after(interval, step, frame_index + 1)

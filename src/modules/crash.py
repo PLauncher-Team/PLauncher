@@ -90,7 +90,7 @@ class CrashLogWindow(ctk.CTkToplevel):
             self.ai_button.configure(state="disabled")
 
     def _restore_titlebar_color(self, event=None):
-        hPyT.title_bar_color.set(self, GuiOptions.fg_color)
+        pywinstyles.change_header_color(self, GuiOptions.fg_color)
 
     def cancel_analyze(self):
         self.ai_button.configure(state="disabled", text=language_manager.get("main.status.finalizing"))

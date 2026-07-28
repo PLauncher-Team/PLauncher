@@ -246,8 +246,7 @@ class ModViewer(ctk.CTkFrame):
     def __init__(self):
         super().__init__(root, border_width=0)
         self.place_forget()
-        self.drop_target_register(DND_FILES)
-        self.dnd_bind('<<Drop>>', self.add_mods)
+        pywinstyles.apply_dnd(self, self.add_mods)
 
         self.configure(fg_color="#0f0f0f")
         self.items_per_page = 10
@@ -426,7 +425,7 @@ class ModViewer(ctk.CTkFrame):
         self.next_btn.pack(side="left", padx=4)
     
     def add_mods(self, event):
-        mods = [file for file in root.tk.splitlist(event.data) if file.endswith(".jar")]
+        mods = [file for file in event if file.endswith(".jar")]
         new_message(
             title=language_manager.get("messages.titles.warning"),
             message=language_manager.get('messages.texts.warning.add_confirm'),
@@ -828,7 +827,7 @@ class ModViewer(ctk.CTkFrame):
             if not self.winfo_exists():
                 break
             opacity = (i + 1) / steps
-            set_opacity(self, color="#242424", value=opacity)
+            pywinstyles.set_opacity(self, color="#242424", value=opacity)
             self.update()
             time.sleep(duration / steps)
 
@@ -843,9 +842,9 @@ class ModViewer(ctk.CTkFrame):
             if not self.winfo_exists():
                 break
             opacity = i / steps
-            set_opacity(self, color="#242424", value=opacity)
+            pywinstyles.set_opacity(self, color="#242424", value=opacity)
             self.update()
             time.sleep(duration / steps)
 
-        set_opacity(self, color="#242424", value=1)
+        pywinstyles.set_opacity(self, color="#242424", value=1)
         self.place_forget()

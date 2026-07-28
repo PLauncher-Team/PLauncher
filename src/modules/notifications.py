@@ -56,7 +56,7 @@ class ToastNotification(ctk.CTkFrame):
             height=self.h,
         )
 
-        set_opacity(self, color="#242424")
+        pywinstyles.set_opacity(self, color="#242424")
 
         self.master_window = master
         self.duration = duration
@@ -253,7 +253,7 @@ class CTkMessagebox(ctk.CTkFrame):
                  option_focus: Literal[1, 2, 3] = None):
         super().__init__(master)
         self.configure(fg_color="#242424")
-        set_opacity(self, color="#242424")
+        pywinstyles.set_opacity(self, color="#242424")
 
         self.fps = LauncherConfig.FPS
 
@@ -269,19 +269,19 @@ class CTkMessagebox(ctk.CTkFrame):
         if self.master_window:
             frame = ctk.CTkFrame(self.master_window, fg_color="black", border_width=0)
             if frame.winfo_exists():
-                set_opacity(frame.winfo_id(), color="#242424", value=0)
+                pywinstyles.set_opacity(frame.winfo_id(), color="#242424", value=0)
             frame.place(relx=0, rely=0, relwidth=1, relheight=1)
             self.blackout_frames.append(frame)
             for widget in self.master_window.winfo_children():
                 if isinstance(widget, ctk.CTkFrame) and widget is not self:
                     frame_child = ctk.CTkFrame(widget, fg_color="black", border_width=0)
                     if frame_child.winfo_exists():
-                        set_opacity(frame_child.winfo_id(), color="#242424", value=0)
+                        pywinstyles.set_opacity(frame_child.winfo_id(), color="#242424", value=0)
                     frame_child.place(relx=0, rely=0, relwidth=1, relheight=1)
                     self.blackout_frames.append(frame_child)
 
         if self.winfo_exists():
-            set_opacity(self.winfo_id(), color="#242424", value=0)
+            pywinstyles.set_opacity(self.winfo_id(), color="#242424", value=0)
 
         self.width = 250 if width < 250 else width
         self.height = 150 if height < 150 else height
@@ -493,7 +493,7 @@ class CTkMessagebox(ctk.CTkFrame):
             self.fade_in()
         else:
             if self.winfo_exists():
-                set_opacity(self.winfo_id(), color="#242424", value=1)
+                pywinstyles.set_opacity(self.winfo_id(), color="#242424", value=1)
 
     def place_widget(self, widget, x=10, y=10, **args):
         if "master" in args:
@@ -555,7 +555,7 @@ class CTkMessagebox(ctk.CTkFrame):
 
     def safe_set_opacity(self, widget, color, value):
         if widget and widget.winfo_exists():
-            set_opacity(widget.winfo_id(), color=color, value=value)
+            pywinstyles.set_opacity(widget.winfo_id(), color=color, value=value)
 
     def fade_in(self):
         if self.blackout_frames:

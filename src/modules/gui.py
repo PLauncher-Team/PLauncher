@@ -17,12 +17,7 @@ else:
 log(f"Тема лаунчера: {theme_path}")
 ctk.set_default_color_theme(f"themes/{theme_path}.json")
 
-class CTkDND(ctk.CTk, TkinterDnD.DnDWrapper):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.TkdndVersion = TkinterDnD._require(self)
-
-root = CTkDND(fg_color="#242424")
+root = ctk.CTk(fg_color="#242424")
 
 root.report_callback_exception = excepthook
 root.resizable(False, False)
@@ -68,12 +63,12 @@ version_frame = VersionFrame(root)
 version_frame.place(relwidth=0.175, relheight=0.177, relx=0.797, rely=0.05)
 blackout_frame = ctk.CTkFrame(root, fg_color="black")
 blackout_frame.place(relwidth=1, relheight=1)
-set_opacity(blackout_frame, value=0)
+pywinstyles.set_opacity(blackout_frame, value=0)
 blackout_frame.bind("<Button-1>", lambda a: close_settings())
 
 settings_frame = ctk.CTkFrame(root, fg_color=GuiOptions.fg_color)
 settings_frame.place(relwidth=0.45, relheight=1, relx=1)
-set_opacity(settings_frame, value=0.9)
+pywinstyles.set_opacity(settings_frame, value=0.9)
 
 header_frame = ctk.CTkFrame(settings_frame, corner_radius=0)
 header_frame.place(relx=0, rely=0, relwidth=1, relheight=0.1)
@@ -379,7 +374,7 @@ update_skin_button = ctk.CTkButton(
     command=lambda: threading.Thread(target=set_skin).start(),
 )
 update_skin_button.place(relx=0.98, rely=0.97, relwidth=0.4, relheight=0.15, anchor="se")
-set_opacity(update_skin_button, color="#242424")
+pywinstyles.set_opacity(update_skin_button, color="#242424")
 
 select_skin_button = ctk.CTkButton(
     content_frames[tabs[2]],
@@ -532,14 +527,14 @@ status_label = ctk.CTkLabel(
     bg_color="#242424"
 )
 status_label.place(relx=0.671, rely=0.725, relwidth=0.313, relheight=0.074)
-set_opacity(status_label, color="#242424")
+pywinstyles.set_opacity(status_label, color="#242424")
 
 progress_bar = ctk.CTkProgressBar(
     root,
 )
 progress_bar.place(relx=0.675, rely=0.807, relwidth=0.305, relheight=0.021)
 progress_bar.set(0)
-set_opacity(progress_bar, value=0.9)
+pywinstyles.set_opacity(progress_bar, value=0.9)
 
 username_entry = ctk.CTkEntry(
     root,
@@ -549,7 +544,7 @@ username_entry = ctk.CTkEntry(
 username_entry.bind("<KeyRelease>", lambda h: save_config_menu())
 username_entry.insert(0, LauncherConfig.config["name"])
 username_entry.place(relx=0.015, rely=0.848, relwidth=0.313, relheight=0.124)
-set_opacity(username_entry, color="#242424", value=0.9)
+pywinstyles.set_opacity(username_entry, color="#242424", value=0.9)
 
 pil_image_about_us = PIL.Image.open("png/GUI/feedback.png")
 ctk_image_about_us = ctk.CTkImage(pil_image_about_us, size=(30, 30))
@@ -562,7 +557,7 @@ feedback_button = ctk.CTkButton(
     font=("Segoe UI", 15, "bold"),
 )
 feedback_button.place(relx=0.02, rely=0.403, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
-set_opacity(feedback_button, color="#242424", value=0.8)
+pywinstyles.set_opacity(feedback_button, color="#242424", value=0.8)
 if not LauncherConfig.IS_INTERNET:
     feedback_button.configure(state="disabled")
 
@@ -576,13 +571,13 @@ logs_button = ctk.CTkButton(
     command=open_logs,
 )
 logs_button.place(relx=0.02, rely=0.51, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
-set_opacity(logs_button, color="#242424", value=0.8)
+pywinstyles.set_opacity(logs_button, color="#242424", value=0.8)
 
 pil_image_instances = PIL.Image.open("png/GUI/instances.png")
 ctk_image_instances = ctk.CTkImage(pil_image_instances, size=(30, 30))
 mods_button = ctk.CTkButton(root, text=language_manager.get("main.buttons.mods"), image=ctk_image_instances, font=("Segoe UI", 15, "bold"), command=mod_viewer_window.deiconify)
 mods_button.place(relx=0.02, rely=0.617, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
-set_opacity(mods_button, color="#242424", value=0.8)
+pywinstyles.set_opacity(mods_button, color="#242424", value=0.8)
 
 pil_image_settings = PIL.Image.open("png/GUI/settings.png")
 ctk_image_settings = ctk.CTkImage(pil_image_settings, size=(30, 30))
@@ -594,7 +589,7 @@ settings_button = ctk.CTkButton(
     image=ctk_image_settings,
 )
 settings_button.place(relx=0.02, rely=0.724, relwidth=int(language_manager.get("main.width_buttons")) / 1000, relheight=0.067)
-set_opacity(settings_button, color="#242424", value=0.8)
+pywinstyles.set_opacity(settings_button, color="#242424", value=0.8)
 
 version_combobox_ctk = ctk.CTkComboBox(
     root,
@@ -603,7 +598,7 @@ version_combobox_ctk = ctk.CTkComboBox(
     height=562 * 0.124
 )
 version_combobox_ctk.place(relx=0.343, rely=0.848, relwidth=0.313)
-set_opacity(version_combobox_ctk, color="#242424", value=0.9)
+pywinstyles.set_opacity(version_combobox_ctk, color="#242424", value=0.9)
 
 version_combobox = CTkScrollableDropdown(
     version_combobox_ctk,
@@ -637,9 +632,9 @@ launch_button = ctk.CTkButton(
     font=("Segoe UI", 20, "bold"),
 )
 launch_button.place(relx=0.671, rely=0.848, relwidth=0.313, relheight=0.124)
-set_opacity(launch_button, color="#242424", value=0.9)
+pywinstyles.set_opacity(launch_button, color="#242424", value=0.9)
 
-hPyT.title_bar_color.set(root, GuiOptions.fg_color)
+pywinstyles.change_header_color(root, GuiOptions.fg_color)
 
 log("Запускаем сетевые потоки...")
 threading.Thread(target=JavaRuntimeManager.get_available_major_versions).start()
