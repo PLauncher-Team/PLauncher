@@ -1,5 +1,5 @@
 <div align="right">
-  <b>🌐 <a href="README_EN.md">English</a> | 🇷🇺 Русский</b>
+  <b>🌐 <a href="README.md">English</a> | 🇷🇺 Русский</b>
 </div>
 
 # PLauncher
