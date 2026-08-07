@@ -269,7 +269,7 @@ def launch_game():
 
             LaunchOptions.minecraft_process = subprocess.Popen(
                 command,
-                cwd=work_folder,
+                cwd=work_folder, 
                 creationflags=creationflags,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -293,7 +293,6 @@ def launch_game():
                 line = line.replace('\r\n', '\n')
                 print(line, end='')
                 LaunchOptions.minecraft_log_file.write(line)
-                LaunchOptions.minecraft_log_file.flush()
 
             LaunchOptions.minecraft_process.wait()
 
