@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Literal
+from typing import TYPE_CHECKING, Optional, Literal, Callable
 
 if TYPE_CHECKING:
     from context import *
