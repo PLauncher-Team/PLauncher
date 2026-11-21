@@ -645,14 +645,6 @@ pywinstyles.set_opacity(launch_button, color="#242424", value=0.9)
 
 pywinstyles.change_header_color(root, GuiOptions.fg_color)
 
-log("Запускаем сетевые потоки...")
-threading.Thread(target=JavaRuntimeManager.get_available_major_versions).start()
-threading.Thread(target=thread_load_versions).start()
-threading.Thread(target=set_skin).start()
-threading.Thread(target=get_loaders_versions).start()
-
-
-apply_hover_border()
 blackout_frame.lift()
 settings_frame.lift()
 
