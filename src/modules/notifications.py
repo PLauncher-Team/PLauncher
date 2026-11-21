@@ -10,8 +10,8 @@ class ToastNotification(ctk.CTkFrame):
     def __init__(
             self,
             message: str,
+            master: ctk.CTk | ctk.CTkToplevel,
             title: Optional[str] = None,
-            master: ctk.CTk | ctk.CTkToplevel = None,
             toast_type: Literal["success", "error", "warning"] = "success",
             duration: int = 2500,
             slide_from: Literal["left", "right", "top", "bottom"] = "right",
@@ -20,9 +20,6 @@ class ToastNotification(ctk.CTkFrame):
             corner_radius: int = 20,
             fps: int = None
     ):
-        if master is None:
-            master = root
-
         if fps is None:
             fps = LauncherConfig.FPS
 
@@ -213,7 +210,7 @@ class ToastNotification(ctk.CTkFrame):
         self.destroy()
 
 
-def new_message(**kwargs):
+def new_message(master: ctk.CTk | ctk.CTkToplevel, **kwargs):
     if GuiOptions.msg:
         GuiOptions.msg.get()
 
@@ -222,7 +219,7 @@ def new_message(**kwargs):
 
     GuiOptions.msg = CTkMessagebox(
         **kwargs,
-        master=root
+        master=master
     )
     GuiOptions.msg.lift()
     GuiOptions.msg.get()
