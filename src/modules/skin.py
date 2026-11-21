@@ -13,7 +13,7 @@ class MinecraftSkinRenderer:
     def _load_skin(self):
         width, height = self.skin.size
         if (width, height) not in [(64, 64), (64, 32)]:
-            ToastNotification(
+            ToastNotification(master=root, 
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.skin_load"),
                 toast_type="error"
@@ -145,7 +145,7 @@ def select_png_file():
     except Exception as e:
         log(f"Не удалось загрузить файл скина {file_path}: {e}", level="ERROR")
         LauncherConfig.config["custom_skin"] = old_path
-        ToastNotification(
+        ToastNotification(master=root, 
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.skin_select") + str(e),
             toast_type="error"
