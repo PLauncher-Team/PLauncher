@@ -85,17 +85,13 @@ def load_versions():
 def stop_action():
     launch_button.configure(text=language_manager.get("main.status.finalizing"), state="disabled")
     if LaunchOptions.is_running:
-        LaunchOptions.minecraft_log_file.close()
         LaunchOptions.is_running = False
-        try:
-            log("Завершение процесса Minecraft.")
-            LaunchOptions.minecraft_process.terminate()
-            LaunchOptions.minecraft_process.wait(timeout=5)
-            log("Процесс Minecraft завершён корректно.")
-        except subprocess.TimeoutExpired:
-            log("Таймаут истёк; принудительное завершение процесса Minecraft.")
-            LaunchOptions.minecraft_process.kill()
-            log("Процесс Minecraft убит.")
+        log("Завершение процесса Minecraft.")
+        process_service.stop(
+            LaunchOptions.minecraft_process,
+            LaunchOptions.minecraft_log_file,
+        )
+        log("Процесс Minecraft завершён.")
 
 
 def set_step(value: str):
@@ -216,33 +212,17 @@ def launch_game():
             if not debug_mode:
                 creationflags = subprocess.CREATE_NO_WINDOW
 
-            LaunchOptions.minecraft_log_file = open("minecraft.log", "w+", encoding="utf-8")
-
-            log("Запуск Minecraft\n"
-                f"Версия: {selected_version}\n"
-                f"Пользователь: {username}\n"
-                f"Аргументы: {', '.join(options['jvmArguments'])}\n"
-                f"Java: {command[0]}\n"
-                f"Рабочая директория: {work_folder}\n"
-                f"Отладка: {debug_mode}\n"
-                f"UUID: {uuid}\n"
-                f"Ely.by: {LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get()}")
-
-            hJob = win32job.CreateJobObject(None, "PLauncher_Job")
-            extended_info = win32job.QueryInformationJobObject(hJob, win32job.JobObjectExtendedLimitInformation)
-            extended_info["BasicLimitInformation"]["LimitFlags"] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
-            win32job.SetInformationJobObject(hJob, win32job.JobObjectExtendedLimitInformation, extended_info)
-
-            LaunchOptions.minecraft_process = subprocess.Popen(
-                command,
-                cwd=work_folder, 
-                creationflags=creationflags,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                bufsize=-1
+            process_service.run(
+                command=command,
+                working_directory=work_folder,
+                debug=debug_mode,
+                log_path="minecraft.log",
+                on_started=lambda process, log_file: (
+                    setattr(LaunchOptions, "minecraft_process", process),
+                    setattr(LaunchOptions, "minecraft_log_file", log_file),
+                ),
+                on_output=lambda line: print(line, end=""),
             )
-
-            win32job.AssignProcessToJobObject(hJob, int(LaunchOptions.minecraft_process._handle))
 
             if hide_var.get():
                 root.withdraw()
