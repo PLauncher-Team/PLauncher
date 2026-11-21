@@ -15,7 +15,7 @@ def profile_select(*args):
 def del_profile():
     current = list_profiles.get()
     if current != language_manager.get("settings.4_page.no"):
-        new_message(
+        new_message(master=root, 
             title=language_manager.get("messages.titles.warning"),
             message=f"{language_manager.get('messages.texts.warning.profile')} ({current})",
             icon="question",
@@ -61,7 +61,7 @@ def save_add_profile():
         log(f"Профиль {name} успешно создан с {len(profile_service.DIRECTORIES)} директориями")
     except Exception as e:
         log(f"Не удалось создать профиль {name}: {e}", level="ERROR")
-        ToastNotification(
+        ToastNotification(master=root, 
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_add") + str(e),
             toast_type="error",
@@ -118,7 +118,7 @@ def rename_profile(old_name: str):
         log("Профиль успешно переименован")
     except Exception as e:
         log("Не удалось переименовать профиль:", level="ERROR")
-        ToastNotification(
+        ToastNotification(master=root, 
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_rename") + str(e),
             toast_type="cancel"
