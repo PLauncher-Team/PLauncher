@@ -190,28 +190,6 @@ def launch_game():
 
             save_config()
             args_custom = args_entry.get().split()
-            
-            default_args = ["-Xmx" + LauncherConfig.config["memory_args"] + "M",
-                            "-Xms" + LauncherConfig.config["memory_args"] + "M",
-                            "-Djavax.net.ssl.trustStoreType=Windows-ROOT",
-                            ]
-            
-            if not bool(re.search(r"-XX:\+Use\w+GC", " ".join(args_custom), re.IGNORECASE)) or "-XX:+UseG1GC" in args_custom:
-                default_args += [
-                    "-XX:+UseG1GC",
-                    "-XX:+UnlockExperimentalVMOptions",
-                    "-XX:MaxGCPauseMillis=50",
-                    "-XX:+DisableExplicitGC",
-                    "-XX:+ParallelRefProcEnabled"
-                ]
-                    
-                
-            options = {
-                "gameDirectory": work_folder,
-                "username": username,
-                "uuid": uuid,
-                "jvmArguments": default_args + args_custom
-            }
 
             callback = {
                 "setMax": set_max_value,
@@ -219,31 +197,19 @@ def launch_game():
                 "setStatus": set_status,
             }
 
-            if re.match(r"^Java [1-9]\d*$", LauncherConfig.config["java"]):
-                java_version = LauncherConfig.config["java"].split()[1]
-                java_path = JavaRuntimeManager.get_any_java_exe(java_version)
-                if LauncherConfig.IS_INTERNET and check_var.get():
-                    JavaRuntimeManager.download_and_extract_java(java_version, callback)
-                    options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
-                elif java_path:
-                    options["executablePath"] = java_path
-            elif LauncherConfig.config["java"] not in ("Latest", "Stable"):
-                options["executablePath"] = LauncherConfig.config["java"]
-            elif LauncherConfig.config["java"] == "Latest":
-                java_version = mcl.runtime.get_version_runtime_information(selected_version, LaunchOptions.minecraft_path)["javaMajorVersion"]
-                java_path = JavaRuntimeManager.get_any_java_exe(java_version)
-                if LauncherConfig.IS_INTERNET:
-                    JavaRuntimeManager.download_and_extract_java(java_version, callback)
-                    options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
-                elif java_path:
-                    options["executablePath"] = java_path
+            command, options = launch_service.build_command(
+                selected_version=selected_version,
+                work_folder=work_folder,
+                username=username,
+                uuid=uuid,
+                memory_megabytes=LauncherConfig.config["memory_args"],
+                custom_arguments=args_custom,
+                java_choice=LauncherConfig.config["java"],
+                check_java=check_var.get(),
+                use_ely_by=LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get(),
+                callback=callback,
+            )
 
-            if LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get():
-                options["jvmArguments"].append(rf"-javaagent:{os.path.abspath('injector.jar')}=ely.by")
-
-            options["jvmArguments"].extend(["-Dlog4j.configurationFile=file:///{}".format(os.path.abspath('log4jshell.xml').replace('\\', '/')), "-Dfile.encoding=UTF-8"])
-
-            command = mcl.command.get_minecraft_command(selected_version, LaunchOptions.minecraft_path, options)
             debug_mode = debug_var.get()
 
             creationflags = 0
