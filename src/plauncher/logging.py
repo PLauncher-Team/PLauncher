@@ -6,7 +6,7 @@ from pathlib import Path
 class LauncherLogger:
     def __init__(self, path: Path, level: int = logging.INFO) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.logger = logging.getLogger("plauncher")
+        self.logger = logging.getLogger(f"plauncher.{Path(path).resolve()}")
         self.logger.setLevel(level)
         self.logger.propagate = False
         if not self.logger.handlers:
