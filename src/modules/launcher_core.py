@@ -75,7 +75,7 @@ def load_versions():
                 version_combobox_ctk.set(LaunchOptions.latest_version)
     except Exception as e:
         excepthook(*sys.exc_info())
-        ToastNotification(title=language_manager.get("messages.titles.error"),
+        ToastNotification(master=root, title=language_manager.get("messages.titles.error"),
                           message=language_manager.get("messages.texts.error.loading") + str(e),
                           toast_type="error")
 
@@ -127,7 +127,7 @@ def launch_game():
     username = LauncherConfig.config["name"]
 
     if not selected_version:
-        ToastNotification(title=language_manager.get("messages.titles.warning"),
+        ToastNotification(master=root, title=language_manager.get("messages.titles.warning"),
                           message=language_manager.get("messages.texts.warning.version"),
                           toast_type="warning")
         return
@@ -166,7 +166,7 @@ def launch_game():
                     uuid_response.raise_for_status()
                     uuid = uuid_response.json()["id"]
                 except Exception as e:
-                    ToastNotification(title=language_manager.get("messages.titles.error"),
+                    ToastNotification(master=root, title=language_manager.get("messages.titles.error"),
                                       message=language_manager.get("messages.texts.error.ely_by_uuid") + str(e),
                                       toast_type="error")
                     normal_state()
@@ -240,7 +240,7 @@ def launch_game():
             set_status(language_manager.get("main.status.game_completed"))
         except Exception as e:
             excepthook(*sys.exc_info())
-            ToastNotification(
+            ToastNotification(master=root, 
                 title=language_manager.get("messages.titles.error"),
                 message=language_manager.get("messages.texts.error.launch") + str(e),
                 toast_type="error"
@@ -295,7 +295,7 @@ def launch_game():
             excepthook(*sys.exc_info())
             save_version()
             normal_state()
-            ToastNotification(title=language_manager.get("messages.titles.error"),
+            ToastNotification(master=root, title=language_manager.get("messages.titles.error"),
                               message=language_manager.get("messages.texts.error.loading") + str(e),
                               toast_type="error")
             set_status(language_manager.get("main.status.loading_error"))
