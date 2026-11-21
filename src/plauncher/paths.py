@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from pathlib import Path
 
 
@@ -18,11 +19,8 @@ class AppPaths:
     def from_root(cls, root: Path | str) -> "AppPaths":
         root_path = Path(root).expanduser().resolve()
         source_path = root_path / "src"
-        app_data = Path.home() / "AppData" / "Roaming"
-        if app_data.exists():
-            minecraft_default = app_data / ".minecraft"
-        else:
-            minecraft_default = Path.home() / ".minecraft"
+        app_data = os.getenv("APPDATA")
+        minecraft_default = Path(app_data) / ".minecraft" if app_data else Path.home() / ".minecraft"
         return cls(
             root=root_path,
             source=source_path,
@@ -30,8 +28,8 @@ class AppPaths:
             locales=source_path / "locales",
             themes=source_path / "themes",
             images=source_path / "png",
-            logs=root_path / "launcher.log",
-            config_file=root_path / "data.json",
+            logs=source_path / "launcher.log",
+            config_file=source_path / "data.json",
             minecraft_default=minecraft_default,
         )
 
