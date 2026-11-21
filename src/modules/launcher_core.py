@@ -221,26 +221,17 @@ def launch_game():
                     setattr(LaunchOptions, "minecraft_process", process),
                     setattr(LaunchOptions, "minecraft_log_file", log_file),
                 ),
+                on_running=lambda: (
+                    root.withdraw() if hide_var.get() else None,
+                    set_status(language_manager.get("main.status.loading_completed")),
+                    launch_button.configure(
+                        text=language_manager.get("main.buttons.complete_game"),
+                        command=stop_action,
+                        state="normal",
+                    ),
+                ),
                 on_output=lambda line: print(line, end=""),
             )
-
-            if hide_var.get():
-                root.withdraw()
-            set_status(language_manager.get("main.status.loading_completed"))
-            launch_button.configure(text=language_manager.get("main.buttons.complete_game"),
-                                    command=stop_action,
-                                    state="normal")
-            for line_bytes in LaunchOptions.minecraft_process.stdout:
-                try:
-                    line = line_bytes.decode("utf-8")
-                except UnicodeDecodeError:
-                    line = line_bytes.decode("cp1251", errors="replace")
-
-                line = line.replace('\r\n', '\n')
-                print(line, end='')
-                LaunchOptions.minecraft_log_file.write(line)
-
-            LaunchOptions.minecraft_process.wait()
 
             if hide_var.get():
                 root.deiconify()
