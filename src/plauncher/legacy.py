@@ -24,13 +24,14 @@ class LegacyModuleRuntime:
         module = importlib.util.module_from_spec(specification)
         module.__dict__.update(self._public_namespace())
         sys.modules[qualified_name] = module
+        self.modules[module_name] = module
         try:
             specification.loader.exec_module(module)
         except Exception:
+            self.modules.pop(module_name, None)
             sys.modules.pop(qualified_name, None)
             raise
 
-        self.modules[module_name] = module
         self.namespace.update({
             key: value
             for key, value in module.__dict__.items()
