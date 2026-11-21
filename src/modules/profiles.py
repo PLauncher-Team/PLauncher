@@ -121,7 +121,7 @@ def rename_profile(old_name: str):
         ToastNotification(master=root, 
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_rename") + str(e),
-            toast_type="cancel"
+            toast_type="error"
         )
     else:
         if LauncherConfig.version["profile"] == old_name:
