@@ -61,41 +61,6 @@ def set_version(e: str = None):
         save_version()
 
 
-def create_minecraft_environment():
-    dirs = ["assets", "bin", "libraries", "logs", "resourcepacks", "saves",
-            "screenshots", "shaderpacks", "versions", "profiles", "mods"]
-
-    for directory in dirs:
-        os.makedirs(os.path.join(LaunchOptions.minecraft_path, directory), exist_ok=True)
-
-    data_profile = {
-        "profiles": {
-            "forge": {
-                "name": "forge",
-                "lastVersionId": "1.12.2-forge1.12.2-14.23.0.2501"
-            }
-        },
-        "clientToken": "dd76b195-eb71-4786-b561-7ebd985574bf"
-    }
-
-    with open(os.path.join(LaunchOptions.minecraft_path, "launcher_profiles.json"), "w") as k:
-        json.dump(data_profile, k, indent=4)
-
-    if os.path.isfile(os.path.join(LaunchOptions.minecraft_path, "version.json")):
-        with open(os.path.join(LaunchOptions.minecraft_path, "version.json")) as d:
-            LauncherConfig.version = json.load(d)
-
-        for a in default_version:
-            if a not in LauncherConfig.version:
-                LauncherConfig.version[a] = default_version[a]
-            with open(os.path.join(LaunchOptions.minecraft_path, "version.json"), "w") as x:
-                json.dump(LauncherConfig.version, x, indent=4)
-    else:
-        with open(os.path.join(LaunchOptions.minecraft_path, "version.json"), "w") as v:
-            LauncherConfig.version = default_version
-            json.dump(LauncherConfig.version, v, indent=4)
-
-
 def save_set(var, value):
     LauncherConfig.config[var] = value
     save_config()
