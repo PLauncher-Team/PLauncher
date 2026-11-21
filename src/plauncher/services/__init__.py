@@ -5,5 +5,6 @@ from .loaders import LoaderInstallationService
 from .translation import TranslationService
 from .skin import SkinTexturePackService
 from .minecraft_launch import MinecraftLaunchService
+from .crash_analysis import CrashLogAnalyzerService
 
-__all__ = ["JavaRuntimeService", "LoaderInstallationService", "MinecraftEnvironmentService", "MinecraftLaunchService", "ProfileService", "TranslationService", "SkinTexturePackService"]
+__all__ = ["CrashLogAnalyzerService", "JavaRuntimeService", "LoaderInstallationService", "MinecraftEnvironmentService", "MinecraftLaunchService", "ProfileService", "TranslationService", "SkinTexturePackService"]
