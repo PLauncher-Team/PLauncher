@@ -15,6 +15,7 @@ class LoaderInstallationService:
         http_client: Any,
         logger: Callable[..., None] | None = None,
         working_directory: Path | str = ".",
+        process_changed: Callable[[Any | None], None] | None = None,
     ) -> None:
         self.minecraft_directory = Path(minecraft_directory)
         self.java_runtime = java_runtime
@@ -24,6 +25,7 @@ class LoaderInstallationService:
         self.http = http_client
         self.logger = logger
         self.working_directory = Path(working_directory)
+        self.process_changed = process_changed
 
     def install(
         self,
@@ -135,8 +137,14 @@ class LoaderInstallationService:
             cwd=self.working_directory,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        process.wait()
-        optifine_archive.unlink(missing_ok=True)
+        if self.process_changed is not None:
+            self.process_changed(process)
+        try:
+            process.wait()
+        finally:
+            if self.process_changed is not None:
+                self.process_changed(None)
+            optifine_archive.unlink(missing_ok=True)
 
     def _log(self, message: str, level: str = "INFO") -> None:
         if self.logger is not None:
