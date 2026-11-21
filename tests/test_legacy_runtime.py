@@ -25,6 +25,22 @@ class LegacyModuleRuntimeTests(unittest.TestCase):
             self.assertEqual(runtime.modules["first"].injected_value, 10)
             self.assertEqual(runtime.modules["second"].injected_value, 10)
 
+    def test_bind_updates_existing_module_globals(self):
+        with tempfile.TemporaryDirectory() as directory:
+            modules_directory = Path(directory)
+            (modules_directory / "gui.py").write_text(
+                "def read_option():\n    return GuiOptions.select_page\n",
+                encoding="utf-8",
+            )
+            runtime = LegacyModuleRuntime(modules_directory, {})
+            gui_module = runtime.load("gui")
+
+            class Options:
+                select_page = "settings"
+
+            runtime.bind("GuiOptions", Options())
+            self.assertEqual(gui_module.read_option(), "settings")
+
     def test_missing_module_raises(self):
         with tempfile.TemporaryDirectory() as directory:
             runtime = LegacyModuleRuntime(directory, {})
