@@ -26,9 +26,34 @@ def excepthook(exc_type, exc_value, exc_tb) -> None:
     if is_main:
         os._exit(1)
 
-def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
-    os.system("")
+def enable_ansi_colors() -> None:
+    if sys.platform != "win32":
+        return
 
+    try:
+        from ctypes import wintypes
+
+        get_std_handle = kernel32.GetStdHandle
+        get_std_handle.argtypes = [wintypes.DWORD]
+        get_std_handle.restype = wintypes.HANDLE
+
+        get_console_mode = kernel32.GetConsoleMode
+        get_console_mode.argtypes = [wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD)]
+        get_console_mode.restype = wintypes.BOOL
+
+        set_console_mode = kernel32.SetConsoleMode
+        set_console_mode.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        set_console_mode.restype = wintypes.BOOL
+
+        stdout_handle = get_std_handle(-11)
+        mode = wintypes.DWORD()
+
+        if stdout_handle and get_console_mode(stdout_handle, ctypes.byref(mode)):
+            set_console_mode(stdout_handle, mode.value | 0x0004)
+    except Exception:
+        pass
+
+def log(message: str="LOG", level: str = 'INFO', exc_info=()) -> None:
     level_colors = {
         "FATAL": "\033[31;1m",
         "ERROR": "\033[31m",
@@ -94,6 +119,7 @@ if kernel32.GetLastError() == 183:
     os._exit(0)
 
 log_lock = threading.Lock()
+enable_ansi_colors()
 if os.path.isfile("launcher.log"):
     os.remove("launcher.log")
 
@@ -145,7 +171,6 @@ def fixed_init(self, widget: int, func: Callable, char_limit: int=36767) -> None
     from ctypes import windll, c_buffer, WINFUNCTYPE, c_uint64, sizeof
     from ctypes.wintypes import DWORD
     try:
-        # check for tkinter widgets exclusively
         hwnd = widget.winfo_id()
     except:
         hwnd = widget
@@ -186,12 +211,11 @@ def fixed_init(self, widget: int, func: Callable, char_limit: int=36767) -> None
                 files.append(drop_name)
             func(files)
             windll.shell32.DragFinish(typ(wp))
-    
+
         return windll.user32.CallWindowProcW(
             *map(typ, (globals()[old], hwnd, msg, wp, lp))
         )
-        
-    """ Allow upto 10 widgets only to have dnd feature in one window, reduces system uses"""
+
     limit_num = 10
     for i in range(limit_num):
         if i + 1 == limit_num:
@@ -285,7 +309,7 @@ if __name__ == "__main__":
         if LauncherConfig.config["custom_theme"] and not os.path.isfile(os.path.join("themes", LauncherConfig.config["custom_theme"]+".json")):
             log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "WARNING")
             LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
-        
+
         LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))
         save_config()
         log("data.json найден, настройки загружены")
