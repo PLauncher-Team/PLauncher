@@ -35,4 +35,5 @@ class AppPaths:
 
     def ensure_directories(self) -> None:
         self.root.mkdir(parents=True, exist_ok=True)
+        self.source.mkdir(parents=True, exist_ok=True)
         self.minecraft_default.mkdir(parents=True, exist_ok=True)
