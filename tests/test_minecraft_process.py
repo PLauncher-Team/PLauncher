@@ -37,7 +37,7 @@ class MinecraftProcessServiceTests(unittest.TestCase):
                 True,
                 f"{directory}/minecraft.log",
                 lambda current, stream: started.append((current, stream)),
-                output.append,
+                on_output=output.append,
             )
             self.assertIs(process_result, process)
             self.assertIs(started[0][0], process)
