@@ -22,6 +22,7 @@ class MinecraftProcessService:
         on_output: Callable[[str], None] | None = None,
     ) -> tuple[Any, Any]:
         log_file = Path(log_path).open("w+", encoding="utf-8")
+        started = False
         try:
             job = self.job_api.CreateJobObject(None, "PLauncher_Job")
             job_info = self.job_api.QueryInformationJobObject(
@@ -51,6 +52,7 @@ class MinecraftProcessService:
             )
             self.job_api.AssignProcessToJobObject(job, int(process._handle))
             on_started(process, log_file)
+            started = True
 
             for line_bytes in process.stdout:
                 try:
@@ -65,7 +67,8 @@ class MinecraftProcessService:
             process.wait()
             return process, log_file
         except Exception:
-            log_file.close()
+            if not started:
+                log_file.close()
             raise
 
     def stop(self, process: Any, log_file: Any = None) -> None:
