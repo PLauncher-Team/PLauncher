@@ -113,7 +113,7 @@ from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
 from plauncher.config import ConfigStore, DEFAULT_SETTINGS, DEFAULT_VERSION, VersionStore
-from plauncher.services import JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, ProfileService, TranslationService
+from plauncher.services import JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, ProfileService, SkinTexturePackService, TranslationService
 
 start_time = time.perf_counter()
 
@@ -385,6 +385,7 @@ if __name__ == "__main__":
         versions_loaded=update_java_versions,
     )
     legacy_runtime.bind("JavaRuntimeManager", java_runtime_service)
+    legacy_runtime.bind("MinecraftTexturePackCreator", SkinTexturePackService)
 
     loader_installer = LoaderInstallationService(
         minecraft_directory=LaunchOptions.minecraft_path,
