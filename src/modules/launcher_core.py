@@ -208,10 +208,6 @@ def launch_game():
 
             debug_mode = debug_var.get()
 
-            creationflags = 0
-            if not debug_mode:
-                creationflags = subprocess.CREATE_NO_WINDOW
-
             process_service.run(
                 command=command,
                 working_directory=work_folder,
