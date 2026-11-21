@@ -108,6 +108,7 @@ for name in tabs:
     frame = ctk.CTkFrame(settings_frame, fg_color=GuiOptions.fg_color)
     content_frames[name] = frame
 
+legacy_runtime.bind("content_frames", content_frames)
 show_tab(tabs[0])
 tab_switch.set(tabs[0])
 ctk.CTkLabel(
