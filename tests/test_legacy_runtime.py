@@ -45,11 +45,11 @@ class LegacyModuleRuntimeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             modules_directory = Path(directory)
             (modules_directory / "skin.py").write_text(
-                "def read_option():\\n    return default_skin_var.get()\\n",
+                "def read_option():\n    return default_skin_var.get()\n",
                 encoding="utf-8",
             )
             (modules_directory / "gui.py").write_text(
-                "default_skin_var = object()\\nlegacy_runtime.bind('default_skin_var', default_skin_var)\\n",
+                "default_skin_var = object()\nlegacy_runtime.bind('default_skin_var', default_skin_var)\n",
                 encoding="utf-8",
             )
             namespace = {}
