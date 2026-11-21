@@ -93,4 +93,4 @@ class LauncherApplication:
                 self.services.logger.exception("Application shutdown step failed")
         self.state = ApplicationState.STOPPED
         if errors:
-            raise ExceptionGroup("Application shutdown failed", errors)
+            raise RuntimeError(f"Application shutdown failed: {errors[0]}") from errors[0]
