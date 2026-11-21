@@ -31,6 +31,7 @@ class ApplicationServices:
 class LauncherApplication:
     def __init__(self, root: Path | str) -> None:
         paths = AppPaths.from_root(root)
+        paths.ensure_directories()
         logger = LauncherLogger(paths.logs)
         self.services = ApplicationServices(
             paths=paths,
