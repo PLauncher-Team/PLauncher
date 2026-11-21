@@ -112,7 +112,7 @@ import sys
 from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
-from plauncher.services import ProfileService
+from plauncher.services import ProfileService, TranslationService
 
 start_time = time.perf_counter()
 
@@ -379,7 +379,13 @@ if __name__ == "__main__":
 
     LaunchOptions.latest_version = LauncherConfig.version["version"]
 
-    language_manager = Translator(LauncherConfig.config["language"])
+    language_manager = TranslationService(
+        "locales",
+        language=LauncherConfig.config["language"],
+        settings=LauncherConfig.config,
+        save_settings=save_config,
+        logger=log,
+    )
     language = language_manager.language
     log(f"Язык лаунчера: {language}")
 
