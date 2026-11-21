@@ -143,7 +143,7 @@ class CrashLogWindow(ctk.CTkToplevel):
                 "Если в логах недостаточно информации для чёткого определения причины, ответьте точно словом None (без кавычек, markdown и любого дополнительного текста)."
             )
             
-            self.message = LogAnalyzer().get_response([
+            self.message = log_analyzer.get_response([
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": self.log_textbox.get("0.0", "end")}
             ])
@@ -157,56 +157,3 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.deiconify()
         self.geometry(f"+{center(self, 600, 700)}")
 
-
-class LogAnalyzer:
-    def __init__(self):
-        self.POLLINATIONS_URL = "https://text.pollinations.ai/"
-        self.MCLO_URL = "https://api.mclo.gs/1/analyse"
-        self.headers = {
-            "User-Agent": LauncherConfig.USER_AGENT,
-            "Content-Type": "application/json"
-        }
-
-
-    def _try_mclo(self, messages: list, timeout: int) -> str | Exception:
-        payload = {
-            "content": messages[1]["content"]
-        }
-        try:
-            resp = requests.post(self.MCLO_URL, json=payload, headers=self.headers, timeout=timeout)
-            resp.raise_for_status()
-            return "\n".join(
-                solution["message"]
-                for problem in resp.json()["analysis"]["problems"]
-                for solution in problem["solutions"]
-            )
-        except Exception as e:
-            excepthook(*sys.exc_info())
-            return e
-        
-        
-    def _try_pollinations(self, messages: list, timeout: int) -> str | Exception:
-        payload = {
-            "messages": messages
-        }
-
-        try:
-            resp = requests.post(self.POLLINATIONS_URL, json=payload, headers=self.headers, timeout=timeout)
-            resp.raise_for_status()
-            return resp.text
-        except Exception as e:
-            excepthook(*sys.exc_info())
-            return e
-
-    def get_response(self, messages: list, timeout: int = 30) -> str | Exception:
-        response1 = self._try_pollinations(messages, timeout)
-        if not isinstance(response1, Exception) and response1 != "None":
-            log("Получен ответ от Pollinations API")
-            return response1
-        
-        response2 = self._try_mclo(messages, timeout)
-        if not isinstance(response2, Exception) and response2:
-            log("Получен ответ от Mclo API")
-            return response2
-        log("Все API не сработали", level="ERROR")
-        return response2
