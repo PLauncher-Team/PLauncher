@@ -2,7 +2,7 @@ from .application import ApplicationServices, ApplicationState, LauncherApplicat
 from .config import ConfigStore, VersionStore
 from .models import LaunchSession, LauncherSettings, VersionState
 from .paths import AppPaths
-from .services import MinecraftEnvironmentService
+from .services import MinecraftEnvironmentService, ProfileService
 
 __all__ = [
     "AppPaths",
@@ -13,6 +13,7 @@ __all__ = [
     "LauncherApplication",
     "LauncherSettings",
     "MinecraftEnvironmentService",
-    "VersionStore",
+    "ProfileService",
     "VersionState",
+    "VersionStore",
 ]
