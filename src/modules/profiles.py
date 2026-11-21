@@ -24,9 +24,7 @@ def del_profile():
         )
         if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
             log(f"Удаление профиля: {current}")
-            if os.path.isdir(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current)):
-                shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + current))
-
+            profile_service.delete(current)
             list_profiles.configure(values=list_dir())
             first = list_profiles.cget("values")[0] if list_profiles.cget("values")[0] != "" else language_manager.get("settings.4_page.no")
             list_profiles.set(first)
@@ -59,15 +57,8 @@ def save_add_profile():
 
     log(f"Создание нового профиля: {name}")
     try:
-        profile_path = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + name)
-        os.makedirs(profile_path)
-
-        dirs = ["assets", "bin", "libraries", "logs", "resourcepacks", "saves",
-                "screenshots", "shaderpacks", "versions", "profiles", "mods"]
-
-        for directory in dirs:
-            os.makedirs(os.path.join(profile_path, directory), exist_ok=True)
-        log(f"Профиль {name} успешно создан с {len(dirs)} директориями")
+        profile_service.create(name)
+        log(f"Профиль {name} успешно создан с {len(profile_service.DIRECTORIES)} директориями")
     except Exception as e:
         log(f"Не удалось создать профиль {name}: {e}", level="ERROR")
         ToastNotification(
@@ -113,10 +104,7 @@ def fun_add_profile():
 
 
 def list_dir() -> list:
-    profiles_dir = os.path.join(LaunchOptions.minecraft_path, "profiles")
-    return [language_manager.get("settings.4_page.no")] + [
-        g[8:] for g in os.listdir(profiles_dir) if len(g) >= 9 and os.path.isdir(os.path.join(profiles_dir, g))
-    ]
+    return [language_manager.get("settings.4_page.no")] + profile_service.list_profiles()
 
 
 def rename_profile(old_name: str):
@@ -126,13 +114,10 @@ def rename_profile(old_name: str):
         return
 
     try:
-        os.rename(
-            os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + old_name),
-            os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + new_name)
-        )
-        log(f"Профиль успешно переименован")
+        profile_service.rename(old_name, new_name)
+        log("Профиль успешно переименован")
     except Exception as e:
-        log(f"Не удалось переименовать профиль:", level="ERROR")
+        log("Не удалось переименовать профиль:", level="ERROR")
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.profile_rename") + str(e),
