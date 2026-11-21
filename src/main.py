@@ -113,7 +113,7 @@ from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
 from plauncher.config import ConfigStore, DEFAULT_SETTINGS, DEFAULT_VERSION, VersionStore
-from plauncher.services import JavaRuntimeService, ProfileService, TranslationService
+from plauncher.services import JavaRuntimeService, MinecraftEnvironmentService, ProfileService, TranslationService
 
 start_time = time.perf_counter()
 
@@ -393,7 +393,9 @@ if __name__ == "__main__":
             LauncherConfig.version["profile"] = False
             save_version()
 
-    create_minecraft_environment()
+    environment_service = MinecraftEnvironmentService(LaunchOptions.minecraft_path)
+    legacy_runtime.bind("environment_service", environment_service)
+    environment_service.ensure()
 
     log(f"Запускаем инициализацию интерфейса")
     legacy_runtime.load("gui")
