@@ -43,6 +43,10 @@ class LegacyModuleRuntime:
         for module in self.modules.values():
             module.__dict__.update(self.namespace)
 
+    def bind(self, name: str, value: Any) -> None:
+        self.namespace[name] = value
+        self._synchronize_namespace()
+
     def load_many(self, module_names: tuple[str, ...] | list[str]) -> None:
         for module_name in module_names:
             self.load(module_name)
