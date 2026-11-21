@@ -30,7 +30,7 @@ class LoaderCatalogServiceTests(unittest.TestCase):
         launcher_api = SimpleNamespace(
             neoforge=SimpleNamespace(get_versions=Mock(return_value=metadata))
         )
-        service = LoaderCatalogService(launcher_api, object(), Version)
+        service = LoaderCatalogService(launcher_api, object(), self.parse_version)
         versions, result_metadata = service.fetch("NeoForge")
         self.assertEqual(versions, ["1.21.1", "1.20.6"])
         self.assertEqual(result_metadata, metadata)
