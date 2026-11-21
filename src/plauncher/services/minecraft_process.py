@@ -19,6 +19,7 @@ class MinecraftProcessService:
         debug: bool,
         log_path: str | Path,
         on_started: Callable[[Any, Any], None],
+        on_running: Callable[[], None] | None = None,
         on_output: Callable[[str], None] | None = None,
     ) -> tuple[Any, Any]:
         log_file = Path(log_path).open("w+", encoding="utf-8")
@@ -53,6 +54,8 @@ class MinecraftProcessService:
             self.job_api.AssignProcessToJobObject(job, int(process._handle))
             on_started(process, log_file)
             started = True
+            if on_running is not None:
+                on_running()
 
             for line_bytes in process.stdout:
                 try:
