@@ -59,6 +59,8 @@ debug_var = ctk.BooleanVar(value=LauncherConfig.config["debug"])
 check_var = ctk.BooleanVar(value=LauncherConfig.config["check_files"])
 ely_by_var = ctk.BooleanVar(value=LauncherConfig.config["ely_by"])
 default_skin_var = ctk.BooleanVar(value=LauncherConfig.config["default_skin"])
+legacy_runtime.bind("ely_by_var", ely_by_var)
+legacy_runtime.bind("default_skin_var", default_skin_var)
 
 version_frame = VersionFrame(root)
 version_frame.place(relwidth=0.175, relheight=0.177, relx=0.797, rely=0.05)
@@ -403,6 +405,11 @@ skins_default_checkbox = ctk.CTkCheckBox(
     font=("Segoe UI", 13),
 )
 skins_default_checkbox.place(relx=0.05, rely=0.875)
+
+legacy_runtime.bind("label_skin", label_skin)
+legacy_runtime.bind("update_skin_button", update_skin_button)
+legacy_runtime.bind("select_skin_button", select_skin_button)
+legacy_runtime.bind("skins_ely_by_checkbox", skins_ely_by_checkbox)
 
 update_controls()
 
