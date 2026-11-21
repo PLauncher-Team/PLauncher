@@ -5,8 +5,8 @@ if TYPE_CHECKING:
 
 
 class CrashLogWindow(ctk.CTkToplevel):
-    def __init__(self):
-        super().__init__(root)
+    def __init__(self, parent):
+        super().__init__(parent)
 
         self.withdraw()
 
@@ -16,7 +16,7 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.resizable(False, False)
         self.thread = None
         self.message = None
-        self.transient(root)
+        self.transient(parent)
         self.bind("<Map>", self._restore_titlebar_color)
         hPyT.maximize_minimize_button.hide(self)
 
