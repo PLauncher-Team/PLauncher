@@ -243,7 +243,7 @@ class ModWidget(ctk.CTkFrame):
 
 
 class ModViewer(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent: ctk.CTk):
         super().__init__(parent, border_width=0)
         self.place_forget()
         pywinstyles.apply_dnd(self, self.add_mods)
