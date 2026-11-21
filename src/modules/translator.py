@@ -5,63 +5,6 @@ if TYPE_CHECKING:
     from ..context import *
 
 
-class Translator:
-    def __init__(self, language: str = None):
-        self.supported_languages = self.get_supported_languages()
-        
-        self.language = None
-        if not language:
-            sys_locale = getdefaultlocale()[0]
-            if sys_locale:
-                lang_code = sys_locale.split("_")[0].lower()
-                self.language = lang_code
-            LauncherConfig.config["language"] = self.language
-            save_config()
-        else:
-            self.language = language
-        
-        if self.language not in self.supported_languages and self.supported_languages:
-            log(f"Файла локализации для языка {self.language} не найдено. Переключаемся на {self.supported_languages[0]}", level="WARNING")
-            self.language = self.supported_languages[0]
-        elif not self.supported_languages:
-            log("Не найдено ни одного файла локализации", level="ERROR")
-            self.translations = {}
-            return
-        
-        self.translations = self._load_translations(self.language)
-    
-    def get_languages_names(self):
-        languages = {}
-        for lang in self.supported_languages:
-            languages[lang] = self._load_translations(lang)["language"]
-        return languages
-        
-    @staticmethod
-    def get_supported_languages():
-        return [locale.removesuffix(".json") for locale in os.listdir("locales") if locale.endswith(".json") and os.path.isfile(os.path.join("locales", locale))]
-        
-    def _load_translations(self, language):
-        try:
-            path = os.path.join("locales", f"{language}.json")
-            with open(path, encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            log(f"Не удалось загрузить файл локализации: {e}", level="ERROR")
-            excepthook(*sys.exc_info())
-            return {}
-
-    def get(self, key: str, default: str = None) -> str:
-        keys = key.split(".")
-        result = self.translations
-        try:
-            for k in keys:
-                result = result[k]
-            return result
-        except (KeyError, TypeError):
-            log(f"Ключ локализации не найден: '{key}'", "WARNING")
-            return default or key
-
-
 def restart_app_with_bat():
     script_path = os.path.abspath(sys.argv[0])
     _, ext = os.path.splitext(script_path.lower())
