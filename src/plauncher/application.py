@@ -5,7 +5,9 @@ from pathlib import Path
 
 from .config import ConfigStore, VersionStore
 from .logging import LauncherLogger
+from .models import LaunchSession, LauncherSettings, VersionState
 from .paths import AppPaths
+from .services import MinecraftEnvironmentService
 
 
 class ApplicationState(Enum):
@@ -24,8 +26,10 @@ class ApplicationServices:
     logger: LauncherLogger
     settings: ConfigStore
     version_settings: VersionStore
-    settings_data: dict = field(default_factory=dict)
-    version_data: dict = field(default_factory=dict)
+    environment: MinecraftEnvironmentService
+    session: LaunchSession = field(default_factory=LaunchSession)
+    settings_data: LauncherSettings = field(default_factory=LauncherSettings)
+    version_data: VersionState = field(default_factory=VersionState)
 
 
 class LauncherApplication:
@@ -38,6 +42,7 @@ class LauncherApplication:
             logger=logger,
             settings=ConfigStore(paths.config_file),
             version_settings=VersionStore(paths.minecraft_default / "version.json"),
+            environment=MinecraftEnvironmentService(paths.minecraft_default),
         )
         self.state = ApplicationState.CREATED
         self._startup_steps: list[Callable[[ApplicationServices], None]] = []
@@ -59,8 +64,13 @@ class LauncherApplication:
         self.state = ApplicationState.INITIALIZING
         try:
             self.services.paths.ensure_directories()
-            self.services.settings_data = self.services.settings.load()
-            self.services.version_data = self.services.version_settings.load()
+            self.services.environment.ensure()
+            self.services.settings_data = LauncherSettings.from_dict(
+                self.services.settings.load()
+            )
+            self.services.version_data = VersionState.from_dict(
+                self.services.version_settings.load()
+            )
             for step in self._startup_steps:
                 step(self.services)
             self.state = ApplicationState.READY
