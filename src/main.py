@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Optional, Literal, Callable
+from packaging.version import Version
 
 if TYPE_CHECKING:
     from context import *
@@ -113,7 +114,7 @@ from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
 from plauncher.config import ConfigStore, DEFAULT_SETTINGS, DEFAULT_VERSION, VersionStore
-from plauncher.services import CrashLogAnalyzerService, JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, MinecraftLaunchService, ProfileService, SkinTexturePackService, TranslationService
+from plauncher.services import CrashLogAnalyzerService, JavaRuntimeService, LoaderCatalogService, LoaderInstallationService, MinecraftEnvironmentService, MinecraftLaunchService, ProfileService, SkinTexturePackService, TranslationService
 
 start_time = time.perf_counter()
 
@@ -404,6 +405,14 @@ if __name__ == "__main__":
         process_changed=lambda process: setattr(LaunchOptions, "loader_process", process),
     )
     legacy_runtime.bind("loader_installer", loader_installer)
+
+    loader_catalog = LoaderCatalogService(
+        launcher_api=mcl,
+        optifine_api=optipy,
+        version_parser=Version,
+        logger=log,
+    )
+    legacy_runtime.bind("loader_catalog", loader_catalog)
 
     launch_service = MinecraftLaunchService(
         minecraft_directory=LaunchOptions.minecraft_path,
