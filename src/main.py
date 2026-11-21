@@ -112,6 +112,7 @@ import sys
 from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
+from plauncher.config import ConfigStore, DEFAULT_SETTINGS, DEFAULT_VERSION, VersionStore
 from plauncher.services import ProfileService, TranslationService
 
 start_time = time.perf_counter()
@@ -303,34 +304,28 @@ if __name__ == "__main__":
         "java": "Latest"
     }
 
-    if os.path.isfile("data.json"):
-        with open("data.json") as f:
-            LauncherConfig.config = json.load(f)
+    config_file_exists = os.path.isfile("data.json")
+    config_defaults = dict(DEFAULT_SETTINGS)
+    config_defaults["memory_args"] = default_config["memory_args"]
+    config_store = ConfigStore("data.json", config_defaults)
+    legacy_runtime.bind("config_store", config_store)
+    LauncherConfig.config = config_store.load()
 
-        for t in default_config:
-            if t not in LauncherConfig.config:
-                log(f"Новый параметр настроек: {t}={default_config[t]}")
-                LauncherConfig.config[t] = default_config[t]
+    if LauncherConfig.config["custom_image"] and not os.path.isfile(LauncherConfig.config["custom_image"]):
+        log(f"Файл изображения не найден: {LauncherConfig.config['custom_image']}", "WARNING")
+        LauncherConfig.config["custom_image"] = default_config["custom_image"]
 
-        if LauncherConfig.config["custom_image"] and not os.path.isfile(LauncherConfig.config["custom_image"]):
-            log(f"Файл изображения не найден: {LauncherConfig.config['custom_image']}", "WARNING")
-            LauncherConfig.config["custom_image"] = default_config["custom_image"]
+    if LauncherConfig.config["custom_skin"] and not os.path.isfile(LauncherConfig.config["custom_skin"]):
+        log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "WARNING")
+        LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
 
-        if LauncherConfig.config["custom_skin"] and not os.path.isfile(LauncherConfig.config["custom_skin"]):
-            log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "WARNING")
-            LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
+    if LauncherConfig.config["custom_theme"] and not os.path.isfile(os.path.join("themes", LauncherConfig.config["custom_theme"] + ".json")):
+        log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "WARNING")
+        LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
 
-        if LauncherConfig.config["custom_theme"] and not os.path.isfile(os.path.join("themes", LauncherConfig.config["custom_theme"]+".json")):
-            log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "WARNING")
-            LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
-
-        LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))
-        save_config()
-        log("data.json найден, настройки загружены")
-    else:
-        LauncherConfig.config = default_config
-        save_config()
-        log("data.json не найден, был создан новый")
+    LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))
+    save_config()
+    log("data.json найден, настройки загружены" if config_file_exists else "data.json не найден, был создан новый")
 
     if not LauncherConfig.config["mine_path"] or LauncherConfig.config["default_path"] or not os.path.isdir(LauncherConfig.config["mine_path"]):
         LaunchOptions.minecraft_path = os.path.join(os.getenv('APPDATA'), ".minecraft")
@@ -353,29 +348,13 @@ if __name__ == "__main__":
     if os.path.isfile("java_temp.zip"):
         os.remove("java_temp.zip")
 
-    default_version = {
-        "download": [],
-        "not_comp": [],
-        "version": "",
-        "profile": False
-    }
-
     version_file = os.path.join(LaunchOptions.minecraft_path, "version.json")
-    if os.path.isfile(version_file):
-        with open(version_file) as f:
-            LauncherConfig.version = json.load(f)
-
-        for t in default_version:
-            if t not in LauncherConfig.version:
-                log(f"Новый параметр настроек: {t}={default_version[t]}")
-                LauncherConfig.version[t] = default_version[t]
-
-        save_version()
-        log("version.json файл найден, настройки загружены")
-    else:
-        LauncherConfig.version = default_version
-        save_version()
-        log("version.json не найден, был создан новый")
+    version_file_exists = os.path.isfile(version_file)
+    version_store = VersionStore(version_file, DEFAULT_VERSION)
+    legacy_runtime.bind("version_store", version_store)
+    LauncherConfig.version = version_store.load()
+    save_version()
+    log("version.json файл найден, настройки загружены" if version_file_exists else "version.json не найден, был создан новый")
 
     LaunchOptions.latest_version = LauncherConfig.version["version"]
 
