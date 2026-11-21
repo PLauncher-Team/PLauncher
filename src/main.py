@@ -303,6 +303,7 @@ if __name__ == "__main__":
         "java_paths": [],
         "java": "Latest"
     }
+    legacy_runtime.bind("default_config", default_config)
 
     config_file_exists = os.path.isfile("data.json")
     config_defaults = dict(DEFAULT_SETTINGS)
@@ -367,6 +368,8 @@ if __name__ == "__main__":
         logger=log,
     )
     language = language_manager.language
+    legacy_runtime.bind("language_manager", language_manager)
+    legacy_runtime.bind("language", language)
     log(f"Язык лаунчера: {language}")
 
     if LauncherConfig.version["profile"]:
