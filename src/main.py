@@ -113,7 +113,7 @@ from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
 from plauncher.config import ConfigStore, DEFAULT_SETTINGS, DEFAULT_VERSION, VersionStore
-from plauncher.services import JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, ProfileService, SkinTexturePackService, TranslationService
+from plauncher.services import JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, MinecraftLaunchService, ProfileService, SkinTexturePackService, TranslationService
 
 start_time = time.perf_counter()
 
@@ -398,6 +398,16 @@ if __name__ == "__main__":
         process_changed=lambda process: setattr(LaunchOptions, "loader_process", process),
     )
     legacy_runtime.bind("loader_installer", loader_installer)
+
+    launch_service = MinecraftLaunchService(
+        minecraft_directory=LaunchOptions.minecraft_path,
+        launcher_directory=os.getcwd(),
+        launcher_api=mcl,
+        java_runtime=java_runtime_service,
+        online=LauncherConfig.IS_INTERNET,
+        logger=log,
+    )
+    legacy_runtime.bind("launch_service", launch_service)
     log(f"Язык лаунчера: {language}")
 
     if LauncherConfig.version["profile"]:
