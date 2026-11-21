@@ -652,7 +652,8 @@ log(f"Инициализация лаунчера завершена за {time.
 if not LauncherConfig.IS_INTERNET:
     ToastNotification(title=language_manager.get("messages.titles.warning"),
                 message=language_manager.get("messages.texts.warning.no_internet"),
-                toast_type="warning")
+                toast_type="warning",
+                master=root)
     for c in (release_checkbox, snapshot_checkbox, old_alpha_check, old_beta_check, skins_ely_by_checkbox,
               install_loader):
         c.configure(state="disabled")
