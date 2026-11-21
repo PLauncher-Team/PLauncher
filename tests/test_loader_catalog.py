@@ -2,12 +2,15 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from packaging.version import Version
 
 from src.plauncher.services.loader_catalog import LoaderCatalogService
 
 
 class LoaderCatalogServiceTests(unittest.TestCase):
+    @staticmethod
+    def parse_version(value):
+        return tuple(int(part) for part in value.split("."))
+
     def test_fetches_and_sorts_forge_versions(self):
         launcher_api = SimpleNamespace(
             forge=SimpleNamespace(list_forge_versions=Mock(return_value=[
@@ -17,7 +20,7 @@ class LoaderCatalogServiceTests(unittest.TestCase):
                 "1.20.4-forge-4",
             ]))
         )
-        service = LoaderCatalogService(launcher_api, object(), Version)
+        service = LoaderCatalogService(launcher_api, object(), self.parse_version)
         versions, metadata = service.fetch("Forge")
         self.assertEqual(versions, ["1.20.4", "1.18.2"])
         self.assertEqual(metadata, {})
@@ -33,7 +36,7 @@ class LoaderCatalogServiceTests(unittest.TestCase):
         self.assertEqual(result_metadata, metadata)
 
     def test_unknown_catalog_is_rejected(self):
-        service = LoaderCatalogService(object(), object(), Version)
+        service = LoaderCatalogService(object(), object(), self.parse_version)
         with self.assertRaises(ValueError):
             service.fetch("Unknown")
 
