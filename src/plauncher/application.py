@@ -33,8 +33,12 @@ class ApplicationServices:
 
 
 class LauncherApplication:
-    def __init__(self, root: Path | str) -> None:
-        paths = AppPaths.from_root(root)
+    def __init__(
+        self,
+        root: Path | str,
+        minecraft_directory: Path | str | None = None,
+    ) -> None:
+        paths = AppPaths.from_root(root, minecraft_directory)
         paths.ensure_directories()
         logger = LauncherLogger(paths.logs)
         self.services = ApplicationServices(
