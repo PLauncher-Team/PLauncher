@@ -81,6 +81,9 @@ class TranslationService:
     def _log(self, level: str, message: str) -> None:
         if self.logger is None:
             return
+        if callable(self.logger):
+            self.logger(message, level=level.upper())
+            return
         method = getattr(self.logger, level, None)
         if method is not None:
             method(message)
