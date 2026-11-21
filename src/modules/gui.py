@@ -45,7 +45,7 @@ ctk_image = ctk.CTkImage(pil_image, size=(1000, 562))
 label = ctk.CTkLabel(root, image=ctk_image)
 label.place(relheight=1, relwidth=1)
 
-crash_window = CrashLogWindow()
+crash_window = CrashLogWindow(root)
 mod_viewer_window = ModViewer()
 
 release_var = ctk.BooleanVar(value=LauncherConfig.config["release"])
