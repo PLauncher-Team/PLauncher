@@ -37,6 +37,7 @@ else:
     image_path = os.path.join("png", "dark", f"{selected_theme}.png")
 
 GuiOptions = GuiOption()
+legacy_runtime.bind("GuiOptions", GuiOptions)
 
 log(f"Изображение лаунчера: {image_path}")
 
