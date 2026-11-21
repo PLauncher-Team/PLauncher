@@ -16,11 +16,19 @@ class AppPaths:
     minecraft_default: Path
 
     @classmethod
-    def from_root(cls, root: Path | str) -> "AppPaths":
+    def from_root(
+        cls,
+        root: Path | str,
+        minecraft_directory: Path | str | None = None,
+    ) -> "AppPaths":
         root_path = Path(root).expanduser().resolve()
         source_path = root_path / "src"
         app_data = os.getenv("APPDATA")
-        minecraft_default = Path(app_data) / ".minecraft" if app_data else Path.home() / ".minecraft"
+        minecraft_default = (
+            Path(minecraft_directory).expanduser()
+            if minecraft_directory is not None
+            else Path(app_data) / ".minecraft" if app_data else Path.home() / ".minecraft"
+        )
         return cls(
             root=root_path,
             source=source_path,
