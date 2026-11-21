@@ -34,7 +34,7 @@ def fun_install_loader():
     except Exception as error:
         log("Ошибка установки загрузчика:", level="ERROR")
         excepthook(*sys.exc_info())
-        ToastNotification(
+        ToastNotification(master=root, 
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.loading_loader") + str(error.__class__.__name__),
             toast_type="error",
