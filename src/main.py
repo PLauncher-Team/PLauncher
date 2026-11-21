@@ -111,6 +111,8 @@ import os
 import sys
 from datetime import datetime
 
+from plauncher.legacy import LegacyModuleRuntime
+
 start_time = time.perf_counter()
 
 kernel32 = ctypes.windll.kernel32
@@ -239,23 +241,34 @@ log("Импорт библиотек завершен")
 
 ctk.deactivate_automatic_dpi_awareness()
 
-def execute_module(module_name: str) -> None:
-    module_path = os.path.join("modules", f"{module_name}.py")
-
+def load_legacy_modules() -> LegacyModuleRuntime:
+    runtime = LegacyModuleRuntime("modules", globals())
+    module_names = (
+        "utils",
+        "launcher_core",
+        "loaders",
+        "profiles",
+        "window_utils",
+        "skin",
+        "translator",
+        "java",
+        "crash",
+        "settings_gui",
+        "notifications",
+        "definitions",
+        "mod_viewer_gui",
+        "mod_viewer",
+    )
     try:
-        with open(module_path, "rb") as f:
-            code_bytes = f.read()
-        exec(compile(code_bytes, module_path, "exec"), globals())
-
+        runtime.load_many(module_names)
     except Exception:
-        log(f"Ошибка в модуле {module_name}, выход...", "FATAL")
+        log("Ошибка загрузки модулей лаунчера, выход...", "FATAL")
         excepthook(*sys.exc_info())
+    return runtime
 
 
 if __name__ == "__main__":
-    for module in ["utils", "launcher_core", "loaders", "profiles", "window_utils", "skin", "translator", "java", "crash", "settings_gui",
-                   "notifications", "definitions", "mod_viewer_gui", "mod_viewer"]:
-        execute_module(module)
+    legacy_runtime = load_legacy_modules()
 
     log("Динамическая загрузка модулей завершена")
 
@@ -375,5 +388,5 @@ if __name__ == "__main__":
     create_minecraft_environment()
 
     log(f"Запускаем инициализацию интерфейса")
-    execute_module("gui")
+    legacy_runtime.load("gui")
     root.mainloop()
