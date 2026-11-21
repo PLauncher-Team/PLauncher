@@ -113,7 +113,7 @@ from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
 from plauncher.config import ConfigStore, DEFAULT_SETTINGS, DEFAULT_VERSION, VersionStore
-from plauncher.services import JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, MinecraftLaunchService, ProfileService, SkinTexturePackService, TranslationService
+from plauncher.services import CrashLogAnalyzerService, JavaRuntimeService, LoaderInstallationService, MinecraftEnvironmentService, MinecraftLaunchService, ProfileService, SkinTexturePackService, TranslationService
 
 start_time = time.perf_counter()
 
@@ -370,6 +370,12 @@ if __name__ == "__main__":
     language = language_manager.language
     legacy_runtime.bind("language_manager", language_manager)
     legacy_runtime.bind("language", language)
+    log_analyzer = CrashLogAnalyzerService(
+        http_client=requests,
+        user_agent=LauncherConfig.USER_AGENT,
+        logger=log,
+    )
+    legacy_runtime.bind("log_analyzer", log_analyzer)
 
     def update_java_versions(versions: list[int]) -> None:
         LaunchOptions.available_major_versions = versions
