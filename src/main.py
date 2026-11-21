@@ -439,4 +439,10 @@ if __name__ == "__main__":
 
     log(f"Запускаем инициализацию интерфейса")
     legacy_runtime.load("gui")
+    apply_hover_border()
+    log("Запускаем сетевые потоки...")
+    threading.Thread(target=JavaRuntimeManager.get_available_major_versions, daemon=True).start()
+    threading.Thread(target=thread_load_versions, daemon=True).start()
+    threading.Thread(target=set_skin, daemon=True).start()
+    threading.Thread(target=get_loaders_versions, daemon=True).start()
     root.mainloop()
