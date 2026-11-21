@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from plauncher.application import ApplicationState, LauncherApplication
 from plauncher.config import ConfigStore
+from plauncher.models import LauncherSettings, VersionState
 
 
 class ConfigStoreTests(unittest.TestCase):
@@ -33,6 +34,9 @@ class LauncherApplicationTests(unittest.TestCase):
             services = application.initialize()
             self.assertEqual(application.state, ApplicationState.READY)
             self.assertTrue(services.paths.root.is_dir())
+            self.assertIsInstance(services.settings_data, LauncherSettings)
+            self.assertIsInstance(services.version_data, VersionState)
+            self.assertTrue(services.environment.directory.is_dir())
             application.run(lambda: events.append("run"))
             self.assertEqual(events, ["startup", "run", "shutdown"])
             self.assertEqual(application.state, ApplicationState.STOPPED)
