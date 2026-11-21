@@ -14,75 +14,31 @@ def list_ver(loader: str) -> list:
 
 def fun_install_loader():
     try:
-        val_call = {
+        callbacks = {
             "setMax": set_max_value,
-            "setProgress": lambda p: progress_bar_update(progress=p, bar=progress_loader, status=False)
+            "setProgress": lambda value: progress_bar_update(progress=value, bar=progress_loader, status=False),
         }
-        version_select = choice_version_ctk.get()
-        loader_select = choice_loader.get()
-
-        if not version_select or not loader_select:
+        selected_version = choice_version_ctk.get()
+        selected_loader = choice_loader.get()
+        if not selected_version or not selected_loader:
             return
 
-        java_major = LaunchOptions.available_major_versions[-1]
-
-        if not JavaRuntimeManager.get_any_java_exe(java_major):
-            log(f"Установка JVM {java_major} runtime")
-            JavaRuntimeManager.download_and_extract_java(java_major, callback=val_call)
-        path_to_java = JavaRuntimeManager.get_any_java_exe(java_major)
-
-        log(f"Загрузка версии Minecraft {version_select} с загрузчиком {loader_select}..")
-        log(f"Путь к Java: {path_to_java}")
-
-        if loader_select == "Fabric":
-            mcl.fabric.install_fabric(minecraft_version=version_select, minecraft_directory=LaunchOptions.minecraft_path,
-                                      callback=val_call, java=path_to_java)
-        elif loader_select == "Quilt":
-            mcl.quilt.install_quilt(minecraft_version=version_select, minecraft_directory=LaunchOptions.minecraft_path,
-                                    callback=val_call, java=path_to_java)
-        elif loader_select == "Forge":
-            mcl.forge.install_forge_version(mcl.forge.find_forge_version(version_select), path=LaunchOptions.minecraft_path,
-                                            callback=val_call, java=path_to_java)
-        elif loader_select == "OptiFine":
-            mcl.install.install_minecraft_version(versionid=version_select,
-                                                  minecraft_directory=LaunchOptions.minecraft_path, callback=val_call)
-            get_ver = optipy.getVersion(mc_version=version_select)
-            url = get_ver[version_select][0]["url"]
-            response = requests.get(url)
-            with open(os.path.join("ofb", 'Optifine.jar'), 'wb') as f:
-                f.write(response.content)
-            command_str = f'"{path_to_java}" -jar Bridge.jar "{LaunchOptions.minecraft_path}" -log=console > optifine.log 2>&1'
-
-            LaunchOptions.loader_process = subprocess.Popen(
-                command_str,
-                shell=True,
-                creationflags=subprocess.CREATE_NO_WINDOW
-            )
-            LaunchOptions.loader_process.wait()
-            LaunchOptions.loader_process = None
-            os.remove(os.path.join("ofb", 'Optifine.jar'))
-        elif loader_select == "NeoForge":
-            mcl.install.install_minecraft_version(versionid=version_select,
-                                                  minecraft_directory=LaunchOptions.minecraft_path, callback=val_call)
-            mcl.neoforge.download_and_run(version=LoadersVersions.dictionary_neoforge[version_select], path_minecraft=LaunchOptions.minecraft_path,
-                                          java=path_to_java)
-        
-        elif loader_select == "Cleanroom":
-            mcl.install.install_minecraft_version(versionid="1.12.2",
-                                                  minecraft_directory=LaunchOptions.minecraft_path, callback=val_call)
-            mcl.cleanroom.download_and_run(version=version_select, path_minecraft=LaunchOptions.minecraft_path, java=path_to_java)
-            
-            
+        loader_installer.install(
+            selected_loader,
+            selected_version,
+            callback=callbacks,
+            neoforge_versions=LoadersVersions.dictionary_neoforge,
+        )
         root.after_idle(load_versions)
-        log(f"Установка успешно завершена")
-
-    except Exception as e:
-        log(f"Ошибка установки загрузчика:", level="ERROR")
+        log("Установка успешно завершена")
+    except Exception as error:
+        log("Ошибка установки загрузчика:", level="ERROR")
         excepthook(*sys.exc_info())
-        ToastNotification(title=language_manager.get("messages.titles.error"),
-                          message=language_manager.get("messages.texts.error.loading_loader") + str(e.__class__.__name__),
-                          toast_type="error")
-
+        ToastNotification(
+            title=language_manager.get("messages.titles.error"),
+            message=language_manager.get("messages.texts.error.loading_loader") + str(error.__class__.__name__),
+            toast_type="error",
+        )
 
 def fun_install_loaders():
     def off_load():
