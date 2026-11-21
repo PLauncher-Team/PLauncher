@@ -14,14 +14,16 @@ class LegacyModuleRuntimeTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (modules_directory / "second.py").write_text(
-                "result = SharedValue.value\n",
+                "result = SharedValue.value + injected_value\n",
                 encoding="utf-8",
             )
-            namespace = {}
+            namespace = {"injected_value": 8}
             runtime = LegacyModuleRuntime(modules_directory, namespace)
             runtime.load_many(["first", "second"])
-            self.assertEqual(runtime.modules["second"].result, 42)
-            self.assertIs(runtime.modules["second"].SharedValue, namespace["SharedValue"])
+            self.assertEqual(runtime.modules["second"].result, 50)
+            runtime.bind("injected_value", 10)
+            self.assertEqual(runtime.modules["first"].injected_value, 10)
+            self.assertEqual(runtime.modules["second"].injected_value, 10)
 
     def test_missing_module_raises(self):
         with tempfile.TemporaryDirectory() as directory:
