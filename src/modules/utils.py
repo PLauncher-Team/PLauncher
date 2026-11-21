@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from pathlib import Path
 
 if TYPE_CHECKING:
     from ..context import *
@@ -130,7 +131,16 @@ def change_mine(selection: bool = True):
         current_folder.configure(
             text=language_manager.get('settings.2_page.current_path') + LaunchOptions.minecraft_path)
 
-        create_minecraft_environment()
+        minecraft_directory = Path(LaunchOptions.minecraft_path)
+        environment_service.directory = minecraft_directory
+        profile_service.minecraft_directory = minecraft_directory
+        profile_service.profiles_directory = minecraft_directory / "profiles"
+        version_store.path = minecraft_directory / "version.json"
+        java_runtime_service.minecraft_directory = minecraft_directory
+        loader_installer.minecraft_directory = minecraft_directory
+        launch_service.minecraft_directory = minecraft_directory
+        LauncherConfig.version = version_store.load()
+        environment_service.ensure()
 
         if not default_var.get():
             LauncherConfig.config["mine_path"] = LaunchOptions.minecraft_path
