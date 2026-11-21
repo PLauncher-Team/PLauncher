@@ -54,7 +54,7 @@ def add_java():
         java_combobox.configure(values=get_java_options())
     elif path:
         log(f"Не удалось добавить Java установку: {path}", level="ERROR")
-        ToastNotification(
+        ToastNotification(master=root, 
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.java"),
             toast_type="error"
@@ -87,7 +87,7 @@ def del_java():
     current = java_combobox.get()
     if current in (language_manager.get("settings.2_page.recommended_java"), language_manager.get("settings.2_page.latest_java")):
         return
-    new_message(
+    new_message(master=root, 
         title=language_manager.get("messages.titles.warning"),
         message=f"{language_manager.get('messages.texts.warning.java')} ({current})",
         icon="question",
