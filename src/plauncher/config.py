@@ -79,10 +79,10 @@ class JsonStore:
 
 
 class ConfigStore(JsonStore):
-    def __init__(self, path: Path) -> None:
-        super().__init__(path, DEFAULT_SETTINGS)
+    def __init__(self, path: Path, defaults: dict[str, Any] | None = None) -> None:
+        super().__init__(path, defaults or DEFAULT_SETTINGS)
 
 
 class VersionStore(JsonStore):
-    def __init__(self, path: Path) -> None:
-        super().__init__(path, DEFAULT_VERSION)
+    def __init__(self, path: Path, defaults: dict[str, Any] | None = None) -> None:
+        super().__init__(path, defaults or DEFAULT_VERSION)
