@@ -12,7 +12,7 @@ def center(work, x: int, y: int) -> str:
 
 
 def ex():
-    new_message(
+    new_message(master=root, 
         title=language_manager.get("messages.titles.warning"),
         message=language_manager.get("messages.texts.warning.exit"),
         icon="question",
