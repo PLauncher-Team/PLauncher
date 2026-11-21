@@ -352,6 +352,7 @@ if __name__ == "__main__":
     version_file_exists = os.path.isfile(version_file)
     version_store = VersionStore(version_file, DEFAULT_VERSION)
     legacy_runtime.bind("version_store", version_store)
+    legacy_runtime.bind("default_version", DEFAULT_VERSION)
     LauncherConfig.version = version_store.load()
     save_version()
     log("version.json файл найден, настройки загружены" if version_file_exists else "version.json не найден, был создан новый")
