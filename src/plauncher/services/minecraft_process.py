@@ -19,11 +19,13 @@ class MinecraftProcessService:
         debug: bool,
         log_path: str | Path,
         on_started: Callable[[Any, Any], None],
+        on_log_opened: Callable[[Any], None] | None = None,
         on_running: Callable[[], None] | None = None,
         on_output: Callable[[str], None] | None = None,
     ) -> tuple[Any, Any]:
         log_file = Path(log_path).open("w+", encoding="utf-8")
-        started = False
+        if on_log_opened is not None:
+            on_log_opened(log_file)
         try:
             job = self.job_api.CreateJobObject(None, "PLauncher_Job")
             job_info = self.job_api.QueryInformationJobObject(
@@ -53,7 +55,6 @@ class MinecraftProcessService:
             )
             self.job_api.AssignProcessToJobObject(job, int(process._handle))
             on_started(process, log_file)
-            started = True
             if on_running is not None:
                 on_running()
 
@@ -70,8 +71,6 @@ class MinecraftProcessService:
             process.wait()
             return process, log_file
         except Exception:
-            if not started:
-                log_file.close()
             raise
 
     def stop(self, process: Any, log_file: Any = None) -> None:
