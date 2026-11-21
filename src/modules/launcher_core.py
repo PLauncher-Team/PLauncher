@@ -213,6 +213,7 @@ def launch_game():
                 working_directory=work_folder,
                 debug=debug_mode,
                 log_path="minecraft.log",
+                on_log_opened=lambda log_file: setattr(LaunchOptions, "minecraft_log_file", log_file),
                 on_started=lambda process, log_file: (
                     setattr(LaunchOptions, "minecraft_process", process),
                     setattr(LaunchOptions, "minecraft_log_file", log_file),
