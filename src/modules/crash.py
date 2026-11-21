@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 
 class CrashLogWindow(ctk.CTkToplevel):
-    def __init__(self, parent):
+    def __init__(self, parent: ctk.CTk):
         super().__init__(parent)
 
         self.withdraw()
