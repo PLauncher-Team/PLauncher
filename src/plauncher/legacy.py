@@ -22,7 +22,7 @@ class LegacyModuleRuntime:
             raise ImportError(f"Unable to create module specification: {module_path}")
 
         module = importlib.util.module_from_spec(specification)
-        module.__dict__.update(self.namespace)
+        module.__dict__.update(self._public_namespace())
         sys.modules[qualified_name] = module
         try:
             specification.loader.exec_module(module)
@@ -39,9 +39,17 @@ class LegacyModuleRuntime:
         self._synchronize_namespace()
         return module
 
+    def _public_namespace(self) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in self.namespace.items()
+            if not key.startswith("__")
+        }
+
     def _synchronize_namespace(self) -> None:
+        shared_values = self._public_namespace()
         for module in self.modules.values():
-            module.__dict__.update(self.namespace)
+            module.__dict__.update(shared_values)
 
     def bind(self, name: str, value: Any) -> None:
         self.namespace[name] = value
