@@ -27,7 +27,7 @@ class ConfigStoreTests(unittest.TestCase):
 class LauncherApplicationTests(unittest.TestCase):
     def test_initialization_and_shutdown_lifecycle(self):
         with tempfile.TemporaryDirectory() as directory:
-            application = LauncherApplication(directory)
+            application = LauncherApplication(directory, Path(directory) / ".minecraft")
             events = []
             application.add_startup_step(lambda services: events.append("startup"))
             application.add_shutdown_step(lambda services: events.append("shutdown"))
