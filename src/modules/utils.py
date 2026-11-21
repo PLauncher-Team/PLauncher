@@ -45,13 +45,11 @@ def open_logs():
 
 
 def save_version():
-    with open(os.path.join(LaunchOptions.minecraft_path, "version.json"), "w") as ver:
-        json.dump(LauncherConfig.version, ver, indent=4)
+    version_store.save(LauncherConfig.version)
 
 
 def save_config():
-    with open("data.json", "w") as con:
-        json.dump(LauncherConfig.config, con, indent=4)
+    config_store.save(LauncherConfig.config)
 
 
 def set_version(e: str = None):
