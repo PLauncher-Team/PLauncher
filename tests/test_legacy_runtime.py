@@ -41,6 +41,24 @@ class LegacyModuleRuntimeTests(unittest.TestCase):
             runtime.bind("GuiOptions", Options())
             self.assertEqual(gui_module.read_option(), "settings")
 
+    def test_bind_during_module_execution_updates_loading_module(self):
+        with tempfile.TemporaryDirectory() as directory:
+            modules_directory = Path(directory)
+            (modules_directory / "skin.py").write_text(
+                "def read_option():\\n    return default_skin_var.get()\\n",
+                encoding="utf-8",
+            )
+            (modules_directory / "gui.py").write_text(
+                "default_skin_var = object()\\nlegacy_runtime.bind('default_skin_var', default_skin_var)\\n",
+                encoding="utf-8",
+            )
+            namespace = {}
+            runtime = LegacyModuleRuntime(modules_directory, namespace)
+            namespace["legacy_runtime"] = runtime
+            skin_module = runtime.load("skin")
+            gui_module = runtime.load("gui")
+            self.assertIs(skin_module.default_skin_var, gui_module.default_skin_var)
+
     def test_missing_module_raises(self):
         with tempfile.TemporaryDirectory() as directory:
             runtime = LegacyModuleRuntime(directory, {})
