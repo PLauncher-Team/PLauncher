@@ -112,6 +112,7 @@ import sys
 from datetime import datetime
 
 from plauncher.legacy import LegacyModuleRuntime
+from plauncher.services import ProfileService
 
 start_time = time.perf_counter()
 
@@ -339,6 +340,9 @@ if __name__ == "__main__":
             os.makedirs(LaunchOptions.minecraft_path)
     else:
         LaunchOptions.minecraft_path = LauncherConfig.config["mine_path"]
+
+    profile_service = ProfileService(LaunchOptions.minecraft_path)
+    legacy_runtime.bind("profile_service", profile_service)
 
     if LauncherConfig.config["java_paths"]:
         for java_path in LauncherConfig.config["java_paths"]:
