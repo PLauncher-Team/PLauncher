@@ -64,16 +64,22 @@ def get_loaders_versions():
     if not LauncherConfig.IS_INTERNET:
         return
 
-    def get_neoforge():
-        LoadersVersions.dictionary_neoforge = mcl.neoforge.get_versions()
-        LoadersVersions.neoforge_versions_mine.extend(
-            sorted(LoadersVersions.dictionary_neoforge.keys(), reverse=True)
-        )
+    catalog_targets = {
+        "Forge": "forge_versions_mine",
+        "Fabric": "fabric_versions_mine",
+        "NeoForge": "neoforge_versions_mine",
+        "OptiFine": "optifine_versions_mine",
+        "Quilt": "quilt_versions_mine",
+        "Cleanroom": "cleanroom_versions_mine",
+    }
 
-    def fetch_loader(name, fetch_func, version_list_attr):
+    def fetch_loader(name: str):
         try:
-            fetch_func()
-            versions = getattr(LoadersVersions, version_list_attr)
+            versions, metadata = loader_catalog.fetch(name)
+            target = getattr(LoadersVersions, catalog_targets[name])
+            target.extend(versions)
+            if name == "NeoForge":
+                LoadersVersions.dictionary_neoforge = metadata
             log(f"Загружено версий для {name}: {len(versions)}.", "INFO")
 
             def update_ui():
@@ -88,34 +94,10 @@ def get_loaders_versions():
                     choice_version.configure(values=versions)
                     if versions:
                         choice_version_ctk.set(versions[0])
+
             content_frames[tabs[3]].after_idle(update_ui)
-        except Exception as e:
-            log(f"Ошибка получения версий для {name}: {e}", "WARNING")
+        except Exception as error:
+            log(f"Ошибка получения версий для {name}: {error}", "WARNING")
 
-    loaders = [
-        (
-            "Forge",
-            lambda: LoadersVersions.forge_versions_mine.extend(
-                sorted(
-                    dict.fromkeys(
-                        v.split("-")[0]
-                        for v in mcl.forge.list_forge_versions()
-                        if packaging.version.Version(v.split("-")[0]) >= packaging.version.Version("1.7.10")
-                    ),
-                    key=packaging.version.Version,
-                    reverse=True
-                )
-            ),
-            "forge_versions_mine"
-        ),
-        ("Fabric", lambda: [LoadersVersions.fabric_versions_mine.append(v["version"])
-                            for v in mcl.fabric.get_all_minecraft_versions()], "fabric_versions_mine"),
-        ("NeoForge", get_neoforge, "neoforge_versions_mine"),
-        ("OptiFine", lambda: LoadersVersions.optifine_versions_mine.extend(optipy.getVersionList()), "optifine_versions_mine"),
-        ("Quilt", lambda: LoadersVersions.quilt_versions_mine.extend(
-            [v["version"] for v in mcl.quilt.get_all_minecraft_versions()]), "quilt_versions_mine"),
-        ("Cleanroom", lambda: LoadersVersions.cleanroom_versions_mine.extend(mcl.cleanroom.get_github_tags("CleanroomMC", "Cleanroom")), "cleanroom_versions_mine")
-    ]
-
-    for name, func, attr in loaders:
-        threading.Thread(target=fetch_loader, args=(name, func, attr), daemon=True).start()
+    for loader_name in catalog_targets:
+        threading.Thread(target=fetch_loader, args=(loader_name,), daemon=True).start()
