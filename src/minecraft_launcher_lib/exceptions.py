@@ -2,8 +2,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2024 JakobDev <jakobdev@gmx.de> and contributors
 # SPDX-License-Identifier: BSD-2-Clause
 "exceptions contains all custom exceptions that can be raised by minecraft_launcher_lib"
-from .types import VanillaLauncherProfile
-
 class VersionNotFound(ValueError):
     """
     The given version does not exists
@@ -52,17 +50,6 @@ class InvalidRefreshToken(ValueError):
     Raised when :func:`~minecraft_launcher_lib.microsoft_account.complete_refresh` is called with a invalid refresh token
     """
     pass
-
-
-class InvalidVanillaLauncherProfile(ValueError):
-    """
-    Raised when a function from the :doc:`vanilla_launcher` module is called with a invalid vanilla profile
-    """
-    def __init__(self, profile: VanillaLauncherProfile) -> None:
-        self.profile: VanillaLauncherProfile = profile
-        "The invalid profile"
-
-        super().__init__("Invalid VanillaLauncherProfile")
 
 
 class SecurityError(Exception):
