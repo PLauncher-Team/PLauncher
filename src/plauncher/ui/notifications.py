@@ -540,7 +540,7 @@ class CTkMessagebox(ctk.CTkFrame):
     def load_icon(self, icon, icon_size):
         if icon not in self.ICONS or self.ICONS[icon] is None:
             if icon in ["check", "cancel", "info", "question", "warning"]:
-                image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'icons', icon + '.png')
+                image_path = str(Path(__file__).resolve().parents[2] / "icons" / f"{icon}.png")
             else:
                 image_path = icon
             if icon_size:
