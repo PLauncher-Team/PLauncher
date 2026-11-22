@@ -479,7 +479,12 @@ class ModViewer(ctk.CTkFrame):
             os.makedirs(self.mods_dir, exist_ok=True)
 
         if self.mod_manager is None:
-            self.mod_manager = ModManager(mods_path=self.mods_dir)
+            self.mod_manager = ModManager(
+                mods_path=self.mods_dir,
+                online=LauncherConfig.IS_INTERNET,
+                user_agent=LauncherConfig.USER_AGENT,
+                logger=log,
+            )
         else:
             self.mod_manager.mods_path = self.mods_dir
         
