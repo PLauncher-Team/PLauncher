@@ -14,7 +14,7 @@ else:
             name_without_ext = os.path.splitext(filename)[0]
             themes.append(name_without_ext)
     theme_path = random.choice(themes)
-log(f"Тема лаунчера: {theme_path}")
+log(f"Launcher theme: {theme_path}")
 ctk.set_default_color_theme(f"themes/{theme_path}.json")
 
 root = ctk.CTk(fg_color="#242424")
@@ -38,7 +38,7 @@ else:
 
 GuiOptions = GuiOption()
 
-log(f"Изображение лаунчера: {image_path}")
+log(f"Launcher image: {image_path}")
 
 pil_image = PIL.Image.open(image_path)
 ctk_image = ctk.CTkImage(pil_image, size=(1000, 562))
@@ -634,7 +634,7 @@ pywinstyles.set_opacity(launch_button, color="#242424", value=0.9)
 
 pywinstyles.change_header_color(root, GuiOptions.fg_color)
 
-log("Запускаем сетевые потоки...")
+log("Starting network threads...")
 threading.Thread(target=JavaRuntimeManager.get_available_major_versions).start()
 threading.Thread(target=thread_load_versions).start()
 threading.Thread(target=set_skin).start()
@@ -645,7 +645,7 @@ apply_hover_border()
 blackout_frame.lift()
 settings_frame.lift()
 
-log(f"Инициализация лаунчера завершена за {time.perf_counter() - start_time:.2f} s")
+log(f"Launcher initialization completed in {time.perf_counter() - start_time:.2f} s")
 
 if not LauncherConfig.IS_INTERNET:
     ToastNotification(title=language_manager.get("messages.titles.warning"),
