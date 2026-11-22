@@ -83,17 +83,6 @@ class QuiltLoader(TypedDict):
     version: str
 
 
-# java_utils
-
-class JavaInformation(TypedDict):
-    path: str
-    name: str
-    version: str
-    java_path: str
-    javaw_path: str | None
-    is_64bit: bool
-    openjdk: bool
-
 
 # vanilla_launcher
 
@@ -129,11 +118,6 @@ class MrpackInstallOptions(TypedDict, total=False):
 
 
 # runtime
-
-class JvmRuntimeInformation(TypedDict):
-    name: str
-    released: datetime.datetime
-
 
 class VersionRuntimeInformation(TypedDict):
     name: str
