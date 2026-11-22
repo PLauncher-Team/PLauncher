@@ -85,12 +85,12 @@ class VersionFrame(ctk.CTkFrame):
         try:
             latest_tag = mcl.utils.get_github_tags("PLauncher-Team", "PLauncher")[0]
             if latest_tag and self.is_newer_version(latest_tag, current_version):
-                log(f"Доступно обновление: {current_version} -> {latest_tag}")
+                log(f"Update available: {current_version} -> {latest_tag}")
                 return latest_tag
             else:
                 return False
         except Exception as e:
-            log(f"Ошибка получения информации о новой версии: {e}", "ERROR")
+            log(f"Failed to retrieve information about the new version: {e}", "ERROR")
             return False
 
     def open_download(self, event: object = None):
