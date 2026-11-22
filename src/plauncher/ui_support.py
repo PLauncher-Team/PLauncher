@@ -164,7 +164,10 @@ def del_installed_version():
         return
 
     new_message(
-        title=language_manager.get("messages.titles.warning"),
+        master=root,
+        gui_options=GuiOptions,
+        logger=log,
+title=language_manager.get("messages.titles.warning"),
         message=f"{language_manager.get('messages.texts.warning.delete_game_version')} ({currents})",
         icon="question",
         option_1=language_manager.get("messages.answers.no"),
@@ -518,7 +521,11 @@ def center(work, x: int, y: int) -> str:
 
 
 def ex():
-    new_message(master=root, 
+    new_message(
+        master=root,
+        gui_options=GuiOptions,
+        logger=log,
+
         title=language_manager.get("messages.titles.warning"),
         message=language_manager.get("messages.texts.warning.exit"),
         icon="question",
@@ -686,7 +693,10 @@ def select_language(selected_value: str):
     save_config()
 
     new_message(
-        title=language_manager.get("messages.titles.warning"),
+        master=root,
+        gui_options=GuiOptions,
+        logger=log,
+title=language_manager.get("messages.titles.warning"),
         message=language_manager.get("messages.texts.warning.language"),
         icon="question",
         option_1=language_manager.get("messages.answers.no"),
