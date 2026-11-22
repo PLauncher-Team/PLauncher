@@ -28,7 +28,147 @@ from .mods.manager import ModManager
 from .mods.view import ModViewer
 
 def configure(**dependencies: Any) -> None:
-    globals().update(dependencies)
+    global Path, Version, time, ctypes, threading, os, sys, datetime, CrashLogWindow, JavaController, LoaderController, ProfileController, SettingsController, SkinController, GuiOption, LauncherConfig, LaunchOptions, json, re, traceback, shutil, random, webbrowser, subprocess, tomllib, zipfile, hashlib, BytesIO, getdefaultlocale, uuid4, filedialog, mcl, ctk, requests, packaging, hPyT, win32job, win32con, win32api, optipy, PIL, concurrent, CachedSession, CTkScrollableDropdown, virtual_memory, rate_limited, repair_json, pywinstyles, log, excepthook, kernel32, mutex, log_lock, start_time, default_config, config_store, version_store, profile_service, save_config, save_version, language_manager, language, log_analyzer, java_runtime_service, loader_installer, loader_catalog, launch_service, process_service, environment_service, MinecraftTexturePackCreator
+    if "Path" in dependencies:
+        Path = dependencies["Path"]
+    if "Version" in dependencies:
+        Version = dependencies["Version"]
+    if "time" in dependencies:
+        time = dependencies["time"]
+    if "ctypes" in dependencies:
+        ctypes = dependencies["ctypes"]
+    if "threading" in dependencies:
+        threading = dependencies["threading"]
+    if "os" in dependencies:
+        os = dependencies["os"]
+    if "sys" in dependencies:
+        sys = dependencies["sys"]
+    if "datetime" in dependencies:
+        datetime = dependencies["datetime"]
+    if "CrashLogWindow" in dependencies:
+        CrashLogWindow = dependencies["CrashLogWindow"]
+    if "JavaController" in dependencies:
+        JavaController = dependencies["JavaController"]
+    if "LoaderController" in dependencies:
+        LoaderController = dependencies["LoaderController"]
+    if "ProfileController" in dependencies:
+        ProfileController = dependencies["ProfileController"]
+    if "SettingsController" in dependencies:
+        SettingsController = dependencies["SettingsController"]
+    if "SkinController" in dependencies:
+        SkinController = dependencies["SkinController"]
+    if "GuiOption" in dependencies:
+        GuiOption = dependencies["GuiOption"]
+    if "LauncherConfig" in dependencies:
+        LauncherConfig = dependencies["LauncherConfig"]
+    if "LaunchOptions" in dependencies:
+        LaunchOptions = dependencies["LaunchOptions"]
+    if "json" in dependencies:
+        json = dependencies["json"]
+    if "re" in dependencies:
+        re = dependencies["re"]
+    if "traceback" in dependencies:
+        traceback = dependencies["traceback"]
+    if "shutil" in dependencies:
+        shutil = dependencies["shutil"]
+    if "random" in dependencies:
+        random = dependencies["random"]
+    if "webbrowser" in dependencies:
+        webbrowser = dependencies["webbrowser"]
+    if "subprocess" in dependencies:
+        subprocess = dependencies["subprocess"]
+    if "tomllib" in dependencies:
+        tomllib = dependencies["tomllib"]
+    if "zipfile" in dependencies:
+        zipfile = dependencies["zipfile"]
+    if "hashlib" in dependencies:
+        hashlib = dependencies["hashlib"]
+    if "BytesIO" in dependencies:
+        BytesIO = dependencies["BytesIO"]
+    if "getdefaultlocale" in dependencies:
+        getdefaultlocale = dependencies["getdefaultlocale"]
+    if "uuid4" in dependencies:
+        uuid4 = dependencies["uuid4"]
+    if "filedialog" in dependencies:
+        filedialog = dependencies["filedialog"]
+    if "mcl" in dependencies:
+        mcl = dependencies["mcl"]
+    if "ctk" in dependencies:
+        ctk = dependencies["ctk"]
+    if "requests" in dependencies:
+        requests = dependencies["requests"]
+    if "packaging" in dependencies:
+        packaging = dependencies["packaging"]
+    if "hPyT" in dependencies:
+        hPyT = dependencies["hPyT"]
+    if "win32job" in dependencies:
+        win32job = dependencies["win32job"]
+    if "win32con" in dependencies:
+        win32con = dependencies["win32con"]
+    if "win32api" in dependencies:
+        win32api = dependencies["win32api"]
+    if "optipy" in dependencies:
+        optipy = dependencies["optipy"]
+    if "PIL" in dependencies:
+        PIL = dependencies["PIL"]
+    if "concurrent" in dependencies:
+        concurrent = dependencies["concurrent"]
+    if "CachedSession" in dependencies:
+        CachedSession = dependencies["CachedSession"]
+    if "CTkScrollableDropdown" in dependencies:
+        CTkScrollableDropdown = dependencies["CTkScrollableDropdown"]
+    if "virtual_memory" in dependencies:
+        virtual_memory = dependencies["virtual_memory"]
+    if "rate_limited" in dependencies:
+        rate_limited = dependencies["rate_limited"]
+    if "repair_json" in dependencies:
+        repair_json = dependencies["repair_json"]
+    if "pywinstyles" in dependencies:
+        pywinstyles = dependencies["pywinstyles"]
+    if "log" in dependencies:
+        log = dependencies["log"]
+    if "excepthook" in dependencies:
+        excepthook = dependencies["excepthook"]
+    if "kernel32" in dependencies:
+        kernel32 = dependencies["kernel32"]
+    if "mutex" in dependencies:
+        mutex = dependencies["mutex"]
+    if "log_lock" in dependencies:
+        log_lock = dependencies["log_lock"]
+    if "start_time" in dependencies:
+        start_time = dependencies["start_time"]
+    if "default_config" in dependencies:
+        default_config = dependencies["default_config"]
+    if "config_store" in dependencies:
+        config_store = dependencies["config_store"]
+    if "version_store" in dependencies:
+        version_store = dependencies["version_store"]
+    if "profile_service" in dependencies:
+        profile_service = dependencies["profile_service"]
+    if "save_config" in dependencies:
+        save_config = dependencies["save_config"]
+    if "save_version" in dependencies:
+        save_version = dependencies["save_version"]
+    if "language_manager" in dependencies:
+        language_manager = dependencies["language_manager"]
+    if "language" in dependencies:
+        language = dependencies["language"]
+    if "log_analyzer" in dependencies:
+        log_analyzer = dependencies["log_analyzer"]
+    if "java_runtime_service" in dependencies:
+        java_runtime_service = dependencies["java_runtime_service"]
+    if "loader_installer" in dependencies:
+        loader_installer = dependencies["loader_installer"]
+    if "loader_catalog" in dependencies:
+        loader_catalog = dependencies["loader_catalog"]
+    if "launch_service" in dependencies:
+        launch_service = dependencies["launch_service"]
+    if "process_service" in dependencies:
+        process_service = dependencies["process_service"]
+    if "environment_service" in dependencies:
+        environment_service = dependencies["environment_service"]
+    if "MinecraftTexturePackCreator" in dependencies:
+        MinecraftTexturePackCreator = dependencies["MinecraftTexturePackCreator"]
 
 
 def initialize_gui() -> dict[str, Any]:
