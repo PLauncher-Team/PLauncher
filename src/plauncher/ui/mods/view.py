@@ -1,4 +1,5 @@
 import os
+import queue
 import shutil
 import threading
 import time
@@ -283,6 +284,8 @@ class ModViewer(ctk.CTkFrame):
         self._first_load_done = False
         self.mod_manager = None
         self._loading_mods = False
+        self._worker_events = queue.Queue()
+        self._worker_poll_id = self.after(50, self._poll_worker_events)
         self.version_var = ctk.StringVar()
 
         top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
@@ -612,7 +615,24 @@ class ModViewer(ctk.CTkFrame):
         except Exception as exc:
             error = exc
 
-        self.after(0, lambda error=error: self._finish_mods_loading(error))
+        self._worker_events.put(("mods_loaded", error))
+
+    def _poll_worker_events(self):
+        while True:
+            try:
+                event, error = self._worker_events.get_nowait()
+            except queue.Empty:
+                break
+
+            if event == "mods_loaded":
+                self._finish_mods_loading(error)
+            elif event == "reload_mods":
+                if error is not None:
+                    self.logger(str(error), "ERROR")
+                self.load_mods()
+
+        if self.winfo_exists():
+            self._worker_poll_id = self.after(50, self._poll_worker_events)
 
     def _finish_mods_loading(self, error=None):
         self._loading_mods = False
@@ -824,7 +844,7 @@ class ModViewer(ctk.CTkFrame):
                     os.rename(mod_file, os.path.join(mod_dir, mod_name[:-9]))
         except Exception as exc:
             self.logger(f"Не удалось разблокировать моды: {exc}", "ERROR")
-        self.after(0, self.load_mods)
+        self._worker_events.put(("reload_mods", None))
 
     def unlock_all(self):
         self.lock_all_btn.configure(state="disabled")
@@ -849,7 +869,7 @@ class ModViewer(ctk.CTkFrame):
                     os.rename(mod_file, mod_file + ".disabled")
         except Exception as exc:
             self.logger(f"Не удалось заблокировать моды: {exc}", "ERROR")
-        self.after(0, self.load_mods)
+        self._worker_events.put(("reload_mods", None))
 
     def deiconify(self):
         if self.winfo_viewable():
