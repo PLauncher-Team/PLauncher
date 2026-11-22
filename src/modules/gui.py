@@ -187,7 +187,8 @@ installed_versions_combobox = CTkScrollableDropdown(
     scrollbar_button_hover_color=GuiOptions.hover_color,
     pagination=False,
     font=("Segoe UI", 13),
-    multiple=True
+    multiple=True,
+    command=lambda values: installed_versions_combobox_ctk.set(", ".join(values))
 )
 
 del_version = ctk.CTkButton(
