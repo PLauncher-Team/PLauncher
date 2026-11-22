@@ -429,8 +429,11 @@ class ModViewer(ctk.CTkFrame):
     
     def add_mods(self, event):
         mods = [file for file in event if file.endswith(".jar")]
-        new_message(master=root, 
-            title=language_manager.get("messages.titles.warning"),
+        new_message(
+            master=root,
+            gui_options=GuiOptions,
+            logger=log,
+title=language_manager.get("messages.titles.warning"),
             message=language_manager.get('messages.texts.warning.add_confirm'),
             icon="question",
             option_1=language_manager.get("messages.answers.no"),
@@ -746,8 +749,11 @@ class ModViewer(ctk.CTkFrame):
 
     def delete_mod(self, mod_path):
         mod_name = os.path.basename(mod_path)
-        new_message(master=root, 
-            title=language_manager.get("messages.titles.warning"),
+        new_message(
+            master=root,
+            gui_options=GuiOptions,
+            logger=log,
+title=language_manager.get("messages.titles.warning"),
             message=f"{language_manager.get('messages.texts.warning.delete_confirm')}\n{mod_name}",
             icon="question",
             option_1=language_manager.get("messages.answers.no"),
