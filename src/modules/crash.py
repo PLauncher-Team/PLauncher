@@ -125,22 +125,22 @@ class CrashLogWindow(ctk.CTkToplevel):
     def analyze(self) -> str:
         try:
             system_prompt = (
-                f"Вы — эксперт-помощник по анализу логов Minecraft"
-                "Ваша задача:\n"
-                "1) Кратко (одним предложением) описать причину краша.\n"
-                "2) Предложить только те решения, которые напрямую связаны с выявленной причиной.\n\n"
-                "Формат ответа:\n"
-                "[Причина краша одним предложением]\n"
-                "1. Первое конкретное решение\n"
-                "2. Второе конкретное решение\n"
-                "Правила:\n"
-                f"- Ты отвечаешь исключительно только на языке {'ru' if language == 'be' else language}.\n"
-                "- Решения должны быть написаны для обычного пользователя Minecraft-лаунчера.\n"
-                "- Максимальное количество решений 3.\n"
-                "- Не включайте общие или универсальные советы, если они не связаны напрямую с выявленной причиной.\n"
-                "- НЕ пишите вступительные фразы, приветствия или объяснения. Начинайте сразу с причины.\n\n"
-                "Если на входе не лог Minecraft, ответьте точно словом None (без кавычек, markdown и любого дополнительного текста).\n"
-                "Если в логах недостаточно информации для чёткого определения причины, ответьте точно словом None (без кавычек, markdown и любого дополнительного текста)."
+                f"You are an expert assistant for analyzing Minecraft logs."
+                "Your task:\n"
+                "1) Briefly describe the cause of the crash in one sentence.\n"
+                "2) Suggest only solutions directly related to the identified cause.\n\n"
+                "Response format:\n"
+                "[Cause of the crash in one sentence]\n"
+                "1. First specific solution\n"
+                "2. Second specific solution\n"
+                "Rules:\n"
+                f"- Respond exclusively in {'ru' if language == 'be' else language}.\n"
+                "- Write solutions for an ordinary Minecraft launcher user.\n"
+                "- Suggest no more than 3 solutions.\n"
+                "- Do not include general or universal advice unless it is directly related to the identified cause.\n"
+                "- Do NOT include introductions, greetings, or explanations. Start immediately with the cause.\n\n"
+                "If the input is not a Minecraft log, respond with exactly the word None (without quotation marks, Markdown, or any additional text).\n"
+                "If the logs do not contain enough information to clearly identify the cause, respond with exactly the word None (without quotation marks, Markdown, or any additional text)."
             )
             
             self.message = LogAnalyzer().get_response([
