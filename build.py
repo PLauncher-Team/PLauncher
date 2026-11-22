@@ -1,119 +1,123 @@
 import os
-import sys
-import subprocess
-import venv
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
-if os.environ.get('CI') == 'true' or sys.platform.startswith('win'):
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-    os.environ.setdefault('PYTHONIOENCODING', 'utf-8')
 
-
-MIN_PY_VERSION = (3, 10)
+if os.environ.get("CI") == "true" or sys.platform.startswith("win"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 
 BASE_DIR = Path(__file__).parent.resolve()
 VENV_DIR = BASE_DIR / ".venv"
+REQUIREMENTS = BASE_DIR / "requirements.txt"
 PY_EXE = VENV_DIR / "Scripts" / "python.exe"
+MAIN_PY = BASE_DIR / "src" / "main.py"
+RESOURCES_DIR = BASE_DIR / "src"
+DIST_DIR = BASE_DIR / "dist" / "main.dist"
+UV = shutil.which("uv")
 
-MAIN_PY = BASE_DIR / 'src' / 'main.py'
-RESOURCES_DIR = BASE_DIR / 'src'
-DIST_DIR = BASE_DIR / 'dist' / 'main.dist'
 
-
-NUITKA_CMD = [
-    str(PY_EXE), '-m', 'nuitka',
-    '--standalone',
-    "--assume-yes-for-downloads",
-    '--windows-console-mode=disable',
-    f'--output-dir={DIST_DIR.parent}',
-    '--enable-plugin=tk-inter',
-    str(MAIN_PY)
-]
+def fail(message, code=1):
+    print(f"[ОШИБКА] {message}")
+    raise SystemExit(code)
 
 
 def check_windows():
-    if os.name != 'nt':
-        print("[ОШИБКА] Этот скрипт сборки работает только на Windows.")
-        sys.exit(1)
+    if os.name != "nt":
+        fail("Этот скрипт сборки работает только на Windows.")
 
 
-def check_python_version():
-    if sys.version_info < MIN_PY_VERSION:
-        print(f"[ОШИБКА] Требуется Python {MIN_PY_VERSION[0]}.{MIN_PY_VERSION[1]}+.")
-        sys.exit(1)
+def check_uv():
+    if UV is None:
+        fail("uv не найден. Установите uv: https://docs.astral.sh/uv/getting-started/installation/")
 
 
-def create_virtualenv():
-    if not VENV_DIR.exists():
-        print("🔧 Создание виртуального окружения...")
-        venv.create(VENV_DIR, with_pip=True)
-    else:
+def create_env():
+    if VENV_DIR.exists():
         print("✅ Виртуальное окружение уже существует.")
+        return
+
+    print("🔧 Создание виртуального окружения...")
+    subprocess.check_call([UV, "venv", "--python", ">=3.10", str(VENV_DIR)], cwd=BASE_DIR)
 
 
 def install_dependencies():
-    print("📦 Установка зависимостей...")
+    if not REQUIREMENTS.exists():
+        fail(f"requirements.txt не найден: {REQUIREMENTS}")
+
+    print("📦 Установка зависимостей через uv...")
     try:
-        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'pip'])
-        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '-r', 'requirements.txt'])
-        subprocess.check_call([str(PY_EXE), '-m', 'pip', 'install', '--upgrade', 'nuitka'])
-    except subprocess.CalledProcessError as e:
-        print(f"[ОШИБКА] Ошибка установки зависимостей: {e}")
-        sys.exit(e.returncode)
+        subprocess.check_call(
+            [UV, "pip", "install", "--python", str(PY_EXE), "-r", str(REQUIREMENTS), "nuitka"],
+            cwd=BASE_DIR,
+        )
+    except subprocess.CalledProcessError as error:
+        fail(f"Ошибка установки зависимостей: {error}", error.returncode)
 
 
-def run_command(cmd: list) -> int:
+def run_command(command):
     try:
         sys.stdout.flush()
-
-        result = subprocess.run(cmd, check=False)
-        return result.returncode
-    except Exception as e:
-        print(f"[ОШИБКА] Ошибка выполнения команды: {e}")
+        return subprocess.run(command, cwd=BASE_DIR, check=False).returncode
+    except Exception as error:
+        print(f"[ОШИБКА] Ошибка выполнения команды: {error}")
         return 1
 
 
 def copy_resources():
     print("📁 Копирование ресурсов...")
-    targets = [
-        'modules', 'locales', 'ofb', 'png', "icons", "themes"
-    ]
-    for t in targets:
-        src = RESOURCES_DIR / t
-        dst = DIST_DIR / Path(t).name
-        if src.exists():
-            shutil.copytree(src, dst, dirs_exist_ok=True)
-            print(f"  → {dst.relative_to(DIST_DIR)}")
+    targets = ["modules", "locales", "ofb", "png", "icons", "themes"]
+
+    for target in targets:
+        source = RESOURCES_DIR / target
+        destination = DIST_DIR / target
+        if source.exists():
+            shutil.copytree(source, destination, dirs_exist_ok=True)
+            print(f"  → {destination.relative_to(DIST_DIR)}")
         else:
-            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Ресурс не найден: {src}")
+            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Ресурс не найден: {source}")
 
-    for fname in ('bridge.jar', 'injector.jar', "log4jshell.xml"):
-        src = RESOURCES_DIR / fname
-        dst = DIST_DIR / fname
-        if src.exists():
-            shutil.copy2(src, dst)
-            print(f"  → {fname}")
+    for filename in ("bridge.jar", "injector.jar", "log4jshell.xml"):
+        source = RESOURCES_DIR / filename
+        destination = DIST_DIR / filename
+        if source.exists():
+            shutil.copy2(source, destination)
+            print(f"  → {filename}")
         else:
-            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Файл не найден: {src}")
+            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Файл не найден: {source}")
 
 
-if __name__ == '__main__':
+def main():
     check_windows()
-    check_python_version()
-
-    create_virtualenv()
+    check_uv()
+    create_env()
     install_dependencies()
 
+    command = [
+        str(PY_EXE),
+        "-m",
+        "nuitka",
+        "--standalone",
+        "--assume-yes-for-downloads",
+        "--windows-console-mode=disable",
+        f"--output-dir={DIST_DIR.parent}",
+        "--enable-plugin=tk-inter",
+        str(MAIN_PY),
+    ]
+
     print("🛠 Начало компиляции...")
-    ret = run_command(NUITKA_CMD)
-    if ret != 0:
-        print(f"[ОШИБКА] Компиляция завершилась с ошибкой, код {ret}")
-        sys.exit(ret)
+    return_code = run_command(command)
+    if return_code != 0:
+        fail(f"Компиляция завершилась с ошибкой, код {return_code}", return_code)
+
     print("✅ Компиляция завершена.")
-
     copy_resources()
-
     print("🎉 Сборка завершена! Проверьте dist/main.dist/main.exe")
+
+
+if __name__ == "__main__":
+    main()
