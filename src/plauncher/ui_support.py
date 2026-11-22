@@ -371,7 +371,7 @@ def get_available_memory() -> int:
 
 def open_logs():
     if not os.path.isfile("minecraft.log"):
-        ToastNotification(title=language_manager.get("messages.titles.warning"),
+        ToastNotification(master=root, title=language_manager.get("messages.titles.warning"),
                           message=language_manager.get("messages.texts.warning.logs"),
                           toast_type="warning")
     else:
