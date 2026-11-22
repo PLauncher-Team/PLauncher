@@ -1,13 +1,15 @@
+import sys
+import time
 from pathlib import Path
-from typing import Any
+from typing import Literal, Optional
 
 import customtkinter as ctk
 import PIL
+import pywinstyles
+
+from ..state import LauncherConfig
 
 ICON_DIRECTORY = Path(__file__).resolve().parents[2] / "icons"
-
-def configure(**dependencies: Any) -> None:
-    globals().update(dependencies)
 
 class ToastNotification(ctk.CTkFrame):
     active_toasts: dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
@@ -215,19 +217,24 @@ class ToastNotification(ctk.CTkFrame):
         self.destroy()
 
 
-def new_message(master: ctk.CTk | ctk.CTkToplevel, **kwargs):
-    if GuiOptions.msg:
-        GuiOptions.msg.get()
+def new_message(
+    master: ctk.CTk | ctk.CTkToplevel,
+    gui_options,
+    logger,
+    **kwargs,
+):
+    if gui_options.msg:
+        gui_options.msg.get()
 
     if kwargs["icon"] == "cancel":
-        log(kwargs["message"].replace("\n", " "), "ERROR")
+        logger(kwargs["message"].replace("\n", " "), "ERROR")
 
-    GuiOptions.msg = CTkMessagebox(
+    gui_options.msg = CTkMessagebox(
         **kwargs,
         master=master
     )
-    GuiOptions.msg.lift()
-    GuiOptions.msg.get()
+    gui_options.msg.lift()
+    gui_options.msg.get()
 
 
 class CTkMessagebox(ctk.CTkFrame):
