@@ -3,6 +3,8 @@ import hashlib
 import json
 import os
 import re
+import threading
+import traceback
 import zipfile
 from io import BytesIO
 
@@ -47,11 +49,19 @@ class ModManager:
             return None
 
     def get_mods_info(self):
+        self.logger(f"[ModManager] get_mods_info entered | thread={threading.current_thread().name} | mods_path={os.path.abspath(self.mods_path)}")
         self.logger("Начинаем получение информации о модах")
-        self.hashes = self._get_mods_hashes()
+        try:
+            self.logger("[ModManager] scanning mods directory and calculating SHA-1 hashes")
+            self.hashes = self._get_mods_hashes()
+            self.logger(f"[ModManager] hash scan completed | hashes={len(self.hashes)} | filenames={len(self.files_name)}")
+        except BaseException as exc:
+            self.logger(f"[ModManager] hash scan failed: {type(exc).__name__}: {exc}\\n{traceback.format_exc()}", "ERROR")
+            raise
         self.logger(f"Найдено {len(self.hashes)} модов для обработки")
         if not self.hashes:
             self.results = {}
+            self.logger("[ModManager] empty mods directory; returning empty result")
             self.logger("Обработка модов завершена")
             return self.results
 
@@ -98,6 +108,7 @@ class ModManager:
         return self.results
 
     def _get_mods_hashes(self):
+        self.logger(f"[ModManager] _get_mods_hashes start | path={os.path.abspath(self.mods_path)}")
         def _get_sha1(mod_path):
             sha1 = hashlib.sha1(open(os.path.join(self.mods_path, mod_path), "rb").read()).hexdigest()
             self.files_name[sha1] = mod_path
@@ -108,9 +119,11 @@ class ModManager:
             if os.path.isfile(os.path.join(self.mods_path, i)) and (i.endswith(".jar") or i.endswith(".jar.disabled"))
         ]
 
+        self.logger(f"[ModManager] candidate files found | count={len(mods)} | files={mods!r}")
         with concurrent.futures.ThreadPoolExecutor() as executor:
             hashes = set(executor.map(_get_sha1, mods))
-            return hashes
+        self.logger(f"[ModManager] hash calculation finished | count={len(hashes)}")
+        return hashes
 
     def _get_projects_info(self, ids):
         if not self.online:
