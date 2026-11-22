@@ -19,6 +19,6 @@ def configure(**dependencies: Any) -> None:
 
 def initialize_gui() -> dict[str, Any]:
     created = assembly.initialize_gui()
-    configure(**created)
+    ui_support.configure(**created)
     return created
 
