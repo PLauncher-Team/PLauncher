@@ -42,12 +42,9 @@ def load_versions():
                (show_old_alpha and version['type'] == 'old_alpha')
         ]
 
-        installed_versions_list = [version['id'] for version in installed_versions if
-                                   version['id'] in installed_versions_ids]
+        installed_versions_list = [version['id'] for version in installed_versions]
         other_versions_list = [version['id'] for version in filtered_versions if
                                version['id'] not in installed_versions_ids]
-
-        installed_versions_combobox.configure(values=installed_versions_list)
 
         for i, value_dow in enumerate(installed_versions_list):
             if value_dow in LauncherConfig.version["download"]:
@@ -55,6 +52,7 @@ def load_versions():
             elif value_dow in LauncherConfig.version["not_comp"]:
                 installed_versions_list[i] += language_manager.get("main.types_versions.not_completed")
 
+        installed_versions_combobox.configure(values=installed_versions_list)
         version_combobox.configure(values=installed_versions_list + other_versions_list)
 
         if LaunchOptions.latest_version in LauncherConfig.version["download"]:
