@@ -130,7 +130,7 @@ def rename_profile(old_name: str):
             os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + old_name),
             os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + new_name)
         )
-        log(f"Profile успешно переименован")
+        log(f"Profile renamed successfully")
     except Exception as e:
         log(f"Failed to rename profile:", level="ERROR")
         ToastNotification(
