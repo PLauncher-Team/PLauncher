@@ -23,6 +23,8 @@ jobs:
 
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.test_version || github.event.release.tag_name }}
+      UV_CACHE_DIR: ${{ runner.temp }}\uv-cache
+      NUITKA_CACHE_DIR: ${{ runner.temp }}\nuitka-cache
 
     steps:
       - name: Checkout repository
@@ -30,23 +32,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
           architecture: 'x64'
-          cache: 'pip'
 
       - name: Cache .venv and Nuitka compiler cache
         uses: actions/cache@v4
         with:
           path: |
             .venv
-            ${{ env.LOCALAPPDATA }}\Nuitka\Nuitka
-          key: ${{ runner.os }}-nuitka-${{ hashFiles('**/requirements.txt', 'build.py') }}-${{ github.sha }}
+            ${{ runner.temp }}\uv-cache
+            ${{ runner.temp }}\nuitka-cache
+          key: ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('requirements.txt', 'build.py') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-nuitka-${{ hashFiles('**/requirements.txt', 'build.py') }}-
-            ${{ runner.os }}-nuitka-
+            ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('requirements.txt', 'build.py') }}-
+            ${{ runner.os }}-nuitka-py3.13-
 
       - name: Build with Nuitka (CI mode)
         env:
