@@ -70,18 +70,8 @@ def create_minecraft_environment():
     for directory in dirs:
         os.makedirs(os.path.join(LaunchOptions.minecraft_path, directory), exist_ok=True)
 
-    data_profile = {
-        "profiles": {
-            "forge": {
-                "name": "forge",
-                "lastVersionId": "1.12.2-forge1.12.2-14.23.0.2501"
-            }
-        },
-        "clientToken": "dd76b195-eb71-4786-b561-7ebd985574bf"
-    }
-
-    with open(os.path.join(LaunchOptions.minecraft_path, "launcher_profiles.json"), "w") as k:
-        json.dump(data_profile, k, indent=4)
+    with open(os.path.join(LaunchOptions.minecraft_path, "launcher_profiles.json"), "w", encoding="utf-8") as f:
+        json.dump({"profiles": {}, "settings": {}, "version": 3}, f, ensure_ascii=False, indent=4)
 
     if os.path.isfile(os.path.join(LaunchOptions.minecraft_path, "version.json")):
         with open(os.path.join(LaunchOptions.minecraft_path, "version.json")) as d:
