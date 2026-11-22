@@ -17,7 +17,7 @@ def check_internet_connection() -> float | None:
     except Exception as e:
         error_type = type(e).__name__
         error_msg = str(e)
-        log(f"Нет интернета: {error_type} - {error_msg}", "WARNING")
+        log(f"No internet connection: {error_type} - {error_msg}", "WARNING")
         return 0
 
 
@@ -170,7 +170,7 @@ def change_mine(selection: bool = True):
         else:
             list_profiles.set(language_manager.get("settings.4_page.no"))
         mod_viewer_window._first_load_done = False
-        log(f"Директория Minecraft изменена на: {LaunchOptions.minecraft_path}")
+        log(f"Minecraft directory changed to: {LaunchOptions.minecraft_path}")
 
 
 def del_installed_version():
@@ -187,7 +187,7 @@ def del_installed_version():
     )
 
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log(f"Удаление версии: {currents}")
+        log(f"Removing version: {currents}")
         for current in currents.split():
             shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "versions", current))
             for i in ("download", "not_comp"):
