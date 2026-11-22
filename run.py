@@ -12,7 +12,7 @@ UV = [sys.executable, "-m", "uv"]
 
 
 def fail(message, code=1):
-    print(f"[ОШИБКА] {message}")
+    print(f"[ERROR] {message}")
     raise SystemExit(code)
 
 
@@ -25,19 +25,19 @@ def get_python_executable():
 def check_uv():
     result = subprocess.run(UV + ["--version"], cwd=BASE_DIR, check=False)
     if result.returncode != 0:
-        print("📥 Установка uv...")
+        print("📥 Installing uv...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "uv"], cwd=BASE_DIR)
         subprocess.check_call(UV + ["--version"], cwd=BASE_DIR)
 
 
 def create_env():
     if VENV_DIR.exists():
-        print("✅ Виртуальное окружение уже существует")
+        print("✅ Virtual environment already exists")
         return
 
-    print("🔧 Создание виртуального окружения...")
+    print("🔧 Creating virtual environment...")
     subprocess.check_call(UV + ["venv", "--python", ">=3.10", str(VENV_DIR)], cwd=BASE_DIR)
-    print("✅ Виртуальное окружение создано.")
+    print("✅ Virtual environment created.")
 
 
 def install_deps():
@@ -47,12 +47,12 @@ def install_deps():
     if not REQUIREMENTS.exists():
         fail(f"requirements.txt не найден: {REQUIREMENTS}")
 
-    print("📥 Установка зависимостей через uv...")
+    print("📥 Installing dependencies with uv...")
     subprocess.check_call(
         UV + ["pip", "install", "--python", str(py), "-r", str(REQUIREMENTS)],
         cwd=BASE_DIR,
     )
-    print("✅ Зависимости установлены.")
+    print("✅ Dependencies installed.")
 
 
 def run_main():
@@ -62,7 +62,7 @@ def run_main():
     if not MAIN_PY.exists():
         fail(f"main.py не найден: {MAIN_PY}")
 
-    print("▶️ Запуск main.py...")
+    print("▶️ Starting main.py...")
     subprocess.check_call([str(py), str(MAIN_PY)], cwd=MAIN_PY.parent)
 
 
