@@ -23,8 +23,6 @@ jobs:
 
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.test_version || github.event.release.tag_name }}
-      UV_CACHE_DIR: ${{ runner.temp }}\uv-cache
-      NUITKA_CACHE_DIR: ${{ runner.temp }}\nuitka-cache
 
     steps:
       - name: Checkout repository
@@ -45,7 +43,7 @@ jobs:
             .venv
             ${{ runner.temp }}\uv-cache
             ${{ runner.temp }}\nuitka-cache
-          key: ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('requirements.txt', 'build.py') }}-${{ github.sha }}
+          key: ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements.txt', 'build.py') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('requirements.txt', 'build.py') }}-
             ${{ runner.os }}-nuitka-py3.13-
@@ -54,6 +52,8 @@ jobs:
         env:
           CI: "true"
           PYTHONUNBUFFERED: "1"
+          UV_CACHE_DIR: ${{ runner.temp }}\uv-cache
+          NUITKA_CACHE_DIR: ${{ runner.temp }}\nuitka-cache
         run: python build.py
 
       - name: Build Inno Setup Installer
