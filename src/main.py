@@ -125,7 +125,7 @@ if os.path.isfile("launcher.log"):
 
 sys.excepthook = excepthook
 threading.excepthook = lambda args: excepthook(args.exc_type, args.exc_value, args.exc_traceback)
-log("Добро пожаловать в дебаг...")
+log("Welcome to debug mode...")
 
 import json
 import re
@@ -235,7 +235,7 @@ def fixed_init(self, widget: int, func: Callable, char_limit: int=36767) -> None
 pywinstyles.apply_dnd.__init__ = fixed_init
 del fixed_init
 
-log("Импорт библиотек завершен")
+log("Library imports completed")
 
 ctk.deactivate_automatic_dpi_awareness()
 
@@ -248,7 +248,7 @@ def execute_module(module_name: str) -> None:
         exec(compile(code_bytes, module_path, "exec"), globals())
 
     except Exception:
-        log(f"Ошибка в модуле {module_name}, выход...", "FATAL")
+        log(f"Error in module {module_name}, exiting...", "FATAL")
         excepthook(*sys.exc_info())
 
 
@@ -257,12 +257,12 @@ if __name__ == "__main__":
                    "notifications", "definitions", "mod_viewer_gui", "mod_viewer"]:
         execute_module(module)
 
-    log("Динамическая загрузка модулей завершена")
+    log("Dynamic module loading completed")
 
-    log(f"Версия: {LauncherConfig.CURRENT_VERSION}")
-    log(f"Частота обновления монитора: {LauncherConfig.FPS} Hz")
-    log(f"Интернет статус: {LauncherConfig.IS_INTERNET}, Ping: {LauncherConfig.ping}ms")
-    log(f"Объём ОЗУ: {LauncherConfig.MAX_MEMORY_GB} GB")
+    log(f"Version: {LauncherConfig.CURRENT_VERSION}")
+    log(f"Monitor refresh rate: {LauncherConfig.FPS} Hz")
+    log(f"Internet status: {LauncherConfig.IS_INTERNET}, Ping: {LauncherConfig.ping}ms")
+    log(f"RAM: {LauncherConfig.MAX_MEMORY_GB} GB")
 
     default_config = {
         "name": "Steve",
@@ -295,28 +295,28 @@ if __name__ == "__main__":
 
         for t in default_config:
             if t not in LauncherConfig.config:
-                log(f"Новый параметр настроек: {t}={default_config[t]}")
+                log(f"New configuration option: {t}={default_config[t]}")
                 LauncherConfig.config[t] = default_config[t]
 
         if LauncherConfig.config["custom_image"] and not os.path.isfile(LauncherConfig.config["custom_image"]):
-            log(f"Файл изображения не найден: {LauncherConfig.config['custom_image']}", "WARNING")
+            log(f"Image file not found: {LauncherConfig.config['custom_image']}", "WARNING")
             LauncherConfig.config["custom_image"] = default_config["custom_image"]
 
         if LauncherConfig.config["custom_skin"] and not os.path.isfile(LauncherConfig.config["custom_skin"]):
-            log(f"Файл скина не найден: {LauncherConfig.config['custom_skin']}", "WARNING")
+            log(f"Skin file not found: {LauncherConfig.config['custom_skin']}", "WARNING")
             LauncherConfig.config["custom_skin"] = default_config["custom_skin"]
 
         if LauncherConfig.config["custom_theme"] and not os.path.isfile(os.path.join("themes", LauncherConfig.config["custom_theme"]+".json")):
-            log(f"Файл темы не найден: {LauncherConfig.config['custom_theme']}", "WARNING")
+            log(f"Theme file not found: {LauncherConfig.config['custom_theme']}", "WARNING")
             LauncherConfig.config["custom_theme"] = default_config["custom_theme"]
 
         LauncherConfig.config = dict(sorted(LauncherConfig.config.items()))
         save_config()
-        log("data.json найден, настройки загружены")
+        log("data.json found; settings loaded")
     else:
         LauncherConfig.config = default_config
         save_config()
-        log("data.json не найден, был создан новый")
+        log("data.json not found; a new file was created")
 
     if not LauncherConfig.config["mine_path"] or LauncherConfig.config["default_path"] or not os.path.isdir(LauncherConfig.config["mine_path"]):
         LaunchOptions.minecraft_path = os.path.join(os.getenv('APPDATA'), ".minecraft")
@@ -331,7 +331,7 @@ if __name__ == "__main__":
         for java_path in LauncherConfig.config["java_paths"]:
             if not os.path.isfile(java_path):
                 LauncherConfig.config["java_paths"].remove(java_path)
-                log(f"{java_path} не найдена", "ERROR")
+                log(f"{java_path} not found", "ERROR")
 
     if os.path.isfile("java_temp.zip"):
         os.remove("java_temp.zip")
@@ -350,30 +350,30 @@ if __name__ == "__main__":
 
         for t in default_version:
             if t not in LauncherConfig.version:
-                log(f"Новый параметр настроек: {t}={default_version[t]}")
+                log(f"New configuration option: {t}={default_version[t]}")
                 LauncherConfig.version[t] = default_version[t]
 
         save_version()
-        log("version.json файл найден, настройки загружены")
+        log("version.json found; settings loaded")
     else:
         LauncherConfig.version = default_version
         save_version()
-        log("version.json не найден, был создан новый")
+        log("version.json not found; a new file was created")
 
     LaunchOptions.latest_version = LauncherConfig.version["version"]
 
     language_manager = Translator(LauncherConfig.config["language"])
     language = language_manager.language
-    log(f"Язык лаунчера: {language}")
+    log(f"Launcher language: {language}")
 
     if LauncherConfig.version["profile"]:
         if not os.path.isdir(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"])):
-            log("Папка профиля не найдена", "ERROR")
+            log("Папка профиля not found", "ERROR")
             LauncherConfig.version["profile"] = False
             save_version()
 
     create_minecraft_environment()
 
-    log(f"Запускаем инициализацию интерфейса")
+    log(f"Starting interface initialization")
     execute_module("gui")
     root.mainloop()
