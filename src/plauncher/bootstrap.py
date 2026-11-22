@@ -321,9 +321,19 @@ def run() -> None:
         logger=log,
     )
 
+    gui_components: dict[str, Any] = {}
+
     def update_java_versions(versions: list[int]) -> None:
         LaunchOptions.available_major_versions = versions
-        ui_runtime.java_combobox.configure(values=ui_runtime.java_controller.get_java_options())
+        root = gui_components.get("root")
+        java_combobox = gui_components.get("java_combobox")
+        java_controller = gui_components.get("java_controller")
+        if root is None or java_combobox is None or java_controller is None:
+            return
+        root.after(
+            0,
+            lambda: java_combobox.configure(values=java_controller.get_java_options()),
+        )
 
     java_runtime_service = JavaRuntimeService(
         minecraft_directory=LaunchOptions.minecraft_path,
@@ -391,7 +401,7 @@ def run() -> None:
         process_service=process_service,
         environment_service=environment_service,
     )
-    gui_components = ui_runtime.initialize_gui()
+    gui_components.update(ui_runtime.initialize_gui())
     ui_runtime.apply_hover_border()
     log("Запускаем сетевые потоки...")
     threading.Thread(target=java_runtime_service.get_available_major_versions, daemon=True).start()
