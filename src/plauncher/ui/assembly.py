@@ -106,7 +106,14 @@ def initialize_gui() -> dict[str, Any]:
         titlebar_color=GuiOptions.fg_color,
         header_color_setter=pywinstyles.change_header_color,
     )
-    mod_viewer_window = ModViewer(root)
+    mod_viewer_window = ModViewer(
+        root,
+        language_manager=language_manager,
+        online=LauncherConfig.IS_INTERNET,
+        user_agent=LauncherConfig.USER_AGENT,
+        logger=log,
+        gui_options=GuiOptions,
+    )
     
     release_var = ctk.BooleanVar(value=LauncherConfig.config["release"])
     snapshot_var = ctk.BooleanVar(value=LauncherConfig.config["snapshot"])
