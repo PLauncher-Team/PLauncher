@@ -282,6 +282,7 @@ class ModViewer(ctk.CTkFrame):
         self.fps = LauncherConfig.FPS
         self._first_load_done = False
         self.mod_manager = None
+        self._loading_mods = False
         self.version_var = ctk.StringVar()
 
         top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
@@ -496,8 +497,10 @@ class ModViewer(ctk.CTkFrame):
         self.refresh_view()
 
     def load_mods(self):
-        if not os.path.exists(self.mods_dir):
-            os.makedirs(self.mods_dir, exist_ok=True)
+        if self._loading_mods:
+            return
+
+        os.makedirs(self.mods_dir, exist_ok=True)
 
         if self.mod_manager is None:
             self.mod_manager = ModManager(
@@ -508,102 +511,123 @@ class ModViewer(ctk.CTkFrame):
             )
         else:
             self.mod_manager.mods_path = self.mods_dir
-        
+
         self.mod_manager.files_name = {}
         self.mod_manager.results = {}
         self.mod_manager.hashes = []
-        self.mod_manager.get_mods_info()
-    
-        mod_files = []
-        for entry in os.listdir(self.mods_dir):
-            full_path = os.path.join(self.mods_dir, entry)
-            if os.path.isfile(full_path) and entry.lower().endswith((".jar", ".jar.disabled")):
-                mod_files.append(full_path)
-    
-        def sort_key(p):
-            mod_name = os.path.basename(p)
-            search_name = mod_name
-            if search_name.lower().endswith(".jar.disabled"):
-                search_name = search_name[:-9]
-            elif search_name.lower().endswith(".jar"):
-                search_name = search_name[:-4]
-    
-            for sha1, data in self.mod_manager.results.items():
-                data_name = data.get("jar_name", "")
-                if data_name.lower().endswith(".jar.disabled"):
-                    data_name = data_name[:-9]
-                elif data_name.lower().endswith(".jar"):
-                    data_name = data_name[:-4]
-                if data_name == search_name:
-                    return (data.get("name") or search_name).casefold()
-            return search_name.casefold()
-    
-        self.all_mod_files = sorted(mod_files, key=sort_key)
-    
-        current_paths = set(self.all_mod_files)
-        for cached_path in list(self.mod_cache.keys()):
-            if cached_path not in current_paths:
-                del self.mod_cache[cached_path]
-    
-        for mod_file in self.all_mod_files:
-            path_key = mod_file
-            mtime_ns = os.stat(mod_file).st_mtime_ns
-            cached = self.mod_cache.get(path_key)
-            if cached is None or cached.get("_mtime_ns") != mtime_ns:
-                mod_name = os.path.basename(mod_file)
+        self._loading_mods = True
+        self._set_loading_controls(False)
+        threading.Thread(target=self._load_mods_worker, daemon=True).start()
+
+    def _load_mods_worker(self):
+        error = None
+        try:
+            self.mod_manager.get_mods_info()
+
+            mod_files = []
+            for entry in os.listdir(self.mods_dir):
+                full_path = os.path.join(self.mods_dir, entry)
+                if os.path.isfile(full_path) and entry.lower().endswith((".jar", ".jar.disabled")):
+                    mod_files.append(full_path)
+
+            def sort_key(path):
+                mod_name = os.path.basename(path)
                 search_name = mod_name
                 if search_name.lower().endswith(".jar.disabled"):
                     search_name = search_name[:-9]
                 elif search_name.lower().endswith(".jar"):
                     search_name = search_name[:-4]
-    
-                info = None
-                for sha1, data in self.mod_manager.results.items():
+
+                for data in self.mod_manager.results.values():
                     data_name = data.get("jar_name", "")
                     if data_name.lower().endswith(".jar.disabled"):
                         data_name = data_name[:-9]
                     elif data_name.lower().endswith(".jar"):
                         data_name = data_name[:-4]
                     if data_name == search_name:
+                        return (data.get("name") or search_name).casefold()
+                return search_name.casefold()
+
+            self.all_mod_files = sorted(mod_files, key=sort_key)
+
+            current_paths = set(self.all_mod_files)
+            for cached_path in list(self.mod_cache.keys()):
+                if cached_path not in current_paths:
+                    del self.mod_cache[cached_path]
+
+            for mod_file in self.all_mod_files:
+                path_key = mod_file
+                mtime_ns = os.stat(mod_file).st_mtime_ns
+                cached = self.mod_cache.get(path_key)
+                if cached is None or cached.get("_mtime_ns") != mtime_ns:
+                    mod_name = os.path.basename(mod_file)
+                    search_name = mod_name
+                    if search_name.lower().endswith(".jar.disabled"):
+                        search_name = search_name[:-9]
+                    elif search_name.lower().endswith(".jar"):
+                        search_name = search_name[:-4]
+
+                    info = None
+                    for data in self.mod_manager.results.values():
+                        data_name = data.get("jar_name", "")
+                        if data_name.lower().endswith(".jar.disabled"):
+                            data_name = data_name[:-9]
+                        elif data_name.lower().endswith(".jar"):
+                            data_name = data_name[:-4]
+                        if data_name == search_name:
+                            info = {
+                                "name": data.get("name", mod_name),
+                                "description": data.get("description"),
+                                "version": data.get("version"),
+                                "loaders": data.get("loaders", []),
+                                "game_versions": data.get("game_versions", []),
+                                "jar_name": mod_name,
+                                "icon": data.get("icon"),
+                                "dependencies": data.get("dependencies", [])
+                            }
+                            break
+                    if info is None:
                         info = {
-                            "name": data.get("name", mod_name),
-                            "description": data.get("description"),
-                            "version": data.get("version"),
-                            "loaders": data.get("loaders", []),
-                            "game_versions": data.get("game_versions", []),
+                            "name": search_name,
+                            "description": "",
+                            "version": "",
+                            "loaders": [],
+                            "game_versions": [],
                             "jar_name": mod_name,
-                            "icon": data.get("icon"),
-                            "dependencies": data.get("dependencies", [])
+                            "icon": None,
+                            "dependencies": []
                         }
-                        break
-                if info is None:
-                    info = {
-                        "name": search_name,
-                        "description": "",
-                        "version": "",
-                        "loaders": [],
-                        "game_versions": [],
-                        "jar_name": mod_name,
-                        "icon": None,
-                        "dependencies": []
-                    }
-                info["_mtime_ns"] = mtime_ns
-                info["_search_blob"] = " ".join(
-                    str(info.get(key, "")) for key in ("name", "jar_name", "description", "version")
-                ).casefold()
-                if info.get("loaders"):
-                    info["_search_blob"] += " " + " ".join(info["loaders"]).casefold()
-                if info.get("game_versions"):
-                    if isinstance(info["game_versions"], list):
-                        info["_search_blob"] += " " + " ".join(info["game_versions"]).casefold()
-                    else:
-                        info["_search_blob"] += " " + str(info["game_versions"]).casefold()
-                self.mod_cache[path_key] = info
-        self.lock_all_btn.configure(state="normal")
-        self.unlock_all_btn.configure(state="normal")
-        self.refresh_btn.configure(state="normal")
-        self.search_entry.configure(state="normal")
+                    info["_mtime_ns"] = mtime_ns
+                    info["_search_blob"] = " ".join(
+                        str(info.get(key, "")) for key in ("name", "jar_name", "description", "version")
+                    ).casefold()
+                    if info.get("loaders"):
+                        info["_search_blob"] += " " + " ".join(info["loaders"]).casefold()
+                    if info.get("game_versions"):
+                        if isinstance(info["game_versions"], list):
+                            info["_search_blob"] += " " + " ".join(info["game_versions"]).casefold()
+                        else:
+                            info["_search_blob"] += " " + str(info["game_versions"]).casefold()
+                    self.mod_cache[path_key] = info
+        except Exception as exc:
+            error = exc
+
+        self.after(0, lambda error=error: self._finish_mods_loading(error))
+
+    def _finish_mods_loading(self, error=None):
+        self._loading_mods = False
+        self._set_loading_controls(True)
+        if error is not None:
+            self.logger(f"Не удалось загрузить моды: {error}", "ERROR")
+            return
         self.refresh_view()
+
+    def _set_loading_controls(self, enabled):
+        state = "normal" if enabled else "disabled"
+        self.lock_all_btn.configure(state=state)
+        self.unlock_all_btn.configure(state=state)
+        self.refresh_btn.configure(state=state)
+        self.search_entry.configure(state=state)
 
     def refresh_view(self):
         query = self.search_query.casefold() if self.search_query else ""
@@ -797,13 +821,10 @@ class ModViewer(ctk.CTkFrame):
                 mod_dir = os.path.dirname(mod_file)
                 if mod_name.lower().endswith(".jar.disabled"):
                     new_path = os.path.join(mod_dir, mod_name[:-9])
-                    os.rename(mod_file, new_path)
-            self.load_mods()
-        finally:
-            self.lock_all_btn.configure(state="normal")
-            self.unlock_all_btn.configure(state="normal")
-            self.refresh_btn.configure(state="normal")
-            self.search_entry.configure(state="normal")
+                    os.rename(mod_file, os.path.join(mod_dir, mod_name[:-9]))
+        except Exception as exc:
+            self.logger(f"Не удалось разблокировать моды: {exc}", "ERROR")
+        self.after(0, self.load_mods)
 
     def unlock_all(self):
         self.lock_all_btn.configure(state="disabled")
@@ -826,12 +847,9 @@ class ModViewer(ctk.CTkFrame):
             for mod_file in self.all_mod_files:
                 if not mod_file.lower().endswith(".jar.disabled"):
                     os.rename(mod_file, mod_file + ".disabled")
-            self.load_mods()
-        finally:
-            self.lock_all_btn.configure(state="normal")
-            self.unlock_all_btn.configure(state="normal")
-            self.refresh_btn.configure(state="normal")
-            self.search_entry.configure(state="normal")
+        except Exception as exc:
+            self.logger(f"Не удалось заблокировать моды: {exc}", "ERROR")
+        self.after(0, self.load_mods)
 
     def deiconify(self):
         if self.winfo_viewable():
@@ -849,7 +867,7 @@ class ModViewer(ctk.CTkFrame):
                 self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"], "mods")
             else:
                 self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "mods")
-            threading.Thread(target=self.load_mods, daemon=True).start()
+            self.load_mods()
             self._first_load_done = True
 
         duration = 0.25
