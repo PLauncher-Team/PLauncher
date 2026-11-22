@@ -9,11 +9,11 @@ from .ui_support import (
     thread_load_versions,
 )
 from .ui import assembly
-from .ui.mods import view
+
 from .ui.notifications import ToastNotification, new_message
 
 def configure(**dependencies: Any) -> None:
-    for module in (ui_support, assembly, view):
+    for module in (ui_support, assembly):
         module.configure(**dependencies)
     ui_support.configure(new_message=new_message)
 
