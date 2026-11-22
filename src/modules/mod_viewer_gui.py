@@ -138,7 +138,8 @@ class ModWidget(ctk.CTkFrame):
             font=ctk.CTkFont(size=15, weight="bold"),
             fg_color="#cc2222",
             hover_color="#ee4444",
-            corner_radius=20
+            corner_radius=20,
+            command=lambda: self.delete_callback(self.mod_path) if self.mod_path else None
         )
         self.delete_button.pack()
         self._bind_hover(self)
@@ -238,7 +239,7 @@ class ModWidget(ctk.CTkFrame):
             width=170,
             height=42,
             font=ctk.CTkFont(size=15, weight="bold"),
-            command=lambda: self.delete_callback(self.mod_path)
+            command=lambda: self.delete_callback(self.mod_path) if self.mod_path else None
         )
 
 
@@ -755,6 +756,13 @@ class ModViewer(ctk.CTkFrame):
                 os.remove(mod_path)
             self.load_mods()
 
+    def _finish_mod_operation(self):
+        self.load_mods()
+        self.lock_all_btn.configure(state="normal")
+        self.unlock_all_btn.configure(state="normal")
+        self.refresh_btn.configure(state="normal")
+        self.search_entry.configure(state="normal")
+
     def _unlock_all_worker(self):
         try:
             for mod_file in self.all_mod_files:
@@ -763,12 +771,8 @@ class ModViewer(ctk.CTkFrame):
                 if mod_name.lower().endswith(".jar.disabled"):
                     new_path = os.path.join(mod_dir, mod_name[:-9])
                     os.rename(mod_file, new_path)
-            self.load_mods()
         finally:
-            self.lock_all_btn.configure(state="normal")
-            self.unlock_all_btn.configure(state="normal")
-            self.refresh_btn.configure(state="normal")
-            self.search_entry.configure(state="normal")
+            self.after(0, self._finish_mod_operation)
 
     def unlock_all(self):
         self.lock_all_btn.configure(state="disabled")
@@ -791,12 +795,8 @@ class ModViewer(ctk.CTkFrame):
             for mod_file in self.all_mod_files:
                 if not mod_file.lower().endswith(".jar.disabled"):
                     os.rename(mod_file, mod_file + ".disabled")
-            self.load_mods()
         finally:
-            self.lock_all_btn.configure(state="normal")
-            self.unlock_all_btn.configure(state="normal")
-            self.refresh_btn.configure(state="normal")
-            self.search_entry.configure(state="normal")
+            self.after(0, self._finish_mod_operation)
 
     def deiconify(self):
         if self.winfo_viewable():
@@ -814,7 +814,7 @@ class ModViewer(ctk.CTkFrame):
                 self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"], "mods")
             else:
                 self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "mods")
-            threading.Thread(target=self.load_mods, daemon=True).start()
+            self.after(0, self.load_mods)
             self._first_load_done = True
 
         duration = 0.25
