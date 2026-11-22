@@ -201,8 +201,13 @@ def fixed_init(self, widget: int, func: Callable, char_limit: int=36767) -> None
     create_buffer = c_buffer
     func_DragQueryFile = (windll.shell32.DragQueryFile)
 
+    window_procs = {}
+    files = []
+    old = None
+    new = None
+
     def py_drop_func(hwnd, msg, wp, lp):
-        global files
+        nonlocal files, old
         if msg == WM_DROP_FILES:
             count = func_DragQueryFile(typ(wp), -1, None, None)
             file_buffer = create_buffer(char_limit)
@@ -221,7 +226,7 @@ def fixed_init(self, widget: int, func: Callable, char_limit: int=36767) -> None
             windll.shell32.DragFinish(typ(wp))
 
         return windll.user32.CallWindowProcW(
-            *map(typ, (globals()[old], hwnd, msg, wp, lp))
+            *map(typ, (window_procs[old], hwnd, msg, wp, lp))
         )
 
     limit_num = 10
@@ -229,16 +234,16 @@ def fixed_init(self, widget: int, func: Callable, char_limit: int=36767) -> None
         if i + 1 == limit_num:
             raise OverflowError("DND limit reached for this session!")
         owp = f"old_wnd_proc_{i}"
-        if owp not in globals():
+        if owp not in window_procs:
             old, new = owp, f"new_wnd_proc_{i}"
             break
 
-    globals()[old] = None
-    globals()[new] = prototype(py_drop_func)
+    window_procs[old] = None
+    window_procs[new] = prototype(py_drop_func)
 
     windll.shell32.DragAcceptFiles(hwnd, True)
-    globals()[old] = GetWindowLong(hwnd, GWL_WND_PROC)
-    SetWindowLong(hwnd, GWL_WND_PROC, globals()[new])
+    window_procs[old] = GetWindowLong(hwnd, GWL_WND_PROC)
+    SetWindowLong(hwnd, GWL_WND_PROC, window_procs[new])
 
 pywinstyles.apply_dnd.__init__ = fixed_init
 del fixed_init
