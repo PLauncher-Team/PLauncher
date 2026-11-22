@@ -217,24 +217,21 @@ def launch_game():
                 "setStatus": set_status,
             }
 
-            if re.match(r"^Java [1-9]\d*$", LauncherConfig.config["java"]):
-                java_version = LauncherConfig.config["java"].split()[1]
-                java_path = JavaRuntimeManager.get_any_java_exe(java_version)
-                if LauncherConfig.IS_INTERNET and check_var.get():
-                    JavaRuntimeManager.download_and_extract_java(java_version, callback)
-                    options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
-                elif java_path:
-                    options["executablePath"] = java_path
-            elif LauncherConfig.config["java"] != "Latest":
-                options["executablePath"] = LauncherConfig.config["java"]
-            elif LauncherConfig.config["java"] == "Latest":
-                java_version = mcl.runtime.get_version_runtime_information(selected_version, LaunchOptions.minecraft_path)["javaMajorVersion"]
-                java_path = JavaRuntimeManager.get_any_java_exe(java_version)
-                if LauncherConfig.IS_INTERNET:
-                    JavaRuntimeManager.download_and_extract_java(java_version, callback)
-                    options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
-                elif java_path:
-                    options["executablePath"] = java_path
+            java_setting = LauncherConfig.config["java"]
+
+            if re.match(r"^Java [1-9]\d*$", java_setting):
+                java_version = java_setting.split()[1]
+                JavaRuntimeManager.configure_java(java_version, options, callback)
+            
+            elif java_setting == "Latest":
+                java_version = mcl.runtime.get_version_runtime_information(
+                    selected_version,
+                    LaunchOptions.minecraft_path
+                )["javaMajorVersion"]
+                JavaRuntimeManager.configure_java(java_version, options, callback, check_download=False)
+            
+            else:
+                options["executablePath"] = java_setting
 
             if LauncherConfig.IS_INTERNET and ely_by_var.get() and not default_skin_var.get():
                 options["jvmArguments"].append(rf"-javaagent:{os.path.abspath('injector.jar')}=ely.by")

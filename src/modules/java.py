@@ -285,3 +285,13 @@ class JavaRuntimeManager:
             return os.path.abspath(java_exe)
 
         return None
+    
+    @staticmethod
+    def configure_java(java_version, options, callback, check_download=True):
+        java_path = JavaRuntimeManager.get_any_java_exe(java_version)
+
+        if java_path:
+            options["executablePath"] = java_path
+        elif LauncherConfig.IS_INTERNET and (not check_download or check_var.get()):
+            JavaRuntimeManager.download_and_extract_java(java_version, callback)
+            options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
