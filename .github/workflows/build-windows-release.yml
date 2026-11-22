@@ -95,6 +95,16 @@ jobs:
           "analysis_id=$analysisId" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "report_url=$reportUrl" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
+      - name: Create Portable Archive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path "dist/main.dist")) {
+            throw "Portable build directory not found: dist/main.dist"
+          }
+          New-Item -ItemType Directory -Force -Path output | Out-Null
+          Compress-Archive -Path "dist/main.dist" -DestinationPath "output/PLauncher-${{ env.VERSION }}-windows-portable.zip" -Force
+
       - name: Upload Installer as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -102,12 +112,21 @@ jobs:
           path: output/PLauncher-${{ env.VERSION }}-setup.exe
           retention-days: 3
 
+      - name: Upload Portable as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PLauncher-${{ env.VERSION }}-windows-portable
+          path: output/PLauncher-${{ env.VERSION }}-windows-portable.zip
+          retention-days: 3
+
       - name: Upload Installer to GitHub Release
         if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.upload_to_release) }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
-          files: output/PLauncher-${{ env.VERSION }}-setup.exe
+          files: |
+            output/PLauncher-${{ env.VERSION }}-setup.exe
+            output/PLauncher-${{ env.VERSION }}-windows-portable.zip
           fail_on_unmatched_files: true
           draft: false
           prerelease: false
