@@ -673,6 +673,7 @@ class ModViewer(ctk.CTkFrame):
         self.search_entry.configure(state=state)
 
     def refresh_view(self):
+        self.logger(f"[ModViewer] refresh_view entered | thread={threading.current_thread().name} | files={len(self.all_mod_files)} | cache={len(self.mod_cache)}")
         query = self.search_query.casefold() if self.search_query else ""
         name_matches = []
         other_matches = []
@@ -711,6 +712,7 @@ class ModViewer(ctk.CTkFrame):
                 other_matches.append(mod_file)
 
         filtered_files = name_matches + other_matches
+        self.logger(f"[ModViewer] search filtering completed | matched={len(filtered_files)}")
 
         selected_version = self.version_var.get()
         incompatible_count = 0
@@ -736,6 +738,7 @@ class ModViewer(ctk.CTkFrame):
                     else:
                         info["_incompatible"] = False
 
+        self.logger(f"[ModViewer] compatibility check completed | incompatible={incompatible_count}")
         self.incompatible_count_label.configure(text=f"{self.language_manager.get('mod_viewer.incompatible_count')} {incompatible_count}" if incompatible_count > 0 else "")
 
         filtered_files.sort(key=lambda f: (
@@ -756,10 +759,14 @@ class ModViewer(ctk.CTkFrame):
         end = start + self.items_per_page
         page_files = filtered_files[start:end]
 
+        self.logger(f"[ModViewer] rendering page | page={self.current_page}/{total_pages} | items={len(page_files)}")
         self.render_page(page_files, query)
+        self.logger("[ModViewer] page rendering completed; updating pagination")
         self.update_pagination(total_pages)
+        self.logger("[ModViewer] pagination updated")
 
     def render_page(self, page_files, query):
+        self.logger(f"[ModViewer] render_page entered | widgets={len(self.mod_widgets)} | files={len(page_files)}")
         selected_version = self.version_var.get()
         if page_files:
             for idx, widget in enumerate(self.mod_widgets):
@@ -803,6 +810,7 @@ class ModViewer(ctk.CTkFrame):
                 else:
                     widget.pack_forget()
         else:
+            self.logger("[ModViewer] rendering empty mods state")
             for widget in self.mod_widgets:
                 widget.pack_forget()
 
