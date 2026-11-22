@@ -286,7 +286,7 @@ class ModViewer(ctk.CTkFrame):
         self.mod_manager = None
         self._loading_mods = False
         self._worker_events = queue.Queue()
-        self._worker_poll_id = self.after(50, self._poll_worker_events)
+        self._worker_poll_id = None
         self.version_var = ctk.StringVar()
 
         top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
@@ -452,6 +452,9 @@ class ModViewer(ctk.CTkFrame):
             command=self.next_page
         )
         self.next_btn.pack(side="left", padx=4)
+
+        self.logger("[ModViewer] UI construction completed; starting worker event polling")
+        self._worker_poll_id = self.after(50, self._poll_worker_events)
     
     def add_mods(self, event):
         mods = [file for file in event if file.endswith(".jar")]
@@ -628,12 +631,13 @@ class ModViewer(ctk.CTkFrame):
 
         self.logger(f"[ModViewer] worker completed | error={error!r}; enqueueing result")
         self._worker_events.put(("mods_loaded", error))
+        self.logger(f"[ModViewer] worker result enqueued | queue_size={self._worker_events.qsize()}")
 
     def _poll_worker_events(self):
+        self.logger(f"[ModViewer] UI queue callback entered | thread={threading.current_thread().name}")
         try:
             pending = self._worker_events.qsize()
-            if pending:
-                self.logger(f"[ModViewer] UI queue poll | pending={pending} | thread={threading.current_thread().name}")
+            self.logger(f"[ModViewer] UI queue poll | pending={pending} | thread={threading.current_thread().name}")
             while True:
                 try:
                     event, error = self._worker_events.get_nowait()
