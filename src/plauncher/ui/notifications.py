@@ -1,7 +1,10 @@
+from pathlib import Path
 from typing import Any
 
 import customtkinter as ctk
 import PIL
+
+ICON_DIRECTORY = Path(__file__).resolve().parents[2] / "icons"
 
 def configure(**dependencies: Any) -> None:
     globals().update(dependencies)
@@ -540,7 +543,7 @@ class CTkMessagebox(ctk.CTkFrame):
     def load_icon(self, icon, icon_size):
         if icon not in self.ICONS or self.ICONS[icon] is None:
             if icon in ["check", "cancel", "info", "question", "warning"]:
-                image_path = str(Path(__file__).resolve().parents[2] / "icons" / f"{icon}.png")
+                image_path = str(ICON_DIRECTORY / f"{icon}.png")
             else:
                 image_path = icon
             if icon_size:
