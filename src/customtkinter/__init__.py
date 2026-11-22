@@ -24,6 +24,7 @@ from .windows.widgets import CTkComboBox
 from .windows.widgets import CTkEntry
 from .windows.widgets import CTkFrame
 from .windows.widgets import CTkLabel
+from .windows.widgets import CTkOptionMenu
 from .windows.widgets import CTkProgressBar
 from .windows.widgets import CTkScrollbar
 from .windows.widgets import CTkSegmentedButton
