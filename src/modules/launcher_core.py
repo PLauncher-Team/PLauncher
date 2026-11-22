@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 def thread_load_versions():
     if LauncherConfig.IS_INTERNET:
         LaunchOptions.versions = mcl.utils.get_version_list()
-        log(f"Список версий получен: {len(LaunchOptions.versions)} элементов")
+        log(f"Version list retrieved: {len(LaunchOptions.versions)} entries")
     root.after_idle(load_versions)
 
 
@@ -79,7 +79,7 @@ def load_versions():
                           message=language_manager.get("messages.texts.error.loading") + str(e),
                           toast_type="error")
 
-    log("Список версий успешно загружен")
+    log("Version list loaded successfully")
 
 
 def stop_action():
@@ -88,14 +88,14 @@ def stop_action():
         LaunchOptions.minecraft_log_file.close()
         LaunchOptions.is_running = False
         try:
-            log("Завершение процесса Minecraft.")
+            log("Terminating Minecraft process.")
             LaunchOptions.minecraft_process.terminate()
             LaunchOptions.minecraft_process.wait(timeout=5)
-            log("Процесс Minecraft завершён корректно.")
+            log("Minecraft process terminated successfully.")
         except subprocess.TimeoutExpired:
-            log("Таймаут истёк; принудительное завершение процесса Minecraft.")
+            log("Timeout expired; forcefully terminating the Minecraft process.")
             LaunchOptions.minecraft_process.kill()
-            log("Процесс Minecraft убит.")
+            log("Minecraft process killed.")
 
 
 def set_step(value: str):
@@ -252,8 +252,8 @@ def launch_game():
 
             LaunchOptions.minecraft_log_file = open("minecraft.log", "w+", encoding="utf-8")
 
-            log("Запуск Minecraft\n"
-                f"Версия: {selected_version}\n"
+            log("Starting Minecraft\n"
+                f"Version: {selected_version}\n"
                 f"Пользователь: {username}\n"
                 f"Аргументы: {', '.join(options['jvmArguments'])}\n"
                 f"Java: {command[0]}\n"
@@ -335,18 +335,18 @@ def launch_game():
                     save_version()
 
                 if selected_version not in LauncherConfig.version["download"]:
-                    log("Загрузка файлов Minecraft...")
+                    log("Downloading Minecraft files...")
                     mcl.install.install_minecraft_version(selected_version, LaunchOptions.minecraft_path, callback={
                         "setMax": lambda val_max: set_max_value(val_max),
                         "setProgress": lambda val_prog: progress_bar_update(val_prog, progress_bar),
                         "setStatus": set_step,
                     })
-                    log("Файлы Minecraft готовы.")
+                    log("Minecraft files are ready.")
 
                 elif check_var.get():
-                    log("Проверка файлов Minecraft...")
+                    log("Checking Minecraft files...")
                     mcl.install.install_minecraft_version(selected_version, LaunchOptions.minecraft_path)
-                    log("Файлы Minecraft готовы.")
+                    log("Minecraft files are ready.")
 
                 if selected_version not in LauncherConfig.version["download"]:
                     LauncherConfig.version["download"].append(selected_version)
