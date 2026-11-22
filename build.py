@@ -71,6 +71,50 @@ def run_command(command):
         return 1
 
 
+def prepare_tcl_libraries():
+    try:
+        import tkinter
+
+        interpreter = tkinter.Tcl()
+        tcl_library = interpreter.eval("info library")
+        if not tcl_library.startswith("//zipfs:/"):
+            return []
+
+        interpreter.eval("package require Tk")
+        tk_library = interpreter.eval("set tk_library")
+    except Exception as error:
+        fail(f"Failed to locate Tcl/Tk libraries in ZIPFS: {error}")
+
+    extraction_dir = BASE_DIR / "build" / "tcl-runtime"
+    if extraction_dir.exists():
+        shutil.rmtree(extraction_dir)
+    extraction_dir.mkdir(parents=True)
+
+    try:
+        interpreter.call("file", "copy", "-force", tcl_library, str(extraction_dir))
+        interpreter.call("file", "copy", "-force", tk_library, str(extraction_dir))
+    except Exception as error:
+        fail(f"Failed to extract Tcl/Tk libraries from ZIPFS: {error}")
+
+    tcl_dir = extraction_dir / Path(tcl_library).name
+    tk_dir = extraction_dir / Path(tk_library).name
+
+    required_files = (
+        tcl_dir / "init.tcl",
+        tk_dir / "tk.tcl",
+        tk_dir / "dialog.tcl",
+    )
+    missing_files = [str(path) for path in required_files if not path.is_file()]
+    if missing_files:
+        fail("Tcl/Tk extraction is incomplete: " + ", ".join(missing_files))
+
+    print("📦 Extracted Tcl/Tk libraries from Python ZIPFS.")
+    return [
+        f"--tcl-library-dir={tcl_dir}",
+        f"--tk-library-dir={tk_dir}",
+    ]
+
+
 def copy_resources():
     print("📁 Copying resources...")
     targets = ["modules", "locales", "ofb", "png", "icons", "themes"]
@@ -111,6 +155,8 @@ def main():
         "--enable-plugin=tk-inter",
         str(MAIN_PY),
     ]
+
+    command.extend(prepare_tcl_libraries())
 
     print("🛠 Starting compilation...")
     return_code = run_command(command)
