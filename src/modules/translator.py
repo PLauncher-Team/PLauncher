@@ -21,10 +21,10 @@ class Translator:
             self.language = language
         
         if self.language not in self.supported_languages and self.supported_languages:
-            log(f"Файла локализации для языка {self.language} не найдено. Переключаемся на {self.supported_languages[0]}", level="WARNING")
+            log(f"Localization file for language {self.language} was not found. Switching to {self.supported_languages[0]}", level="WARNING")
             self.language = self.supported_languages[0]
         elif not self.supported_languages:
-            log("Не найдено ни одного файла локализации", level="ERROR")
+            log("No localization files were found", level="ERROR")
             self.translations = {}
             return
         
@@ -46,7 +46,7 @@ class Translator:
             with open(path, encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
-            log(f"Не удалось загрузить файл локализации: {e}", level="ERROR")
+            log(f"Failed to load localization file: {e}", level="ERROR")
             excepthook(*sys.exc_info())
             return {}
 
@@ -58,7 +58,7 @@ class Translator:
                 result = result[k]
             return result
         except (KeyError, TypeError):
-            log(f"Ключ локализации не найден: '{key}'", "WARNING")
+            log(f"Localization key not found: '{key}'", "WARNING")
             return default or key
 
 
@@ -104,7 +104,7 @@ def select_language(selected_value: str):
     )
 
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log("Перезапуск приложения для смены языка")
+        log("Restarting the application to change the language")
         root.destroy()
         kernel32.ReleaseMutex(mutex)
         restart_app_with_bat()
