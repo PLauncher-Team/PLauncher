@@ -22,29 +22,29 @@ UV = [sys.executable, "-m", "uv"]
 
 
 def fail(message, code=1):
-    print(f"[ОШИБКА] {message}")
+    print(f"[ERROR] {message}")
     raise SystemExit(code)
 
 
 def check_windows():
     if os.name != "nt":
-        fail("Этот скрипт сборки работает только на Windows.")
+        fail("This build script only works on Windows.")
 
 
 def check_uv():
     result = subprocess.run(UV + ["--version"], cwd=BASE_DIR, check=False)
     if result.returncode != 0:
-        print("📥 Установка uv...")
+        print("📥 Installing uv...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "uv"], cwd=BASE_DIR)
         subprocess.check_call(UV + ["--version"], cwd=BASE_DIR)
 
 
 def create_env():
     if VENV_DIR.exists():
-        print("✅ Виртуальное окружение уже существует.")
+        print("✅ Virtual environment already exists.")
         return
 
-    print("🔧 Создание виртуального окружения...")
+    print("🔧 Creating virtual environment...")
     subprocess.check_call(UV + ["venv", "--python", ">=3.10", str(VENV_DIR)], cwd=BASE_DIR)
 
 
@@ -52,14 +52,14 @@ def install_dependencies():
     if not REQUIREMENTS.exists():
         fail(f"requirements.txt не найден: {REQUIREMENTS}")
 
-    print("📦 Установка зависимостей через uv...")
+    print("📦 Installing dependencies with uv...")
     try:
         subprocess.check_call(
             UV + ["pip", "install", "--python", str(PY_EXE), "-r", str(REQUIREMENTS), "nuitka"],
             cwd=BASE_DIR,
         )
     except subprocess.CalledProcessError as error:
-        fail(f"Ошибка установки зависимостей: {error}", error.returncode)
+        fail(f"Failed to install dependencies: {error}", error.returncode)
 
 
 def run_command(command):
@@ -67,12 +67,12 @@ def run_command(command):
         sys.stdout.flush()
         return subprocess.run(command, cwd=BASE_DIR, check=False).returncode
     except Exception as error:
-        print(f"[ОШИБКА] Ошибка выполнения команды: {error}")
+        print(f"[ERROR] Command execution failed: {error}")
         return 1
 
 
 def copy_resources():
-    print("📁 Копирование ресурсов...")
+    print("📁 Copying resources...")
     targets = ["modules", "locales", "ofb", "png", "icons", "themes"]
 
     for target in targets:
@@ -82,7 +82,7 @@ def copy_resources():
             shutil.copytree(source, destination, dirs_exist_ok=True)
             print(f"  → {destination.relative_to(DIST_DIR)}")
         else:
-            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Ресурс не найден: {source}")
+            print(f"  [WARNING] Resource not found: {source}")
 
     for filename in ("bridge.jar", "injector.jar", "log4jshell.xml"):
         source = RESOURCES_DIR / filename
@@ -91,7 +91,7 @@ def copy_resources():
             shutil.copy2(source, destination)
             print(f"  → {filename}")
         else:
-            print(f"  [ПРЕДУПРЕЖДЕНИЕ] Файл не найден: {source}")
+            print(f"  [WARNING] File not found: {source}")
 
 
 def main():
@@ -112,14 +112,14 @@ def main():
         str(MAIN_PY),
     ]
 
-    print("🛠 Начало компиляции...")
+    print("🛠 Starting compilation...")
     return_code = run_command(command)
     if return_code != 0:
         fail(f"Компиляция завершилась с ошибкой, код {return_code}", return_code)
 
-    print("✅ Компиляция завершена.")
+    print("✅ Compilation completed.")
     copy_resources()
-    print("🎉 Сборка завершена! Проверьте dist/main.dist/main.exe")
+    print("🎉 Build completed! Check dist/main.dist/main.exe")
 
 
 if __name__ == "__main__":
