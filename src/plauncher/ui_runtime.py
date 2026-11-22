@@ -4,12 +4,12 @@ from . import ui_support
 from .ui_support import *
 from .ui import assembly, notifications
 from .ui.mods import manager, view
-from .ui.notifications import *
+from .ui.notifications import CTkMessagebox, ToastNotification, new_message
 from .ui.mods.manager import ModManager
 from .ui.mods.view import ModViewer
 
 def configure(**dependencies: Any) -> None:
-    for module in (ui_support, assembly, notifications, manager, view):
+    for module in (ui_support, assembly, manager, view):
         module.configure(**dependencies)
     ui_support.configure(new_message=new_message)
 
