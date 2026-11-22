@@ -1,22 +1,25 @@
-from typing import Any
+import os
+import threading
+import time
 
 import customtkinter as ctk
-import PIL
+import pywinstyles
+from PIL import Image, ImageDraw
 
-def configure(**dependencies: Any) -> None:
-    globals().update(dependencies)
-
+from ...state import LauncherConfig, LaunchOptions
+from ..notifications import new_message
 
 class ModWidget(ctk.CTkFrame):
-    def __init__(self, master, toggle_callback, delete_callback, **kwargs):
+    def __init__(self, master, toggle_callback, delete_callback, *, language_manager, **kwargs):
         super().__init__(master, **kwargs)
+        self.language_manager = language_manager
         self.mod_path = None
         self.mod_info = {}
         self.toggle_callback = toggle_callback
         self.delete_callback = delete_callback
         self.icon_ctk_image = None
-        placeholder = PIL.Image.new("RGBA", (78, 78), (0, 0, 0, 0))
-        draw = PIL.ImageDraw.Draw(placeholder, "RGBA")
+        placeholder = Image.new("RGBA", (78, 78), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(placeholder, "RGBA")
         draw.rounded_rectangle(
             (2, 2, 76, 76),
             radius=18,
@@ -134,7 +137,7 @@ class ModWidget(ctk.CTkFrame):
         self.toggle_button.pack(pady=(0, 10))
         self.delete_button = ctk.CTkButton(
             self.btn_frame,
-            text=language_manager.get("mod_viewer.delete"),
+            text=self.language_manager.get("mod_viewer.delete"),
             width=170,
             height=42,
             border_width=0,
@@ -246,8 +249,22 @@ class ModWidget(ctk.CTkFrame):
 
 
 class ModViewer(ctk.CTkFrame):
-    def __init__(self, parent: ctk.CTk):
+    def __init__(
+        self,
+        parent: ctk.CTk,
+        *,
+        language_manager,
+        online: bool,
+        user_agent: str,
+        logger,
+        gui_options,
+    ):
         super().__init__(parent, border_width=0)
+        self.language_manager = language_manager
+        self.online = online
+        self.user_agent = user_agent
+        self.logger = logger
+        self.gui_options = gui_options
         self.place_forget()
         pywinstyles.apply_dnd(self, self.add_mods)
 
@@ -377,6 +394,7 @@ class ModViewer(ctk.CTkFrame):
                 self.scroll_frame,
                 toggle_callback=self.toggle_disable,
                 delete_callback=self.delete_mod,
+                language_manager=self.language_manager,
                 fg_color="#1a1a1a",
                 border_color="#333333"
             )
@@ -430,16 +448,16 @@ class ModViewer(ctk.CTkFrame):
     def add_mods(self, event):
         mods = [file for file in event if file.endswith(".jar")]
         new_message(
-            master=root,
-            gui_options=GuiOptions,
-            logger=log,
+            master=self.winfo_toplevel(),
+            gui_options=self.gui_options,
+            logger=self.logger,
             title=language_manager.get("messages.titles.warning"),
             message=language_manager.get('messages.texts.warning.add_confirm'),
             icon="question",
             option_1=language_manager.get("messages.answers.no"),
             option_2=language_manager.get("messages.answers.yes")
         )
-        if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
+        if self.gui_options.msg.get() == language_manager.get("messages.answers.yes"):
             for mod_path in mods:
                 if os.path.exists(mod_path):
                     shutil.copy(mod_path, self.mods_dir)
@@ -481,8 +499,8 @@ class ModViewer(ctk.CTkFrame):
         if self.mod_manager is None:
             self.mod_manager = ModManager(
                 mods_path=self.mods_dir,
-                online=LauncherConfig.IS_INTERNET,
-                user_agent=LauncherConfig.USER_AGENT,
+                online=self.online,
+                user_agent=self.user_agent,
                 logger=log,
             )
         else:
