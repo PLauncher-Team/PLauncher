@@ -29,16 +29,16 @@ class ModManager:
             response.raise_for_status()
             return PIL.Image.open(BytesIO(response.content))
         except Exception as e:
-            log(f"Не удалось загрузить изображение по URL: {url}, ошибка: {e}", "WARNING")
+            log(f"Failed to load image from URL: {url}, error: {e}", "WARNING")
             return None
 
     def get_mods_info(self):
-        log("Начинаем получение информации о модах")
+        log("Starting mod information retrieval")
         self.hashes = self._get_mods_hashes()
-        log(f"Найдено {len(self.hashes)} модов для обработки")
+        log(f"Found {len(self.hashes)} mods to process")
 
         self.results = self.get_info_from_modrinth()
-        log(f"Получено {len(self.results)} модов из Modrinth")
+        log(f"Retrieved {len(self.results)} mods from Modrinth")
 
         projects_infos = {}
         for sha1 in self.results:
@@ -47,7 +47,7 @@ class ModManager:
             projects_infos[mod_info["project_id"]] = mod_info
 
         projects_data = self._get_projects_info(list(projects_infos.keys()))
-        log(f"Получена информация о {len(projects_data)} проектах")
+        log(f"Retrieved information about {len(projects_data)} projects")
 
         for project in projects_data:
             mod_info = projects_infos[project["id"]]
@@ -59,7 +59,7 @@ class ModManager:
         
         unfound_mods = self.hashes - self.results.keys()
         if unfound_mods:
-            log(f"{len(unfound_mods)} модов не найдено в Modrinth, обрабатываем локально")
+            log(f"{len(unfound_mods)} mods not found on Modrinth; processing locally")
     
         def process_single_mod(mod_hash):
             return mod_hash, self.get_info_from_jar(mod_hash)
@@ -76,7 +76,7 @@ class ModManager:
                 self.results[mod_hash] = result[1]
 
         self.results = dict(sorted(self.results.items(), key=lambda item: (item[1].get("name") or "").casefold()))
-        log(f"Обработка модов завершена")
+        log(f"Mod processing completed")
         return self.results
 
     def _get_mods_hashes(self):
@@ -105,7 +105,7 @@ class ModManager:
             request.raise_for_status()
             return request.json()
         except Exception as e:
-            log(f"Ошибка при запросе проектов: {e}", "ERROR")
+            log(f"Failed to request projects: {e}", "ERROR")
             return []
 
     def get_info_from_modrinth(self):
@@ -119,7 +119,7 @@ class ModManager:
             request.raise_for_status()
             return request.json()
         except Exception as e:
-            log(f"Ошибка при запросе к Modrinth: {e}", "ERROR")
+            log(f"Failed to request Modrinth: {e}", "ERROR")
             return {}
 
     def get_info_from_jar(self, mod_sha1):
@@ -148,7 +148,7 @@ class ModManager:
                             with zf.open(root_pngs[0]) as imgf:
                                 info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                         except Exception as e:
-                            log(f"Не удалось загрузить иконку из {mod_name}: {e}", "WARNING")
+                            log(f"Failed to load icon from {mod_name}: {e}", "WARNING")
 
                 def add_game_versions(versions):
                     if isinstance(versions, str):
@@ -179,7 +179,7 @@ class ModManager:
                                 with zf.open(icon_path) as imgf:
                                     info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                             except Exception as e:
-                                log(f"Не удалось загрузить иконку Fabric из {mod_name}: {e}", "WARNING")
+                                log(f"Failed to load Fabric icon from {mod_name}: {e}", "WARNING")
                     load_root_png_if_needed()
 
                 if "quilt.mod.json" in namelist:
@@ -217,7 +217,7 @@ class ModManager:
                                 with zf.open(icon_path) as imgf:
                                     info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                             except Exception as e:
-                                log(f"Не удалось загрузить иконку Quilt из {mod_name}: {e}", "WARNING")
+                                log(f"Failed to load Quilt icon from {mod_name}: {e}", "WARNING")
                     load_root_png_if_needed()
 
                 if "META-INF/neoforge.mods.toml" in namelist:
@@ -234,7 +234,7 @@ class ModManager:
                                     with zf.open(logo) as imgf:
                                         info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                                 except Exception as e:
-                                    log(f"Не удалось загрузить лого NeoForge из {mod_name}: {e}", "WARNING")
+                                    log(f"Failed to load NeoForge logo from {mod_name}: {e}", "WARNING")
                             break
                         dependencies = toml_data.get("dependencies", {})
                         for dep_list in dependencies.values():
@@ -262,7 +262,7 @@ class ModManager:
                                     with zf.open(logo) as imgf:
                                         info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                                 except Exception as e:
-                                    log(f"Не удалось загрузить лого Forge из {mod_name}: {e}", "WARNING")
+                                    log(f"Failed to load Forge logo from {mod_name}: {e}", "WARNING")
                             break
                         dependencies = toml_data.get("dependencies", {})
                         for dep_list in dependencies.values():
@@ -306,7 +306,7 @@ class ModManager:
                                 with zf.open(logo) as imgf:
                                     info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                             except Exception as e:
-                                log(f"Не удалось загрузить лого из mcmod.info из {mod_name}: {e}", "WARNING")
+                                log(f"Failed to load logo from mcmod.info in {mod_name}: {e}", "WARNING")
                     load_root_png_if_needed()
 
                 if not info["loaders"]:
@@ -344,10 +344,10 @@ class ModManager:
                                             with zf.open(logo) as imgf:
                                                 info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                                         except Exception as e:
-                                            log(f"Не удалось загрузить лого из {info_file} из {mod_name}: {e}", "WARNING")
+                                            log(f"Failed to load logo from {info_file} из {mod_name}: {e}", "WARNING")
                                     break
                         except Exception as e:
-                            log(f"Не удалось обработать {info_file} из {mod_name}: {e}", "WARNING")
+                            log(f"Failed to process {info_file} из {mod_name}: {e}", "WARNING")
                             continue
 
                 ver = info.get("version", "")
@@ -382,7 +382,7 @@ class ModManager:
                                     if not info["version"]:
                                         info["version"] = spec_version
                     except Exception as e:
-                        log(f"Не удалось обработать MANIFEST.MF из {mod_name}: {e}", "WARNING")
+                        log(f"Failed to process MANIFEST.MF in {mod_name}: {e}", "WARNING")
 
                 if not info["icon"]:
                     load_root_png_if_needed()
@@ -394,7 +394,7 @@ class ModManager:
 
                 return info
         except Exception as e:
-            log(f"Критическая ошибка при обработке {mod_path}: {e}", "ERROR")
+            log(f"Critical error while processing {mod_path}: {e}", "ERROR")
             excepthook(*sys.exc_info())
             mod_name = os.path.basename(mod_path)
             return {
