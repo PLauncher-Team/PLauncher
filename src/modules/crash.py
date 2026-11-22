@@ -98,13 +98,13 @@ class CrashLogWindow(ctk.CTkToplevel):
         self.thread = None
 
     def analyze_with_ai(self):
-        log("Начало AI анализа лога краша")
+        log("Starting AI crash log analysis")
         self.ai_button.configure(text=language_manager.get("crash_log.cancel_analysis"), command=self.cancel_analyze)
         self.thread = threading.Thread(target=self.analyze)
         self.thread.start()
         self.thread.join()
         if self.thread:
-            log("AI анализ завершён, показ результата")
+            log("AI analysis completed, displaying results")
             self.set_solution_text()
         self.ai_button.configure(text=language_manager.get("crash_log.ai_analysis"),
                                  command=lambda: threading.Thread(target=self.analyze_with_ai).start(),
@@ -201,12 +201,12 @@ class LogAnalyzer:
     def get_response(self, messages: list, timeout: int = 30) -> str | Exception:
         response1 = self._try_pollinations(messages, timeout)
         if not isinstance(response1, Exception) and response1 != "None":
-            log("Получен ответ от Pollinations API")
+            log("Received response from Pollinations API")
             return response1
         
         response2 = self._try_mclo(messages, timeout)
         if not isinstance(response2, Exception) and response2:
-            log("Получен ответ от Mclo API")
+            log("Received response from Mclo API")
             return response2
-        log("Все API не сработали", level="ERROR")
+        log("All APIs failed", level="ERROR")
         return response2
