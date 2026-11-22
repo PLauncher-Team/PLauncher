@@ -1,4 +1,5 @@
 import os
+import shutil
 import threading
 import time
 
@@ -8,6 +9,7 @@ from PIL import Image, ImageDraw
 
 from ...state import LauncherConfig, LaunchOptions
 from ..notifications import new_message
+from .manager import ModManager
 
 class ModWidget(ctk.CTkFrame):
     def __init__(self, master, toggle_callback, delete_callback, *, language_manager, **kwargs):
@@ -265,6 +267,7 @@ class ModViewer(ctk.CTkFrame):
         self.user_agent = user_agent
         self.logger = logger
         self.gui_options = gui_options
+        self.mods_dir = "mods"
         self.place_forget()
         pywinstyles.apply_dnd(self, self.add_mods)
 
