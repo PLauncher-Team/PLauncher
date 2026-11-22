@@ -18,7 +18,7 @@ PY_EXE = VENV_DIR / "Scripts" / "python.exe"
 MAIN_PY = BASE_DIR / "src" / "main.py"
 RESOURCES_DIR = BASE_DIR / "src"
 DIST_DIR = BASE_DIR / "dist" / "main.dist"
-UV = shutil.which("uv")
+UV = [sys.executable, "-m", "uv"]
 
 
 def fail(message, code=1):
@@ -32,8 +32,11 @@ def check_windows():
 
 
 def check_uv():
-    if UV is None:
-        fail("uv не найден. Установите uv: https://docs.astral.sh/uv/getting-started/installation/")
+    result = subprocess.run(UV + ["--version"], cwd=BASE_DIR, check=False)
+    if result.returncode != 0:
+        print("📥 Установка uv...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "uv"], cwd=BASE_DIR)
+        subprocess.check_call(UV + ["--version"], cwd=BASE_DIR)
 
 
 def create_env():
@@ -42,7 +45,7 @@ def create_env():
         return
 
     print("🔧 Создание виртуального окружения...")
-    subprocess.check_call([UV, "venv", "--python", ">=3.10", str(VENV_DIR)], cwd=BASE_DIR)
+    subprocess.check_call(UV + ["venv", "--python", ">=3.10", str(VENV_DIR)], cwd=BASE_DIR)
 
 
 def install_dependencies():
@@ -52,7 +55,7 @@ def install_dependencies():
     print("📦 Установка зависимостей через uv...")
     try:
         subprocess.check_call(
-            [UV, "pip", "install", "--python", str(PY_EXE), "-r", str(REQUIREMENTS), "nuitka"],
+            UV + ["pip", "install", "--python", str(PY_EXE), "-r", str(REQUIREMENTS), "nuitka"],
             cwd=BASE_DIR,
         )
     except subprocess.CalledProcessError as error:
