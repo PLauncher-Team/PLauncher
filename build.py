@@ -80,8 +80,10 @@ def prepare_tcl_libraries():
         if not tcl_library.startswith("//zipfs:/"):
             return []
 
-        interpreter.eval("package require Tk")
-        tk_library = interpreter.eval("set tk_library")
+        zipfs_root = tcl_library.split("/lib/tcl/", 1)[0]
+        tk_library = f"{zipfs_root}/lib/tk/tk_library"
+        if not int(interpreter.call("file", "exists", tk_library)):
+            fail(f"Tk library not found in ZIPFS: {tk_library}")
     except Exception as error:
         fail(f"Failed to locate Tcl/Tk libraries in ZIPFS: {error}")
 
