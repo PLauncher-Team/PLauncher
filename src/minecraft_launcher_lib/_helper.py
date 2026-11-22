@@ -287,7 +287,7 @@ def _get_cached_session() -> CachedSession:
 
 def get_requests_response_cache(url: str, timeout: int = 10) -> requests.models.Response:
     session = _get_cached_session()
-    headers = {"User-Agent": f"PLauncher-Team/PLauncher/v1.1"}
+    headers = {"User-Agent": f"PLauncher-Team/PLauncher/v1.2"}
     if timeout:
         r = session.get(url, timeout=timeout, headers=headers)
     else:

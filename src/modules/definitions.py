@@ -20,7 +20,7 @@ class LaunchOptions:
 class LauncherConfig:
     ping = check_internet_connection()
     IS_INTERNET = bool(ping)
-    CURRENT_VERSION = "v1.1"
+    CURRENT_VERSION = "v1.2"
     FPS = get_refresh_rate()
     MAX_MEMORY_GB = get_available_memory()
     USER_AGENT = f"PLauncher-Team/PLauncher/{CURRENT_VERSION}"
