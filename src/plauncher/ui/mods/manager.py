@@ -59,12 +59,6 @@ class ModManager:
             self.logger(f"[ModManager] hash scan failed: {type(exc).__name__}: {exc}\\n{traceback.format_exc()}", "ERROR")
             raise
         self.logger(f"Найдено {len(self.hashes)} модов для обработки")
-        if not self.hashes:
-            self.results = {}
-            self.logger("[ModManager] empty mods directory; returning empty result")
-            self.logger("Обработка модов завершена")
-            return self.results
-
         self.results = self.get_info_from_modrinth()
         self.logger(f"Получено {len(self.results)} модов из Modrinth")
 
