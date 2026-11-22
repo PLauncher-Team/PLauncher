@@ -41,8 +41,8 @@ jobs:
         with:
           path: |
             .venv
-            ${{ runner.temp }}\uv-cache
-            ${{ runner.temp }}\nuitka-cache
+            ${{ runner.temp }}\\uv-cache
+            ${{ runner.temp }}\\nuitka-cache
           key: ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('pyproject.toml', 'uv.lock', 'requirements.txt', 'build.py') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-nuitka-py3.13-${{ hashFiles('requirements.txt', 'build.py') }}-
@@ -52,8 +52,8 @@ jobs:
         env:
           CI: "true"
           PYTHONUNBUFFERED: "1"
-          UV_CACHE_DIR: ${{ runner.temp }}\uv-cache
-          NUITKA_CACHE_DIR: ${{ runner.temp }}\nuitka-cache
+          UV_CACHE_DIR: ${{ runner.temp }}\\uv-cache
+          NUITKA_CACHE_DIR: ${{ runner.temp }}\\nuitka-cache
         run: python build.py
 
       - name: Build Inno Setup Installer
@@ -118,7 +118,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PLauncher-${{ env.VERSION }}-windows-portable
-          path: output/PLauncher-${{ env.VERSION }}-windows-portable.zip
+          path: dist/main.dist/
           retention-days: 3
 
       - name: Upload Installer to GitHub Release
@@ -152,7 +152,7 @@ jobs:
             const currentBody = release.data.body || '';
             const nextBody = currentBody.includes(vtUrl)
               ? currentBody
-              : (currentBody ? `${currentBody}\n\n${note}` : note);
+              : (currentBody ? `${currentBody}\\n\\n${note}` : note);
 
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
