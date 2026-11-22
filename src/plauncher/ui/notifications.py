@@ -1,8 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import Any
 
-if TYPE_CHECKING:
-    from ..context import *
+import customtkinter as ctk
+import PIL
 
+def configure(**dependencies: Any) -> None:
+    globals().update(dependencies)
 
 class ToastNotification(ctk.CTkFrame):
     active_toasts: dict[ctk.CTk | ctk.CTkToplevel, list["ToastNotification"]] = {}
@@ -621,3 +623,7 @@ class CTkMessagebox(ctk.CTkFrame):
 
         if self.master_window:
             self.after(10, self.master_window.focus_force)
+
+
+    
+    

@@ -1,9 +1,12 @@
-from typing import TYPE_CHECKING
+from typing import Any
 
-if TYPE_CHECKING:
-    from ..context import *
-    
-    
+import customtkinter as ctk
+import PIL
+
+def configure(**dependencies: Any) -> None:
+    globals().update(dependencies)
+
+
 class ModWidget(ctk.CTkFrame):
     def __init__(self, master, toggle_callback, delete_callback, **kwargs):
         super().__init__(master, **kwargs)
@@ -848,3 +851,7 @@ class ModViewer(ctk.CTkFrame):
 
         pywinstyles.set_opacity(self, color="#242424", value=1)
         self.place_forget()
+
+
+
+

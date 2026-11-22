@@ -83,6 +83,7 @@ class LauncherApplication:
         except Exception:
             self.state = ApplicationState.FAILED
             self.services.logger.exception("Application initialization failed")
+            self.services.logger.close()
             raise
 
     def run(self, main_loop: Callable[[], None]) -> None:
@@ -105,6 +106,7 @@ class LauncherApplication:
             except Exception as error:
                 errors.append(error)
                 self.services.logger.exception("Application shutdown step failed")
+        self.services.logger.close()
         self.state = ApplicationState.STOPPED
         if errors:
             raise RuntimeError(f"Application shutdown failed: {errors[0]}") from errors[0]

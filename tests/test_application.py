@@ -43,7 +43,7 @@ class LauncherApplicationTests(unittest.TestCase):
 
     def test_startup_failure_marks_application_failed(self):
         with tempfile.TemporaryDirectory() as directory:
-            application = LauncherApplication(directory)
+            application = LauncherApplication(directory, Path(directory) / ".minecraft")
             application.add_startup_step(lambda services: (_ for _ in ()).throw(ValueError("failure")))
             with self.assertRaises(ValueError):
                 application.initialize()

@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import Any
 
-if TYPE_CHECKING:
-    from ..context import *
+def configure(**dependencies: Any) -> None:
+    globals().update(dependencies)
 
 
 class ModManager:
@@ -537,3 +537,5 @@ class ModManager:
                     continue
 
         return False
+
+
