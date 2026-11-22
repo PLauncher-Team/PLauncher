@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Literal, Callable
+from typing import Any, Optional, Literal, Callable
 from pathlib import Path
 from packaging.version import Version
 
