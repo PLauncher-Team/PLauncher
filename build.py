@@ -55,7 +55,7 @@ def install_dependencies():
     print("📦 Installing dependencies with uv...")
     try:
         subprocess.check_call(
-            UV + ["pip", "install", "--python", str(PY_EXE), "-r", str(REQUIREMENTS), "nuitka"],
+            UV + ["pip", "install", "--python", str(PY_EXE), "--upgrade-package", "ctkscrollabledropdownpp", "-r", str(REQUIREMENTS), "nuitka"],
             cwd=BASE_DIR,
         )
     except subprocess.CalledProcessError as error:
