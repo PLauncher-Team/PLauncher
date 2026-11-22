@@ -635,10 +635,10 @@ class ModViewer(ctk.CTkFrame):
             if pending:
                 self.logger(f"[ModViewer] UI queue poll | pending={pending} | thread={threading.current_thread().name}")
             while True:
-            try:
-                event, error = self._worker_events.get_nowait()
-            except queue.Empty:
-                break
+                try:
+                    event, error = self._worker_events.get_nowait()
+                except queue.Empty:
+                    break
 
                 self.logger(f"[ModViewer] UI queue event | event={event} | error={error!r}")
                 if event == "mods_loaded":
@@ -648,7 +648,7 @@ class ModViewer(ctk.CTkFrame):
                         self.logger(str(error), "ERROR")
                     self.load_mods()
         except BaseException as exc:
-            self.logger(f"[ModViewer] UI queue poll failed: {type(exc).__name__}: {exc}\n{traceback.format_exc()}", "ERROR")
+            self.logger(f"[ModViewer] UI queue poll failed: {type(exc).__name__}: {exc}\\n{traceback.format_exc()}", "ERROR")
             raise
 
         if self.winfo_exists():
