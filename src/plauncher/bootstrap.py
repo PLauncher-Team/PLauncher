@@ -249,8 +249,7 @@ ctk.deactivate_automatic_dpi_awareness()
 
 
 def run() -> None:
-    ui_runtime.configure(**globals())
-    LauncherConfig.ping = ui_runtime.check_internet_connection()
+    LauncherConfig.ping = ui_runtime.check_internet_connection(log)
     LauncherConfig.IS_INTERNET = bool(LauncherConfig.ping)
     LauncherConfig.FPS = ui_runtime.get_refresh_rate()
     LauncherConfig.MAX_MEMORY_GB = ui_runtime.get_available_memory()
