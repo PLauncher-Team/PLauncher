@@ -6,7 +6,7 @@ This module contains all Types for minecraft-launcher-lib. It may help your IDE.
 If you are not interested in static typing just ignore it.
 For more information about TypedDict see `PEP 589 <https://peps.python.org/pep-0589/>`_.
 """
-from typing import Literal, TypedDict, Callable
+from typing import TypedDict, Callable
 import datetime
 
 
@@ -84,93 +84,8 @@ class QuiltLoader(TypedDict):
 
 
 
-# vanilla_launcher
-
-class VanillaLauncherProfileResolution(TypedDict):
-    height: int
-    width: int
-
-
-class VanillaLauncherProfile(TypedDict, total=False):
-    name: str
-    version: str | None
-    versionType: Literal["latest-release", "latest-snapshot", "custom"]
-    gameDirectory: str | None
-    javaExecutable: str | None
-    javaArguments: list[str] | None
-    customResolution: VanillaLauncherProfileResolution | None
-
-
-# mrpack
-
-class MrpackInformation(TypedDict):
-    name: str
-    summary: str
-    versionId: str
-    formatVersion: int
-    minecraftVersion: str
-    optionalFiles: list[str]
-
-
-class MrpackInstallOptions(TypedDict, total=False):
-    optionalFiles: list[str]
-    skipDependenciesInstall: bool
-
-
 # runtime
 
 class VersionRuntimeInformation(TypedDict):
     name: str
     javaMajorVersion: int
-
-
-class _NewsEntryPlayPageImage(TypedDict):
-    title: str
-    url: str
-
-
-class _NewsEntryNewsPageImageDimensions(TypedDict):
-    width: int
-    height: int
-
-
-class _NewsEntryNewsPageImage(TypedDict):
-    title: str
-    url: str
-    dimensions: _NewsEntryNewsPageImageDimensions
-
-
-class _NewsEntry(TypedDict):
-    title: str
-    category: str
-    date: str
-    text: str
-    playPageImage: _NewsEntryPlayPageImage
-    newsPageImage: _NewsEntryNewsPageImage
-    readMoreLink: str
-    newsType: list[str]
-    id: str
-
-
-class MinecraftNews(TypedDict):
-    version: Literal[1]
-    entries: list[_NewsEntry]
-
-
-class _JavaPatchNoteEntryImage(TypedDict):
-    url: str
-    title: str
-
-
-class _JavaPatchNoteEntry(TypedDict):
-    title: str
-    type: Literal["release", "snapshot"]
-    version: str
-    image: _JavaPatchNoteEntryImage
-    body: str
-    contentPath: str
-
-
-class JavaPatchNotes(TypedDict):
-    version: Literal[1]
-    entries: list[_JavaPatchNoteEntry]
