@@ -153,8 +153,10 @@ class ModWidget(ctk.CTkFrame):
             self.toggle_callback(self._mod_file_path)
 
     def _bind_hover(self, widget):
-        widget.bind("<Enter>", self._on_enter)
-        widget.bind("<Leave>", self._on_leave)
+        if isinstance(widget, ctk.CTkButton):
+            return
+        widget.bind("<Enter>", self._on_enter, add="+")
+        widget.bind("<Leave>", self._on_leave, add="+")
         for child in widget.winfo_children():
             self._bind_hover(child)
 
