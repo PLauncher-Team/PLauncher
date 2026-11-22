@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal, Optional
 
 import customtkinter as ctk
-import PIL
+from PIL import Image, ImageTk
 import pywinstyles
 
 from ..state import LauncherConfig
@@ -558,8 +558,8 @@ class CTkMessagebox(ctk.CTkFrame):
                 size = (icon_size[0], size_height)
             else:
                 size = (self.height / 4, self.height / 4)
-            self.ICONS[icon] = ctk.CTkImage(PIL.Image.open(image_path), size=size)
-            self.ICON_BITMAP[icon] = PIL.ImageTk.PhotoImage(file=image_path)
+            self.ICONS[icon] = ctk.CTkImage(Image.open(image_path), size=size)
+            self.ICON_BITMAP[icon] = ImageTk.PhotoImage(file=image_path)
         return self.ICONS[icon]
 
     def safe_set_opacity(self, widget, color, value):
