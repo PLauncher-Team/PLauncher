@@ -1,12 +1,26 @@
-from typing import Any
+import concurrent.futures
+import hashlib
+import json
+import os
+import re
+import zipfile
+from io import BytesIO
 
-def configure(**dependencies: Any) -> None:
-    globals().update(dependencies)
+from PIL import Image, ImageDraw
+from packaging import version as packaging_version
+from requests_cache import CachedSession
+from json_repair import repair_json
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
 
 class ModManager:
-    def __init__(self, mods_path="mods"):
+    def __init__(self, mods_path="mods", *, online: bool, user_agent: str, logger):
         self.mods_path = mods_path
+        self.online = online
+        self.logger = logger
         self.files_name = {}
         self.results = {}
         self.hashes = []
@@ -18,18 +32,18 @@ class ModManager:
             match_headers=True,
         )
         self.session.headers.update({
-            "User-Agent": LauncherConfig.USER_AGENT
+            "User-Agent": user_agent
         })
 
     def _get_pil_image_from_url(self, url):
-        if url is None or not LauncherConfig.IS_INTERNET:
+        if url is None or not self.online:
             return None
         try:
             response = self.session.get(url)
             response.raise_for_status()
-            return PIL.Image.open(BytesIO(response.content))
+            return Image.open(BytesIO(response.content))
         except Exception as e:
-            log(f"Не удалось загрузить изображение по URL: {url}, ошибка: {e}", "WARNING")
+            self.logger(f"Не удалось загрузить изображение по URL: {url}, ошибка: {e}", "WARNING")
             return None
 
     def get_mods_info(self):
@@ -420,13 +434,13 @@ class ModManager:
         else:
             new_height = size
             new_width = int(size * ratio)
-        resized = pil_image.resize((new_width, new_height), PIL.Image.Resampling.LANCZOS)
-        square = PIL.Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        resized = pil_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
+        square = Image.new("RGBA", (size, size), (0, 0, 0, 0))
         paste_x = (size - new_width) // 2
         paste_y = (size - new_height) // 2
         square.paste(resized, (paste_x, paste_y), resized if resized.mode == "RGBA" else None)
         mask = PIL.Image.new("L", (size, size))
-        draw = PIL.ImageDraw.Draw(mask)
+        draw = ImageDraw.Draw(mask)
         draw.rounded_rectangle((0, 0, size, size), radius=18, fill=255)
         square.putalpha(mask)
         return square
@@ -434,8 +448,8 @@ class ModManager:
     @staticmethod
     def check_version(version, constraints) -> bool:
         try:
-            ver = packaging.version.Version(version)
-        except packaging.version.InvalidVersion:
+            ver = packaging_version.Version(version)
+        except packaging_version.InvalidVersion:
             return False
 
         if isinstance(constraints, str):
