@@ -75,15 +75,22 @@ def prepare_tcl_libraries():
     try:
         import tkinter
 
-        interpreter = tkinter.Tcl()
-        tcl_library = interpreter.eval("info library")
+        interpreter = tkinter.Tk()
+        interpreter.withdraw()
+        tcl_library = interpreter.tk.eval("info library")
         if not tcl_library.startswith("//zipfs:/"):
+            interpreter.destroy()
             return []
 
-        zipfs_root = tcl_library.split("/lib/tcl/", 1)[0]
-        tk_library = f"{zipfs_root}/lib/tk/tk_library"
-        if not int(interpreter.call("file", "exists", tk_library)):
+        tk_library = interpreter.tk.eval("set tk_library")
+        if not tk_library.startswith("//zipfs:/"):
+            interpreter.destroy()
+            fail(f"Tk library is not available in ZIPFS: {tk_library}")
+        if not int(interpreter.tk.call("file", "exists", tk_library)):
+            interpreter.destroy()
             fail(f"Tk library not found in ZIPFS: {tk_library}")
+    except SystemExit:
+        raise
     except Exception as error:
         fail(f"Failed to locate Tcl/Tk libraries in ZIPFS: {error}")
 
@@ -93,10 +100,12 @@ def prepare_tcl_libraries():
     extraction_dir.mkdir(parents=True)
 
     try:
-        interpreter.call("file", "copy", "-force", tcl_library, str(extraction_dir))
-        interpreter.call("file", "copy", "-force", tk_library, str(extraction_dir))
+        interpreter.tk.call("file", "copy", "-force", tcl_library, str(extraction_dir))
+        interpreter.tk.call("file", "copy", "-force", tk_library, str(extraction_dir))
     except Exception as error:
         fail(f"Failed to extract Tcl/Tk libraries from ZIPFS: {error}")
+    finally:
+        interpreter.destroy()
 
     tcl_dir = extraction_dir / Path(tcl_library).name
     tk_dir = extraction_dir / Path(tk_library).name
