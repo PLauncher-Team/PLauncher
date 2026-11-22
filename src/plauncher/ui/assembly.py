@@ -19,6 +19,8 @@ def initialize_gui() -> dict[str, Any]:
         yes = language_manager.get("messages.answers.yes")
         new_message(
             master=root,
+            gui_options=GuiOptions,
+            logger=log,
             title=language_manager.get("messages.titles.warning"),
             message=f"{language_manager.get('messages.texts.warning.java')} ({name})",
             icon="question",
@@ -610,6 +612,8 @@ def initialize_gui() -> dict[str, Any]:
         yes = language_manager.get("messages.answers.yes")
         new_message(
             master=root,
+            gui_options=GuiOptions,
+            logger=log,
             title=language_manager.get("messages.titles.warning"),
             message=f"{language_manager.get('messages.texts.warning.profile')} ({name})",
             icon="question",
