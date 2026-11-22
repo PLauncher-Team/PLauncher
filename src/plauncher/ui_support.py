@@ -1,13 +1,18 @@
-from typing import Any
+import time
+from socket import create_connection
+from typing import Any, Callable
 
 import customtkinter as ctk
+import win32api
+import win32con
+from psutil import virtual_memory
 from ratelimit import rate_limited
 
 def configure(**dependencies: Any) -> None:
     globals().update(dependencies)
 
 
-def check_internet_connection() -> float | None:
+def check_internet_connection(logger: Callable[..., None]) -> float | None:
     start_time = time.perf_counter()
 
     try:
@@ -20,7 +25,7 @@ def check_internet_connection() -> float | None:
     except Exception as e:
         error_type = type(e).__name__
         error_msg = str(e)
-        log(f"Нет интернета: {error_type} - {error_msg}", "WARNING")
+        logger(f"Нет интернета: {error_type} - {error_msg}", "WARNING")
         return 0
 
 
