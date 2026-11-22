@@ -391,11 +391,11 @@ def run() -> None:
         process_service=process_service,
         environment_service=environment_service,
     )
-    ui_runtime.initialize_gui()
+    gui_components = ui_runtime.initialize_gui()
     ui_runtime.apply_hover_border()
     log("Запускаем сетевые потоки...")
     threading.Thread(target=java_runtime_service.get_available_major_versions, daemon=True).start()
     threading.Thread(target=ui_runtime.thread_load_versions, daemon=True).start()
-    threading.Thread(target=ui_runtime.skin_controller.set_skin, daemon=True).start()
-    ui_runtime.loader_controller.load_catalogs()
-    ui_runtime.root.mainloop()
+    threading.Thread(target=gui_components["skin_controller"].set_skin, daemon=True).start()
+    gui_components["loader_controller"].load_catalogs()
+    gui_components["root"].mainloop()
