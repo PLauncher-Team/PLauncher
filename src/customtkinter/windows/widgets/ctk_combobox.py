@@ -49,7 +49,7 @@ class CTkComboBox(CTkBaseClass):
         super().__init__(master=master, bg_color=bg_color, width=width, height=height, **kwargs)
 
         self._programmatic_insert = False
-        
+
         # shape
         self._corner_radius = ThemeManager.theme["CTkComboBox"]["corner_radius"] if corner_radius is None else corner_radius
         self._border_width = ThemeManager.theme["CTkComboBox"]["border_width"] if border_width is None else border_width
@@ -271,7 +271,6 @@ class CTkComboBox(CTkBaseClass):
             self._font = self._check_font_type(kwargs.pop("font"))
             if isinstance(self._font, CTkFont):
                 self._font.add_size_configure_callback(self._update_font)
-
             self._update_font()
 
         if "dropdown_font" in kwargs:
@@ -378,7 +377,6 @@ class CTkComboBox(CTkBaseClass):
 
     def _dropdown_callback(self, value: str):
         self._programmatic_insert = True
-    
         if self._state == "readonly":
             self._entry.configure(state="normal")
             self._entry.delete(0, tkinter.END)
@@ -387,12 +385,12 @@ class CTkComboBox(CTkBaseClass):
         else:
             self._entry.delete(0, tkinter.END)
             self._entry.insert(0, value)
-    
+
         self._programmatic_insert = False
-    
+
         if self._command is not None:
             self._command(value)
-    
+
     def set(self, value: str):
         self._programmatic_insert = True
         if self._state == "readonly":

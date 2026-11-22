@@ -48,12 +48,12 @@ class CTkButton(CTkBaseClass):
                  anchor: str = "center",
                  image_near_text: bool = False,
                  **kwargs):
-        
+
         # transfer basic functionality (bg_color, size, appearance_mode, scaling) to CTkBaseClass
         super().__init__(master=master, bg_color=bg_color, width=width, height=height, **kwargs)
-        
+
         self.image_near_text = image_near_text
-        
+
         # shape
         self._corner_radius: int = ThemeManager.theme["CTkButton"]["corner_radius"] if corner_radius is None else corner_radius
         self._corner_radius = min(self._corner_radius, round(self._current_height / 2))
@@ -413,7 +413,6 @@ class CTkButton(CTkBaseClass):
             self._font = self._check_font_type(kwargs.pop("font"))
             if isinstance(self._font, CTkFont):
                 self._font.add_size_configure_callback(self._update_font)
-
             self._update_font()
 
         if "textvariable" in kwargs:
