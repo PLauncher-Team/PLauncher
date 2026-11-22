@@ -50,6 +50,10 @@ class ModManager:
         self.logger("Начинаем получение информации о модах")
         self.hashes = self._get_mods_hashes()
         self.logger(f"Найдено {len(self.hashes)} модов для обработки")
+        if not self.hashes:
+            self.results = {}
+            self.logger("Обработка модов завершена")
+            return self.results
 
         self.results = self.get_info_from_modrinth()
         self.logger(f"Получено {len(self.results)} модов из Modrinth")
