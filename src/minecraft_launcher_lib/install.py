@@ -236,9 +236,7 @@ def install_minecraft_version(versionid: str, minecraft_directory: str | os.Path
     if callback is None:
         callback = {}
 
-    # Инициализация единого трекера прогресса на самом верхнем уровне
     if "_progress_state" not in callback:
-        callback.get("setStatus", empty)("calculating_tasks")
 
         try:
             total_files = _calculate_total_tasks(versionid, minecraft_directory)
