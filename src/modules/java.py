@@ -4,15 +4,6 @@ if TYPE_CHECKING:
     from ..context import *
 
 
-def get_java_path() -> str | bool:
-    jvm_installed = mcl.runtime.get_installed_jvm_runtimes(LaunchOptions.minecraft_path)
-    if not jvm_installed:
-        return False
-    jvm_installed = jvm_installed[0]
-    java_path = mcl.runtime.get_executable_path(jvm_installed, LaunchOptions.minecraft_path)
-    return java_path
-
-
 def select_java_path() -> str:
     file_path = filedialog.askopenfilename(
         title=language_manager.get("settings.2_page.select_java"),
