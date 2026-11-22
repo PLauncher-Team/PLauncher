@@ -11,6 +11,7 @@ from .ui.mods.view import ModViewer
 def configure(**dependencies: Any) -> None:
     for module in (ui_support, assembly, notifications, manager, view):
         module.configure(**dependencies)
+    ui_support.configure(new_message=new_message)
 
 def initialize_gui() -> dict[str, Any]:
     created = assembly.initialize_gui()
