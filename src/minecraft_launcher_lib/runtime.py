@@ -1,7 +1,7 @@
 # This file is part of minecraft-launcher-lib (https://codeberg.org/JakobDev/minecraft-launcher-lib)
 # SPDX-FileCopyrightText: Copyright (c) 2019-2024 JakobDev <jakobdev@gmx.de> and contributors
 # SPDX-License-Identifier: BSD-2-Clause
-"runtime allows to install the java runtime. This module is used by :func:`~minecraft_launcher_lib.install.install_minecraft_version`, so you don't need to use it in your code most of the time."
+"runtime provides information about Java runtimes and Minecraft version requirements."
 from ._helper import get_user_agent, get_client_json
 from ._internal_types.runtime_types import RuntimeListJson
 from .types import CallbackDict, JvmRuntimeInformation, VersionRuntimeInformation
