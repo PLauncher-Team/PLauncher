@@ -9,7 +9,329 @@ from psutil import virtual_memory
 from ratelimit import rate_limited
 
 def configure(**dependencies: Any) -> None:
-    globals().update(dependencies)
+    global Path, Version, time, ctypes, threading, os, sys, datetime, CrashLogWindow, JavaController, LoaderController, ProfileController, SettingsController, SkinController, GuiOption, LauncherConfig, LaunchOptions, json, re, traceback, shutil, random, webbrowser, subprocess, tomllib, zipfile, hashlib, BytesIO, getdefaultlocale, uuid4, filedialog, mcl, ctk, requests, packaging, hPyT, win32job, win32con, win32api, optipy, PIL, concurrent, CachedSession, CTkScrollableDropdown, virtual_memory, rate_limited, repair_json, pywinstyles, log, excepthook, kernel32, mutex, log_lock, start_time, default_config, config_store, version_store, profile_service, save_config, save_version, language_manager, language, log_analyzer, java_runtime_service, loader_installer, loader_catalog, launch_service, process_service, environment_service, MinecraftTexturePackCreator, root, color_selected, GuiOptions, pil_image, ctk_image, label, crash_window, mod_viewer_window, release_var, snapshot_var, old_beta_var, old_alpha_var, default_var, hide_var, debug_var, check_var, ely_by_var, default_skin_var, version_frame, blackout_frame, settings_frame, header_frame, back_btn, title_label, tabs, tab_switch, content_frames, settings_controller, release_checkbox, snapshot_checkbox, old_beta_check, old_alpha_check, installed_versions_combobox_ctk, installed_versions_combobox, del_version, texts_language, language_choice, hide_checkbox, check_files, java_combobox, del_java_button, java_controller, memory_options, selected_memory, memory_combobox, vcmd, args_entry, default_directory, current_folder, open_folder, change_folder, frame_skin, label_skin, update_skin_button, select_skin_button, skins_ely_by_checkbox, skins_default_checkbox, skin_controller, chapter5, choice_version_ctk, choice_version, choice_loader, progress_loader, install_loader, chapter4, list_profiles, add_profile_Entry, add_profile_button, del_profile_button, rename_profile_button, open_profile, profile_controller, status_label, progress_bar, username_entry, pil_image_about_us, ctk_image_about_us, feedback_button, pil_image_logs, ctk_image_logs, logs_button, pil_image_instances, ctk_image_instances, mods_button, pil_image_settings, ctk_image_settings, settings_button, version_combobox_ctk, version_combobox, launch_button, loader_controller
+    if "Path" in dependencies:
+        Path = dependencies["Path"]
+    if "Version" in dependencies:
+        Version = dependencies["Version"]
+    if "time" in dependencies:
+        time = dependencies["time"]
+    if "ctypes" in dependencies:
+        ctypes = dependencies["ctypes"]
+    if "threading" in dependencies:
+        threading = dependencies["threading"]
+    if "os" in dependencies:
+        os = dependencies["os"]
+    if "sys" in dependencies:
+        sys = dependencies["sys"]
+    if "datetime" in dependencies:
+        datetime = dependencies["datetime"]
+    if "CrashLogWindow" in dependencies:
+        CrashLogWindow = dependencies["CrashLogWindow"]
+    if "JavaController" in dependencies:
+        JavaController = dependencies["JavaController"]
+    if "LoaderController" in dependencies:
+        LoaderController = dependencies["LoaderController"]
+    if "ProfileController" in dependencies:
+        ProfileController = dependencies["ProfileController"]
+    if "SettingsController" in dependencies:
+        SettingsController = dependencies["SettingsController"]
+    if "SkinController" in dependencies:
+        SkinController = dependencies["SkinController"]
+    if "GuiOption" in dependencies:
+        GuiOption = dependencies["GuiOption"]
+    if "LauncherConfig" in dependencies:
+        LauncherConfig = dependencies["LauncherConfig"]
+    if "LaunchOptions" in dependencies:
+        LaunchOptions = dependencies["LaunchOptions"]
+    if "json" in dependencies:
+        json = dependencies["json"]
+    if "re" in dependencies:
+        re = dependencies["re"]
+    if "traceback" in dependencies:
+        traceback = dependencies["traceback"]
+    if "shutil" in dependencies:
+        shutil = dependencies["shutil"]
+    if "random" in dependencies:
+        random = dependencies["random"]
+    if "webbrowser" in dependencies:
+        webbrowser = dependencies["webbrowser"]
+    if "subprocess" in dependencies:
+        subprocess = dependencies["subprocess"]
+    if "tomllib" in dependencies:
+        tomllib = dependencies["tomllib"]
+    if "zipfile" in dependencies:
+        zipfile = dependencies["zipfile"]
+    if "hashlib" in dependencies:
+        hashlib = dependencies["hashlib"]
+    if "BytesIO" in dependencies:
+        BytesIO = dependencies["BytesIO"]
+    if "getdefaultlocale" in dependencies:
+        getdefaultlocale = dependencies["getdefaultlocale"]
+    if "uuid4" in dependencies:
+        uuid4 = dependencies["uuid4"]
+    if "filedialog" in dependencies:
+        filedialog = dependencies["filedialog"]
+    if "mcl" in dependencies:
+        mcl = dependencies["mcl"]
+    if "ctk" in dependencies:
+        ctk = dependencies["ctk"]
+    if "requests" in dependencies:
+        requests = dependencies["requests"]
+    if "packaging" in dependencies:
+        packaging = dependencies["packaging"]
+    if "hPyT" in dependencies:
+        hPyT = dependencies["hPyT"]
+    if "win32job" in dependencies:
+        win32job = dependencies["win32job"]
+    if "win32con" in dependencies:
+        win32con = dependencies["win32con"]
+    if "win32api" in dependencies:
+        win32api = dependencies["win32api"]
+    if "optipy" in dependencies:
+        optipy = dependencies["optipy"]
+    if "PIL" in dependencies:
+        PIL = dependencies["PIL"]
+    if "concurrent" in dependencies:
+        concurrent = dependencies["concurrent"]
+    if "CachedSession" in dependencies:
+        CachedSession = dependencies["CachedSession"]
+    if "CTkScrollableDropdown" in dependencies:
+        CTkScrollableDropdown = dependencies["CTkScrollableDropdown"]
+    if "virtual_memory" in dependencies:
+        virtual_memory = dependencies["virtual_memory"]
+    if "rate_limited" in dependencies:
+        rate_limited = dependencies["rate_limited"]
+    if "repair_json" in dependencies:
+        repair_json = dependencies["repair_json"]
+    if "pywinstyles" in dependencies:
+        pywinstyles = dependencies["pywinstyles"]
+    if "log" in dependencies:
+        log = dependencies["log"]
+    if "excepthook" in dependencies:
+        excepthook = dependencies["excepthook"]
+    if "kernel32" in dependencies:
+        kernel32 = dependencies["kernel32"]
+    if "mutex" in dependencies:
+        mutex = dependencies["mutex"]
+    if "log_lock" in dependencies:
+        log_lock = dependencies["log_lock"]
+    if "start_time" in dependencies:
+        start_time = dependencies["start_time"]
+    if "default_config" in dependencies:
+        default_config = dependencies["default_config"]
+    if "config_store" in dependencies:
+        config_store = dependencies["config_store"]
+    if "version_store" in dependencies:
+        version_store = dependencies["version_store"]
+    if "profile_service" in dependencies:
+        profile_service = dependencies["profile_service"]
+    if "save_config" in dependencies:
+        save_config = dependencies["save_config"]
+    if "save_version" in dependencies:
+        save_version = dependencies["save_version"]
+    if "language_manager" in dependencies:
+        language_manager = dependencies["language_manager"]
+    if "language" in dependencies:
+        language = dependencies["language"]
+    if "log_analyzer" in dependencies:
+        log_analyzer = dependencies["log_analyzer"]
+    if "java_runtime_service" in dependencies:
+        java_runtime_service = dependencies["java_runtime_service"]
+    if "loader_installer" in dependencies:
+        loader_installer = dependencies["loader_installer"]
+    if "loader_catalog" in dependencies:
+        loader_catalog = dependencies["loader_catalog"]
+    if "launch_service" in dependencies:
+        launch_service = dependencies["launch_service"]
+    if "process_service" in dependencies:
+        process_service = dependencies["process_service"]
+    if "environment_service" in dependencies:
+        environment_service = dependencies["environment_service"]
+    if "MinecraftTexturePackCreator" in dependencies:
+        MinecraftTexturePackCreator = dependencies["MinecraftTexturePackCreator"]
+    if "root" in dependencies:
+        root = dependencies["root"]
+    if "color_selected" in dependencies:
+        color_selected = dependencies["color_selected"]
+    if "GuiOptions" in dependencies:
+        GuiOptions = dependencies["GuiOptions"]
+    if "pil_image" in dependencies:
+        pil_image = dependencies["pil_image"]
+    if "ctk_image" in dependencies:
+        ctk_image = dependencies["ctk_image"]
+    if "label" in dependencies:
+        label = dependencies["label"]
+    if "crash_window" in dependencies:
+        crash_window = dependencies["crash_window"]
+    if "mod_viewer_window" in dependencies:
+        mod_viewer_window = dependencies["mod_viewer_window"]
+    if "release_var" in dependencies:
+        release_var = dependencies["release_var"]
+    if "snapshot_var" in dependencies:
+        snapshot_var = dependencies["snapshot_var"]
+    if "old_beta_var" in dependencies:
+        old_beta_var = dependencies["old_beta_var"]
+    if "old_alpha_var" in dependencies:
+        old_alpha_var = dependencies["old_alpha_var"]
+    if "default_var" in dependencies:
+        default_var = dependencies["default_var"]
+    if "hide_var" in dependencies:
+        hide_var = dependencies["hide_var"]
+    if "debug_var" in dependencies:
+        debug_var = dependencies["debug_var"]
+    if "check_var" in dependencies:
+        check_var = dependencies["check_var"]
+    if "ely_by_var" in dependencies:
+        ely_by_var = dependencies["ely_by_var"]
+    if "default_skin_var" in dependencies:
+        default_skin_var = dependencies["default_skin_var"]
+    if "version_frame" in dependencies:
+        version_frame = dependencies["version_frame"]
+    if "blackout_frame" in dependencies:
+        blackout_frame = dependencies["blackout_frame"]
+    if "settings_frame" in dependencies:
+        settings_frame = dependencies["settings_frame"]
+    if "header_frame" in dependencies:
+        header_frame = dependencies["header_frame"]
+    if "back_btn" in dependencies:
+        back_btn = dependencies["back_btn"]
+    if "title_label" in dependencies:
+        title_label = dependencies["title_label"]
+    if "tabs" in dependencies:
+        tabs = dependencies["tabs"]
+    if "tab_switch" in dependencies:
+        tab_switch = dependencies["tab_switch"]
+    if "content_frames" in dependencies:
+        content_frames = dependencies["content_frames"]
+    if "settings_controller" in dependencies:
+        settings_controller = dependencies["settings_controller"]
+    if "release_checkbox" in dependencies:
+        release_checkbox = dependencies["release_checkbox"]
+    if "snapshot_checkbox" in dependencies:
+        snapshot_checkbox = dependencies["snapshot_checkbox"]
+    if "old_beta_check" in dependencies:
+        old_beta_check = dependencies["old_beta_check"]
+    if "old_alpha_check" in dependencies:
+        old_alpha_check = dependencies["old_alpha_check"]
+    if "installed_versions_combobox_ctk" in dependencies:
+        installed_versions_combobox_ctk = dependencies["installed_versions_combobox_ctk"]
+    if "installed_versions_combobox" in dependencies:
+        installed_versions_combobox = dependencies["installed_versions_combobox"]
+    if "del_version" in dependencies:
+        del_version = dependencies["del_version"]
+    if "texts_language" in dependencies:
+        texts_language = dependencies["texts_language"]
+    if "language_choice" in dependencies:
+        language_choice = dependencies["language_choice"]
+    if "hide_checkbox" in dependencies:
+        hide_checkbox = dependencies["hide_checkbox"]
+    if "check_files" in dependencies:
+        check_files = dependencies["check_files"]
+    if "java_combobox" in dependencies:
+        java_combobox = dependencies["java_combobox"]
+    if "del_java_button" in dependencies:
+        del_java_button = dependencies["del_java_button"]
+    if "java_controller" in dependencies:
+        java_controller = dependencies["java_controller"]
+    if "memory_options" in dependencies:
+        memory_options = dependencies["memory_options"]
+    if "selected_memory" in dependencies:
+        selected_memory = dependencies["selected_memory"]
+    if "memory_combobox" in dependencies:
+        memory_combobox = dependencies["memory_combobox"]
+    if "vcmd" in dependencies:
+        vcmd = dependencies["vcmd"]
+    if "args_entry" in dependencies:
+        args_entry = dependencies["args_entry"]
+    if "default_directory" in dependencies:
+        default_directory = dependencies["default_directory"]
+    if "current_folder" in dependencies:
+        current_folder = dependencies["current_folder"]
+    if "open_folder" in dependencies:
+        open_folder = dependencies["open_folder"]
+    if "change_folder" in dependencies:
+        change_folder = dependencies["change_folder"]
+    if "frame_skin" in dependencies:
+        frame_skin = dependencies["frame_skin"]
+    if "label_skin" in dependencies:
+        label_skin = dependencies["label_skin"]
+    if "update_skin_button" in dependencies:
+        update_skin_button = dependencies["update_skin_button"]
+    if "select_skin_button" in dependencies:
+        select_skin_button = dependencies["select_skin_button"]
+    if "skins_ely_by_checkbox" in dependencies:
+        skins_ely_by_checkbox = dependencies["skins_ely_by_checkbox"]
+    if "skins_default_checkbox" in dependencies:
+        skins_default_checkbox = dependencies["skins_default_checkbox"]
+    if "skin_controller" in dependencies:
+        skin_controller = dependencies["skin_controller"]
+    if "chapter5" in dependencies:
+        chapter5 = dependencies["chapter5"]
+    if "choice_version_ctk" in dependencies:
+        choice_version_ctk = dependencies["choice_version_ctk"]
+    if "choice_version" in dependencies:
+        choice_version = dependencies["choice_version"]
+    if "choice_loader" in dependencies:
+        choice_loader = dependencies["choice_loader"]
+    if "progress_loader" in dependencies:
+        progress_loader = dependencies["progress_loader"]
+    if "install_loader" in dependencies:
+        install_loader = dependencies["install_loader"]
+    if "chapter4" in dependencies:
+        chapter4 = dependencies["chapter4"]
+    if "list_profiles" in dependencies:
+        list_profiles = dependencies["list_profiles"]
+    if "add_profile_Entry" in dependencies:
+        add_profile_Entry = dependencies["add_profile_Entry"]
+    if "add_profile_button" in dependencies:
+        add_profile_button = dependencies["add_profile_button"]
+    if "del_profile_button" in dependencies:
+        del_profile_button = dependencies["del_profile_button"]
+    if "rename_profile_button" in dependencies:
+        rename_profile_button = dependencies["rename_profile_button"]
+    if "open_profile" in dependencies:
+        open_profile = dependencies["open_profile"]
+    if "profile_controller" in dependencies:
+        profile_controller = dependencies["profile_controller"]
+    if "status_label" in dependencies:
+        status_label = dependencies["status_label"]
+    if "progress_bar" in dependencies:
+        progress_bar = dependencies["progress_bar"]
+    if "username_entry" in dependencies:
+        username_entry = dependencies["username_entry"]
+    if "pil_image_about_us" in dependencies:
+        pil_image_about_us = dependencies["pil_image_about_us"]
+    if "ctk_image_about_us" in dependencies:
+        ctk_image_about_us = dependencies["ctk_image_about_us"]
+    if "feedback_button" in dependencies:
+        feedback_button = dependencies["feedback_button"]
+    if "pil_image_logs" in dependencies:
+        pil_image_logs = dependencies["pil_image_logs"]
+    if "ctk_image_logs" in dependencies:
+        ctk_image_logs = dependencies["ctk_image_logs"]
+    if "logs_button" in dependencies:
+        logs_button = dependencies["logs_button"]
+    if "pil_image_instances" in dependencies:
+        pil_image_instances = dependencies["pil_image_instances"]
+    if "ctk_image_instances" in dependencies:
+        ctk_image_instances = dependencies["ctk_image_instances"]
+    if "mods_button" in dependencies:
+        mods_button = dependencies["mods_button"]
+    if "pil_image_settings" in dependencies:
+        pil_image_settings = dependencies["pil_image_settings"]
+    if "ctk_image_settings" in dependencies:
+        ctk_image_settings = dependencies["ctk_image_settings"]
+    if "settings_button" in dependencies:
+        settings_button = dependencies["settings_button"]
+    if "version_combobox_ctk" in dependencies:
+        version_combobox_ctk = dependencies["version_combobox_ctk"]
+    if "version_combobox" in dependencies:
+        version_combobox = dependencies["version_combobox"]
+    if "launch_button" in dependencies:
+        launch_button = dependencies["launch_button"]
+    if "loader_controller" in dependencies:
+        loader_controller = dependencies["loader_controller"]
 
 
 def check_internet_connection(logger: Callable[..., None]) -> float | None:
