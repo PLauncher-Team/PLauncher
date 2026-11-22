@@ -24,22 +24,15 @@ from .windows.widgets import CTkComboBox
 from .windows.widgets import CTkEntry
 from .windows.widgets import CTkFrame
 from .windows.widgets import CTkLabel
-from .windows.widgets import CTkOptionMenu
 from .windows.widgets import CTkProgressBar
-from .windows.widgets import CTkRadioButton
 from .windows.widgets import CTkScrollbar
 from .windows.widgets import CTkSegmentedButton
-from .windows.widgets import CTkSlider
-from .windows.widgets import CTkSwitch
-from .windows.widgets import CTkTabview
 from .windows.widgets import CTkTextbox
 from .windows.widgets import CTkScrollableFrame
-from .windows.widgets import CTkCircularProgress
 
 # import windows
 from .windows import CTk
 from .windows import CTkToplevel
-from .windows import CTkInputDialog
 
 # import font classes
 from .windows.widgets.font import CTkFont
