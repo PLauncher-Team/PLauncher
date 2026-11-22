@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 class ModWidget(ctk.CTkFrame):
     def __init__(self, master, toggle_callback, delete_callback, **kwargs):
         super().__init__(master, **kwargs)
-        self.mod_path = None
+        self._mod_file_path = None
         self.mod_info = {}
         self.toggle_callback = toggle_callback
         self.delete_callback = delete_callback
@@ -139,10 +139,18 @@ class ModWidget(ctk.CTkFrame):
             fg_color="#cc2222",
             hover_color="#ee4444",
             corner_radius=20,
-            command=lambda: self.delete_callback(self.mod_path) if self.mod_path else None
+            command=self._delete_mod
         )
         self.delete_button.pack()
         self._bind_hover(self)
+
+    def _delete_mod(self):
+        if self._mod_file_path and os.path.isfile(self._mod_file_path):
+            self.delete_callback(self._mod_file_path)
+
+    def _toggle_mod(self):
+        if self._mod_file_path and os.path.isfile(self._mod_file_path):
+            self.toggle_callback(self._mod_file_path)
 
     def _bind_hover(self, widget):
         widget.bind("<Enter>", self._on_enter)
@@ -152,7 +160,7 @@ class ModWidget(ctk.CTkFrame):
 
     def update_content(self, mod_info, is_disabled, mod_path):
         self.mod_info = mod_info
-        self.mod_path = mod_path
+        self._mod_file_path = os.path.abspath(os.fspath(mod_path)) if mod_path else None
 
         self.configure(
             fg_color="#1a1a1a",
@@ -230,7 +238,7 @@ class ModWidget(ctk.CTkFrame):
             width=170,
             height=42,
             font=ctk.CTkFont(size=15, weight="bold"),
-            command=lambda: self.toggle_callback(self.mod_path)
+            command=self._toggle_mod
         )
         self.delete_button.configure(
             fg_color="#cc2222",
@@ -239,7 +247,7 @@ class ModWidget(ctk.CTkFrame):
             width=170,
             height=42,
             font=ctk.CTkFont(size=15, weight="bold"),
-            command=lambda: self.delete_callback(self.mod_path) if self.mod_path else None
+            command=self._delete_mod
         )
 
 
