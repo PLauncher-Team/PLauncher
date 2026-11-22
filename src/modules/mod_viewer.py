@@ -344,10 +344,10 @@ class ModManager:
                                             with zf.open(logo) as imgf:
                                                 info["icon"] = PIL.Image.open(BytesIO(imgf.read()))
                                         except Exception as e:
-                                            log(f"Failed to load logo from {info_file} из {mod_name}: {e}", "WARNING")
+                                            log(f"Failed to load logo from {info_file} in {mod_name}: {e}", "WARNING")
                                     break
                         except Exception as e:
-                            log(f"Failed to process {info_file} из {mod_name}: {e}", "WARNING")
+                            log(f"Failed to process {info_file} in {mod_name}: {e}", "WARNING")
                             continue
 
                 ver = info.get("version", "")
