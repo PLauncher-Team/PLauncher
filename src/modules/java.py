@@ -35,16 +35,16 @@ def add_java():
     path = select_java_path()
     is_java = check_java(path)
     if os.path.normcase(path) in map(os.path.normcase, LauncherConfig.config["java_paths"] + JavaRuntimeManager.get_all_javas_exe()):
-        log(f"Java установка уже существует: {path}", "WARNING")
+        log(f"Java installation already exists: {path}", "WARNING")
         return
 
     if is_java:
-        log(f"Добавление Java установки: {path}")
+        log(f"Adding Java installation: {path}")
         LauncherConfig.config["java_paths"].append(path)
         save_config()
         java_combobox.configure(values=get_java_options())
     elif path:
-        log(f"Не удалось добавить Java установку: {path}", level="ERROR")
+        log(f"Failed to add Java installation: {path}", level="ERROR")
         ToastNotification(
             title=language_manager.get("messages.titles.error"),
             message=language_manager.get("messages.texts.error.java"),
@@ -62,10 +62,10 @@ def on_select_java(name: str):
         return
     elif name == language_manager.get("settings.2_page.latest_java"):
         LauncherConfig.config["java"] = "Latest"
-        log(f"Выбрана последняя Java версия")
+        log(f"Latest Java version selected")
     else:
         LauncherConfig.config["java"] = name
-        log(f"Выбрана Java: {name}")
+        log(f"Selected Java: {name}")
     save_config()
 
 
@@ -81,7 +81,7 @@ def del_java():
         option_2=language_manager.get("messages.answers.yes")
     )
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log(f"Удаление Java установки: {current}")
+        log(f"Removing Java installation: {current}")
         LauncherConfig.config["java"] = default_config["java"]
         LauncherConfig.config["java_paths"].remove(current)
         save_config()
@@ -115,11 +115,11 @@ class JavaRuntimeManager:
             versions = data["available_lts_releases"]
 
             LaunchOptions.available_major_versions = sorted(list(set(versions)))
-            log(f"Получены доступные версии Java: {LaunchOptions.available_major_versions}")
+            log(f"Available Java versions retrieved: {LaunchOptions.available_major_versions}")
 
         except Exception as e:
             LaunchOptions.available_major_versions = [8, 11, 17, 21, 25]
-            log(f"Не удалось получить версии Java, используем стандартные: {e}", "WARNING")
+            log(f"Failed to retrieve Java versions, using defaults: {e}", "WARNING")
 
         java_combobox.configure(values=get_java_options())
 
@@ -140,7 +140,7 @@ class JavaRuntimeManager:
 
             data = r.json()
             if not data:
-                log(f"Нет данных для Java {version}", "WARNING")
+                log(f"No data available for Java {version}", "WARNING")
                 return None, None
 
             latest_release = data[0]
@@ -148,11 +148,11 @@ class JavaRuntimeManager:
             semver = latest_release["version"]["semver"]
             download_url = latest_release["binary"]["package"]["link"]
 
-            log(f"Найдена последняя версия Java {version}: {semver}")
+            log(f"Latest Java version found {version}: {semver}")
             return semver, download_url
 
         except Exception as e:
-            log(f"Ошибка получения Java {version}: {e}", "ERROR")
+            log(f"Failed to retrieve Java {version}: {e}", "ERROR")
             return None, None
 
     @staticmethod
@@ -182,24 +182,24 @@ class JavaRuntimeManager:
 
     @staticmethod
     def download_and_extract_java(version, callback=None):
-        log(f"Начинаем загрузку Java {version}")
+        log(f"Starting Java download {version}")
         runtimes_dir = os.path.join(LaunchOptions.minecraft_path, "runtime")
         target_java_dir = os.path.join(runtimes_dir, f"Java {version}")
 
         api_semver, download_url = JavaRuntimeManager.get_latest_java(version)
         if not api_semver or not download_url:
-            log(f"Не удалось получить информацию о Java {version}", "ERROR")
+            log(f"Failed to retrieve Java information {version}", "ERROR")
             return target_java_dir if os.path.exists(target_java_dir) else None
 
         local_semver = JavaRuntimeManager._get_local_semantic_version(target_java_dir)
 
         java_exe_path = os.path.join(target_java_dir, "bin", "java.exe")
         if local_semver == api_semver and os.path.exists(java_exe_path):
-            log(f"Java {version} уже установлена (версия {api_semver})")
+            log(f"Java {version} is already installed (version {api_semver})")
             return os.path.abspath(target_java_dir)
 
         zip_filename = "java_temp.zip"
-        log(f"Загрузка Java {version} из {download_url}")
+        log(f"Downloading Java {version} из {download_url}")
 
         os.makedirs(runtimes_dir, exist_ok=True)
         callback["setStatus"](language_manager.get("main.mcl_status.install_java_runtime"))
@@ -224,7 +224,7 @@ class JavaRuntimeManager:
                             if callback and "setProgress" in callback:
                                 callback["setProgress"](downloaded)
 
-            log(f"Загрузка Java {version} завершена, распаковка...")
+            log(f"Downloading Java {version} download completed, extracting...")
 
             if os.path.exists(target_java_dir):
                 shutil.rmtree(target_java_dir)
@@ -249,12 +249,12 @@ class JavaRuntimeManager:
                             shutil.copyfileobj(src, dst)
 
             JavaRuntimeManager._save_local_semantic_version(target_java_dir, api_semver)
-            log(f"Java {version} успешно установлена в {target_java_dir}")
+            log(f"Java {version} successfully installed to {target_java_dir}")
 
             return os.path.abspath(target_java_dir)
 
         except Exception as e:
-            log(f"Ошибка загрузки Java {version}: {e}", "ERROR")
+            log(f"Failed to download Java {version}: {e}", "ERROR")
             return None
         finally:
             if os.path.exists(zip_filename):
