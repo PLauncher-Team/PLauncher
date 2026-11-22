@@ -199,7 +199,7 @@ class JavaRuntimeManager:
             return os.path.abspath(target_java_dir)
 
         zip_filename = "java_temp.zip"
-        log(f"Downloading Java {version} из {download_url}")
+        log(f"Downloading Java {version} from {download_url}")
 
         os.makedirs(runtimes_dir, exist_ok=True)
         callback["setStatus"](language_manager.get("main.mcl_status.install_java_runtime"))
