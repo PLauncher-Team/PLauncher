@@ -617,12 +617,11 @@ class ModViewer(ctk.CTkFrame):
             error = exc
             self.logger(f"[ModViewer] worker failed: {type(exc).__name__}: {exc}\n{traceback.format_exc()}", "ERROR")
 
-        self.logger(f"[ModViewer] worker completed | error={error!r}; enqueueing result")
+        self.logger(f"[ModViewer] mod loading completed | error={error!r}")
         self._finish_mods_loading(error)
 
     def _finish_mods_loading(self, error=None):
         self.logger(f"[ModViewer] finish loading entered | thread={threading.current_thread().name} | error={error!r}")
-        self._loading_mods = False
         self._set_loading_controls(True)
         if error is not None:
             self.logger(f"Не удалось загрузить моды: {error}", "ERROR")
