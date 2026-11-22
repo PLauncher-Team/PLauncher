@@ -2,9 +2,9 @@ from typing import Any
 
 from . import ui_support
 from .ui_support import *
-from .ui import assembly, notifications
+from .ui import assembly
 from .ui.mods import manager, view
-from .ui.notifications import CTkMessagebox, ToastNotification, new_message
+from .ui.notifications import ToastNotification, new_message
 from .ui.mods.manager import ModManager
 from .ui.mods.view import ModViewer
 
