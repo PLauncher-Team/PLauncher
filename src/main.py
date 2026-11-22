@@ -368,7 +368,7 @@ if __name__ == "__main__":
 
     if LauncherConfig.version["profile"]:
         if not os.path.isdir(os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"])):
-            log("Папка профиля not found", "ERROR")
+            log("Profile directory not found", "ERROR")
             LauncherConfig.version["profile"] = False
             save_version()
 
