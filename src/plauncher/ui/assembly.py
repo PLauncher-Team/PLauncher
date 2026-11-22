@@ -26,6 +26,7 @@ from ..ui_support import (
 from .notifications import ToastNotification, new_message
 from .mods.manager import ModManager
 from .mods.view import ModViewer
+from .version_frame import VersionFrame
 
 def configure(**dependencies: Any) -> None:
     global Path, Version, time, ctypes, threading, os, sys, datetime, CrashLogWindow, JavaController, LoaderController, ProfileController, SettingsController, SkinController, GuiOption, LauncherConfig, LaunchOptions, json, re, traceback, shutil, random, webbrowser, subprocess, tomllib, zipfile, hashlib, BytesIO, getdefaultlocale, uuid4, filedialog, mcl, ctk, requests, packaging, hPyT, win32job, win32con, win32api, optipy, PIL, concurrent, CachedSession, CTkScrollableDropdown, virtual_memory, rate_limited, repair_json, pywinstyles, log, excepthook, kernel32, mutex, log_lock, start_time, default_config, config_store, version_store, profile_service, save_config, save_version, language_manager, language, log_analyzer, java_runtime_service, loader_installer, loader_catalog, launch_service, process_service, environment_service, MinecraftTexturePackCreator
@@ -266,7 +267,13 @@ def initialize_gui() -> dict[str, Any]:
     ely_by_var = ctk.BooleanVar(value=LauncherConfig.config["ely_by"])
     default_skin_var = ctk.BooleanVar(value=LauncherConfig.config["default_skin"])
     
-    version_frame = VersionFrame(root)
+    version_frame = VersionFrame(
+        root,
+        current_version=LauncherConfig.CURRENT_VERSION,
+        online=LauncherConfig.IS_INTERNET,
+        launcher_api=mcl,
+        logger=log,
+    )
     version_frame.place(relwidth=0.175, relheight=0.177, relx=0.797, rely=0.05)
     blackout_frame = ctk.CTkFrame(root, fg_color="black")
     blackout_frame.place(relwidth=1, relheight=1)
