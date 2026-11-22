@@ -15,7 +15,7 @@ from .ui.notifications import ToastNotification, new_message
 def configure(**dependencies: Any) -> None:
     for module in (ui_support, assembly):
         module.configure(**dependencies)
-    ui_support.configure(new_message=new_message)
+    ui_support.configure(new_message=new_message, ToastNotification=ToastNotification)
 
 def initialize_gui() -> dict[str, Any]:
     created = assembly.initialize_gui()
