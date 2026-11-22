@@ -77,7 +77,7 @@ jobs:
             (Join-Path (Get-Location).Path $portableArchive)
           )
 
-      - name: Upload Portable to VirusTotal
+      - name: Upload Installer to VirusTotal
         id: vt
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload_to_release }}
         shell: pwsh
@@ -86,18 +86,18 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $portable = "output/PLauncher-${{ env.VERSION }}-windows-portable.zip"
-          if (-not (Test-Path $portable)) {
-            throw "Portable archive not found: $portable"
+          $installer = "output/PLauncher-${{ env.VERSION }}-setup.exe"
+          if (-not (Test-Path $installer)) {
+            throw "Installer not found: $installer"
           }
 
-          $fileHash = (Get-FileHash -Algorithm SHA256 -Path $portable).Hash.ToLowerInvariant()
-          $fileSize = (Get-Item $portable).Length
+          $fileHash = (Get-FileHash -Algorithm SHA256 -Path $installer).Hash.ToLowerInvariant()
+          $fileSize = (Get-Item $installer).Length
 
           if ($fileSize -le 32MB) {
             $response = curl.exe -sS -X POST "https://www.virustotal.com/api/v3/files" `
               -H "x-apikey: $($env:VIRUSTOTAL_API_KEY)" `
-              -F "file=@$portable"
+              -F "file=@$installer"
           }
           else {
             $uploadUrlResponse = curl.exe -sS -X GET "https://www.virustotal.com/api/v3/files/upload_url" `
@@ -106,7 +106,7 @@ jobs:
 
             $response = curl.exe -sS -X POST "$uploadUrl" `
               -H "x-apikey: $($env:VIRUSTOTAL_API_KEY)" `
-              -F "file=@$portable"
+              -F "file=@$installer"
           }
 
           $analysisId = ($response | ConvertFrom-Json).data.id
