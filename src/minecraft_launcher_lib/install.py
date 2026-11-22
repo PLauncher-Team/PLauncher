@@ -7,7 +7,6 @@ from ._internal_types.shared_types import ClientJson, ClientJsonLibrary
 from .natives import extract_natives_file, get_natives
 from ._internal_types.install_types import AssetsJson
 from concurrent.futures import ThreadPoolExecutor
-from .runtime import install_jvm_runtime
 from .exceptions import VersionNotFound
 from .types import CallbackDict
 import requests
@@ -227,10 +226,6 @@ def do_version_install(versionid: str, path: str, callback: CallbackDict, url: s
         inherit_path = os.path.join(path, "versions", inherits_from, f"{inherits_from}.jar")
         check_path_inside_minecraft_directory(path, inherit_path)
         shutil.copyfile(os.path.join(path, "versions", versiondata["id"], versiondata["id"] + ".jar"), inherit_path)
-
-    if "javaVersion" in versiondata:
-        callback.get("setStatus", empty)("install_java_runtime")
-        install_jvm_runtime(versiondata["javaVersion"]["component"], path, callback=callback)
 
     callback.get("setStatus", empty)("installation_complete")
 
