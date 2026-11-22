@@ -54,17 +54,12 @@ def add_java():
 
 def on_select_java(name: str):
     if name == language_manager.get("settings.2_page.add"):
-        if LauncherConfig.config["java"] == "Stable":
-            java_combobox.set(language_manager.get("settings.2_page.recommended_java"))
-        elif LauncherConfig.config["java"] == "Latest":
+        if LauncherConfig.config["java"] == "Latest":
             java_combobox.set(language_manager.get("settings.2_page.latest_java"))
         else:
             java_combobox.set(LauncherConfig.config["java"])
         add_java()
         return
-    elif name == language_manager.get("settings.2_page.recommended_java"):
-        LauncherConfig.config["java"] = "Stable"
-        log(f"Выбрана рекомендуемая Java версия")
     elif name == language_manager.get("settings.2_page.latest_java"):
         LauncherConfig.config["java"] = "Latest"
         log(f"Выбрана последняя Java версия")
@@ -76,7 +71,7 @@ def on_select_java(name: str):
 
 def del_java():
     current = java_combobox.get()
-    if current in (language_manager.get("settings.2_page.recommended_java"), language_manager.get("settings.2_page.latest_java")):
+    if current == language_manager.get("settings.2_page.latest_java"):
         return
     new_message(
         title=language_manager.get("messages.titles.warning"),
@@ -95,7 +90,7 @@ def del_java():
 
 
 def get_java_options():
-    return [language_manager.get("settings.2_page.latest_java")] + [language_manager.get("settings.2_page.recommended_java")] + LauncherConfig.config["java_paths"] + [f"Java {i}" for i in LaunchOptions.available_major_versions] + [language_manager.get("settings.2_page.add")]
+    return [language_manager.get("settings.2_page.latest_java")] + LauncherConfig.config["java_paths"] + [f"Java {i}" for i in LaunchOptions.available_major_versions] + [language_manager.get("settings.2_page.add")]
 
 
 class JavaRuntimeManager:

@@ -227,7 +227,7 @@ def launch_game():
                     options["executablePath"] = JavaRuntimeManager.get_any_java_exe(java_version)
                 elif java_path:
                     options["executablePath"] = java_path
-            elif LauncherConfig.config["java"] not in ("Latest", "Stable"):
+            elif LauncherConfig.config["java"] != "Latest":
                 options["executablePath"] = LauncherConfig.config["java"]
             elif LauncherConfig.config["java"] == "Latest":
                 java_version = mcl.runtime.get_version_runtime_information(selected_version, LaunchOptions.minecraft_path)["javaMajorVersion"]

@@ -3,7 +3,7 @@
     "ai_analysis": "AI Analysis",
     "cancel_analysis": "Cancel analysis",
     "error_log": "Error Log",
-    "solution_title": "\uD83D\uDD0D Problem solution",
+    "solution_title": "🔍 Problem solution",
     "title": "View Error Log"
   },
   "language": "English",
@@ -123,7 +123,6 @@
       "java_used": "Java version used:",
       "latest_java": "Latest Java",
       "open_folder": "Open folder",
-      "recommended_java": "Recommended Java",
       "select_directory": "Select game directory",
       "select_java": "Select the Java executable file"
     },

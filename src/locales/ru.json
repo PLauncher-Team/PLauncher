@@ -3,7 +3,7 @@
     "ai_analysis": "Анализ ИИ",
     "cancel_analysis": "Отменить анализ",
     "error_log": "Журнал ошибок",
-    "solution_title": "\uD83D\uDD0D Решение проблемы",
+    "solution_title": "🔍 Решение проблемы",
     "title": "Просмотр журнала ошибок"
   },
   "language": "Русский",
@@ -123,7 +123,6 @@
       "java_used": "Используемая версия Java:",
       "latest_java": "Последняя Java",
       "open_folder": "Открыть папку",
-      "recommended_java": "Рекомендуемая Java",
       "select_directory": "Выберите директорию игры",
       "select_java": "Выберите исполняемый файл Java"
     },

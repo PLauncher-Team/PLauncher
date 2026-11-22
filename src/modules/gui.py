@@ -247,16 +247,14 @@ ctk.CTkLabel(
 
 java_combobox = ctk.CTkComboBox(
     content_frames[tabs[1]],
-    values=[language_manager.get("settings.2_page.latest_java")] + [language_manager.get("settings.2_page.recommended_java")] + LauncherConfig.config["java_paths"] + [language_manager.get("settings.2_page.add")],
+    values=[language_manager.get("settings.2_page.latest_java")] + LauncherConfig.config["java_paths"] + [language_manager.get("settings.2_page.add")],
     state="readonly",
     command=on_select_java,
     font=("Segoe UI", 13),
     height=0.083 * 393
 )
 java_combobox.place(relwidth=0.82, relx=0.05, rely=0.124)
-if LauncherConfig.config["java"] == "Stable":
-    java_combobox.set(language_manager.get("settings.2_page.recommended_java"))
-elif LauncherConfig.config["java"] == "Latest":
+if LauncherConfig.config["java"] == "Latest":
     java_combobox.set(language_manager.get("settings.2_page.latest_java"))
 else:
     java_combobox.set(LauncherConfig.config["java"])

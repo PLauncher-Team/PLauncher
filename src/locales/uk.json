@@ -3,7 +3,7 @@
     "ai_analysis": "Аналіз ШІ",
     "cancel_analysis": "Скасувати аналіз",
     "error_log": "Журнал помилок",
-    "solution_title": "\uD83D\uDD0D Вирішення проблеми",
+    "solution_title": "🔍 Вирішення проблеми",
     "title": "Перегляд журналу помилок"
   },
   "language": "Українська",
@@ -123,7 +123,6 @@
       "java_used": "Використовувана версія Java:",
       "latest_java": "Остання Java",
       "open_folder": "Відкрити папку",
-      "recommended_java": "Рекомендована Java",
       "select_directory": "Виберіть каталог гри",
       "select_java": "Виберіть виконуваний файл Java"
     },
