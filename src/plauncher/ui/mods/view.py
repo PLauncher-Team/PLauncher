@@ -514,11 +514,11 @@ class ModViewer(ctk.CTkFrame):
         self.mod_manager.results = {}
         self.mod_manager.hashes = []
         self.logger(f"[ModViewer] load_mods start | thread={threading.current_thread().name} | mods_dir={os.path.abspath(self.mods_dir)}")
-        self._load_mods_worker()
+        self._load_mods_sync()
 
-    def _load_mods_worker(self):
+    def _load_mods_sync(self):
         error = None
-        self.logger(f"[ModViewer] worker started | thread={threading.current_thread().name}")
+        self.logger(f"[ModViewer] loading started | thread={threading.current_thread().name}")
         try:
             self.logger("[ModViewer] calling ModManager.get_mods_info")
             self.mod_manager.get_mods_info()
