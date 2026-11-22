@@ -75,7 +75,9 @@ def fun_install_loader():
             
         root.after_idle(load_versions)
         log(f"Installation completed successfully")
-
+    
+    except SystemExit:
+        pass
     except Exception as e:
         log(f"Loader installation failed:", level="ERROR")
         excepthook(*sys.exc_info())

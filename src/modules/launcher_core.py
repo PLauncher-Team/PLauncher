@@ -108,7 +108,7 @@ def fun_progres(progress: int, bar: ctk.CTkProgressBar):
     bar.set(progress / LaunchOptions.total_files)
 
 
-@rate_limited(period=0.1, calls=1, raise_on_limit=False)
+@rate_limited(period=0.1, calls=1)
 def progress_bar_update(progress: int = None, bar: ctk.CTkProgressBar = None, status: bool = True):
     if status:
         set_status(f"{LaunchOptions.step} ({progress}/{LaunchOptions.total_files})")
@@ -119,7 +119,7 @@ def set_status(status: str):
     status_label.configure(text=status)
 
 
-@rate_limited(period=1, calls=2, raise_on_limit=False)
+@rate_limited(period=1, calls=2)
 def launch_game():
     crash_window.withdraw()
 
@@ -355,6 +355,8 @@ def launch_game():
             save_version()
             progress_bar.set(1)
             threading.Thread(target=run_minecraft).start()
+        except SystemExit:
+            pass
         except Exception as e:
             excepthook(*sys.exc_info())
             save_version()
