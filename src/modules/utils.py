@@ -223,3 +223,24 @@ def kill_thread(thread: threading.Thread):
         ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
 
     return getattr(thread, "_return", None)
+
+
+def rate_limited(period: float = 1.0, calls: int = 1):
+    def decorator(func):
+        timestamps = deque()
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            now = time.monotonic()
+
+            while timestamps and now - timestamps[0] >= period:
+                timestamps.popleft()
+
+            if len(timestamps) >= calls:
+                return None
+
+            timestamps.append(now)
+            return func(*args, **kwargs)
+
+        return wrapper
+    return decorator

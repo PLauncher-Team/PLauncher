@@ -161,8 +161,9 @@ import concurrent
 from requests_cache import CachedSession
 from CTkScrollableDropdownPP import CTkScrollableDropdown
 from psutil import virtual_memory
-from ratelimit import rate_limited
 from json_repair import repair_json
+from collections import deque
+from functools import wraps
 
 import pywinstyles
 
