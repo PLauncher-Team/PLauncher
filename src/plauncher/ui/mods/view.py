@@ -3,6 +3,7 @@ import queue
 import shutil
 import threading
 import time
+import traceback
 
 import customtkinter as ctk
 import pywinstyles
@@ -518,17 +519,24 @@ class ModViewer(ctk.CTkFrame):
         self.mod_manager.files_name = {}
         self.mod_manager.results = {}
         self.mod_manager.hashes = []
+        self.logger(f"[ModViewer] load_mods start | thread={threading.current_thread().name} | mods_dir={os.path.abspath(self.mods_dir)}")
         self._loading_mods = True
         self._set_loading_controls(False)
-        threading.Thread(target=self._load_mods_worker, daemon=True).start()
+        self.logger("[ModViewer] controls disabled; starting worker")
+        threading.Thread(target=self._load_mods_worker, name="ModViewerLoader", daemon=True).start()
 
     def _load_mods_worker(self):
         error = None
+        self.logger(f"[ModViewer] worker started | thread={threading.current_thread().name}")
         try:
+            self.logger("[ModViewer] calling ModManager.get_mods_info")
             self.mod_manager.get_mods_info()
+            self.logger(f"[ModViewer] get_mods_info returned | results={len(self.mod_manager.results)}")
 
             mod_files = []
-            for entry in os.listdir(self.mods_dir):
+            entries = os.listdir(self.mods_dir)
+            self.logger(f"[ModViewer] mods directory scanned | entries={len(entries)}")
+            for entry in entries:
                 full_path = os.path.join(self.mods_dir, entry)
                 if os.path.isfile(full_path) and entry.lower().endswith((".jar", ".jar.disabled")):
                     mod_files.append(full_path)
@@ -552,6 +560,7 @@ class ModViewer(ctk.CTkFrame):
                 return search_name.casefold()
 
             self.all_mod_files = sorted(mod_files, key=sort_key)
+            self.logger(f"[ModViewer] mod files sorted | count={len(self.all_mod_files)}")
 
             current_paths = set(self.all_mod_files)
             for cached_path in list(self.mod_cache.keys()):
@@ -612,35 +621,49 @@ class ModViewer(ctk.CTkFrame):
                         else:
                             info["_search_blob"] += " " + str(info["game_versions"]).casefold()
                     self.mod_cache[path_key] = info
-        except Exception as exc:
+            self.logger(f"[ModViewer] cache updated | count={len(self.mod_cache)}")
+        except BaseException as exc:
             error = exc
+            self.logger(f"[ModViewer] worker failed: {type(exc).__name__}: {exc}\n{traceback.format_exc()}", "ERROR")
 
+        self.logger(f"[ModViewer] worker completed | error={error!r}; enqueueing result")
         self._worker_events.put(("mods_loaded", error))
 
     def _poll_worker_events(self):
-        while True:
+        try:
+            pending = self._worker_events.qsize()
+            if pending:
+                self.logger(f"[ModViewer] UI queue poll | pending={pending} | thread={threading.current_thread().name}")
+            while True:
             try:
                 event, error = self._worker_events.get_nowait()
             except queue.Empty:
                 break
 
-            if event == "mods_loaded":
-                self._finish_mods_loading(error)
-            elif event == "reload_mods":
-                if error is not None:
-                    self.logger(str(error), "ERROR")
-                self.load_mods()
+                self.logger(f"[ModViewer] UI queue event | event={event} | error={error!r}")
+                if event == "mods_loaded":
+                    self._finish_mods_loading(error)
+                elif event == "reload_mods":
+                    if error is not None:
+                        self.logger(str(error), "ERROR")
+                    self.load_mods()
+        except BaseException as exc:
+            self.logger(f"[ModViewer] UI queue poll failed: {type(exc).__name__}: {exc}\n{traceback.format_exc()}", "ERROR")
+            raise
 
         if self.winfo_exists():
             self._worker_poll_id = self.after(50, self._poll_worker_events)
 
     def _finish_mods_loading(self, error=None):
+        self.logger(f"[ModViewer] finish loading entered | thread={threading.current_thread().name} | error={error!r}")
         self._loading_mods = False
         self._set_loading_controls(True)
         if error is not None:
             self.logger(f"Не удалось загрузить моды: {error}", "ERROR")
             return
+        self.logger("[ModViewer] calling refresh_view")
         self.refresh_view()
+        self.logger("[ModViewer] refresh_view completed")
 
     def _set_loading_controls(self, enabled):
         state = "normal" if enabled else "disabled"
