@@ -174,25 +174,36 @@ def change_mine(selection: bool = True):
 
 
 def del_installed_version():
-    currents = installed_versions_combobox_ctk.get()
-    if not currents:
+    selected_versions = installed_versions_combobox.selected_values.copy()
+    if not selected_versions:
         return
+
+    versions_to_delete = [
+        version.removesuffix(language_manager.get("main.types_versions.installed"))
+        .removesuffix(language_manager.get("main.types_versions.not_completed"))
+        for version in selected_versions
+    ]
+    versions_text = ", ".join(versions_to_delete)
 
     new_message(
         title=language_manager.get("messages.titles.warning"),
-        message=f"{language_manager.get('messages.texts.warning.delete_game_version')} ({currents})",
+        message=f"{language_manager.get('messages.texts.warning.delete_game_version')} ({versions_text})",
         icon="question",
         option_1=language_manager.get("messages.answers.no"),
         option_2=language_manager.get("messages.answers.yes")
     )
 
     if GuiOptions.msg.get() == language_manager.get("messages.answers.yes"):
-        log(f"Removing version: {currents}")
-        for current in currents.split():
-            shutil.rmtree(os.path.join(LaunchOptions.minecraft_path, "versions", current))
+        for current in versions_to_delete:
+            version_path = os.path.join(LaunchOptions.minecraft_path, "versions", current)
+            if os.path.isdir(version_path):
+                log(f"Removing version: {current}")
+                shutil.rmtree(version_path)
             for i in ("download", "not_comp"):
                 if current in LauncherConfig.version[i]:
                     LauncherConfig.version[i].remove(current)
+        installed_versions_combobox.selected_values.clear()
+        installed_versions_combobox_ctk.set("")
         save_version()
         root.after_idle(load_versions)
 
