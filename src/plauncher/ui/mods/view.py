@@ -1,5 +1,4 @@
 import os
-import queue
 import shutil
 import threading
 import time
@@ -284,9 +283,6 @@ class ModViewer(ctk.CTkFrame):
         self.fps = LauncherConfig.FPS
         self._first_load_done = False
         self.mod_manager = None
-        self._loading_mods = False
-        self._worker_events = queue.Queue()
-        self._worker_poll_id = None
         self.version_var = ctk.StringVar()
 
         top_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=0)
@@ -453,8 +449,6 @@ class ModViewer(ctk.CTkFrame):
         )
         self.next_btn.pack(side="left", padx=4)
 
-        self.logger("[ModViewer] UI construction completed; starting worker event polling")
-        self._worker_poll_id = self.after(50, self._poll_worker_events)
     
     def add_mods(self, event):
         mods = [file for file in event if file.endswith(".jar")]
@@ -504,9 +498,6 @@ class ModViewer(ctk.CTkFrame):
         self.refresh_view()
 
     def load_mods(self):
-        if self._loading_mods:
-            return
-
         os.makedirs(self.mods_dir, exist_ok=True)
 
         if self.mod_manager is None:
@@ -523,10 +514,7 @@ class ModViewer(ctk.CTkFrame):
         self.mod_manager.results = {}
         self.mod_manager.hashes = []
         self.logger(f"[ModViewer] load_mods start | thread={threading.current_thread().name} | mods_dir={os.path.abspath(self.mods_dir)}")
-        self._loading_mods = True
-        self._set_loading_controls(False)
-        self.logger("[ModViewer] controls disabled; starting worker")
-        threading.Thread(target=self._load_mods_worker, name="ModViewerLoader", daemon=True).start()
+        self._load_mods_worker()
 
     def _load_mods_worker(self):
         error = None
@@ -630,33 +618,7 @@ class ModViewer(ctk.CTkFrame):
             self.logger(f"[ModViewer] worker failed: {type(exc).__name__}: {exc}\n{traceback.format_exc()}", "ERROR")
 
         self.logger(f"[ModViewer] worker completed | error={error!r}; enqueueing result")
-        self._worker_events.put(("mods_loaded", error))
-        self.logger(f"[ModViewer] worker result enqueued | queue_size={self._worker_events.qsize()}")
-
-    def _poll_worker_events(self):
-        self.logger(f"[ModViewer] UI queue callback entered | thread={threading.current_thread().name}")
-        try:
-            pending = self._worker_events.qsize()
-            self.logger(f"[ModViewer] UI queue poll | pending={pending} | thread={threading.current_thread().name}")
-            while True:
-                try:
-                    event, error = self._worker_events.get_nowait()
-                except queue.Empty:
-                    break
-
-                self.logger(f"[ModViewer] UI queue event | event={event} | error={error!r}")
-                if event == "mods_loaded":
-                    self._finish_mods_loading(error)
-                elif event == "reload_mods":
-                    if error is not None:
-                        self.logger(str(error), "ERROR")
-                    self.load_mods()
-        except BaseException as exc:
-            self.logger(f"[ModViewer] UI queue poll failed: {type(exc).__name__}: {exc}\\n{traceback.format_exc()}", "ERROR")
-            raise
-
-        if self.winfo_exists():
-            self._worker_poll_id = self.after(50, self._poll_worker_events)
+        self._finish_mods_loading(error)
 
     def _finish_mods_loading(self, error=None):
         self.logger(f"[ModViewer] finish loading entered | thread={threading.current_thread().name} | error={error!r}")
@@ -876,10 +838,15 @@ class ModViewer(ctk.CTkFrame):
                 mod_dir = os.path.dirname(mod_file)
                 if mod_name.lower().endswith(".jar.disabled"):
                     new_path = os.path.join(mod_dir, mod_name[:-9])
-                    os.rename(mod_file, os.path.join(mod_dir, mod_name[:-9]))
+                    os.rename(mod_file, new_path)
+            self.load_mods()
         except Exception as exc:
             self.logger(f"Не удалось разблокировать моды: {exc}", "ERROR")
-        self._worker_events.put(("reload_mods", None))
+        finally:
+            self.lock_all_btn.configure(state="normal")
+            self.unlock_all_btn.configure(state="normal")
+            self.refresh_btn.configure(state="normal")
+            self.search_entry.configure(state="normal")
 
     def unlock_all(self):
         self.lock_all_btn.configure(state="disabled")
@@ -902,9 +869,14 @@ class ModViewer(ctk.CTkFrame):
             for mod_file in self.all_mod_files:
                 if not mod_file.lower().endswith(".jar.disabled"):
                     os.rename(mod_file, mod_file + ".disabled")
+            self.load_mods()
         except Exception as exc:
             self.logger(f"Не удалось заблокировать моды: {exc}", "ERROR")
-        self._worker_events.put(("reload_mods", None))
+        finally:
+            self.lock_all_btn.configure(state="normal")
+            self.unlock_all_btn.configure(state="normal")
+            self.refresh_btn.configure(state="normal")
+            self.search_entry.configure(state="normal")
 
     def deiconify(self):
         if self.winfo_viewable():
@@ -922,7 +894,7 @@ class ModViewer(ctk.CTkFrame):
                 self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "profiles", "profile_" + LauncherConfig.version["profile"], "mods")
             else:
                 self.mods_dir = os.path.join(LaunchOptions.minecraft_path, "mods")
-            self.load_mods()
+            threading.Thread(target=self.load_mods, daemon=True).start()
             self._first_load_done = True
 
         duration = 0.25
